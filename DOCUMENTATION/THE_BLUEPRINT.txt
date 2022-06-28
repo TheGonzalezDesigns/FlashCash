@@ -1,0 +1,112 @@
+_________________________________________________________________________________________________
+
+
+					The Blueprint:
+
+_________________________________________________________________________________________________
+
+*************************************************************************************************
+* ARCH-FLOW:										        *
+* >> API -> ARCHITECTURE -> EXECUTION                                                           *
+*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
+*												*
+* API: Retrieves any and all token information.						        *
+*											        *
+*											        *
+* ARCH: Uses API data to construct token pairs for every given network and exchange.	        *
+*											        *
+*											        *
+* EXECUTION: Uses the archcitecture's constructed pairs to create and deploy EVM Flash loans.   *
+*												*
+*************************************************************************************************
+_________________________________________________________________________________________________
+
+
+					A Deeper Dive:
+
+_________________________________________________________________________________________________
+
+*************************************************************************************************
+* 												*
+*					    The API						*
+* 												*
+* 				       Completed 6.21.2022					*
+* 												*
+*************************************************************************************************
+* ARCH-FLOW:										        *
+* >> ./SOLUTIONS/networks/{network}/{exchanges}/getTokenList.sh -> parseList.js 		*
+* -> fetchTokens.sh -> cleanList.js -> calcTokens.js -> filterTokens.js				*
+*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
+*												*
+* getTokenList.sh: retrieves all coins listed on the given exchange for the given network	*
+* >> TokenList.json	 									*
+* 												*
+* parseList.js: converts TokenList.json into a bash array of contracts.				*
+* >> contracts.ba										*
+* 												*
+* fetchTokens.sh: retieves platform and market data for every coin retrieved.			*
+* >> allTokenData.json										*
+* 												*
+* cleanList.js: removes error data from allTokenData.json					*
+* >> cleanTokenData.json									*
+*											        *
+* calcTokens.js: use market data to calculate token 24 hour volatility then list each token as  *
+* high or low volatility.									*
+* >> hiVolTokens.json										*
+* >> loVolTokens.json										*
+*											        *
+*											        *
+*************************************************************************************************
+* 												*
+*					    The Arch						*
+* 												*
+*************************************************************************************************
+* ARCH-FLOW:										        *
+* >> injectBaseFlashTokens.js -> getPairs.js -> hyperHash.exe					*
+*											        *
+*											        *
+*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
+*												*
+* injectBaseFlashTokens.js: injects vault tokens for trade from given FL provider into 		*
+* each volatility token list.	//Read docs before implementing -- build last.			*
+* >> hiVolTokens.json										*
+* >> loVolTokens.json										*
+*												*
+* getPairs.js: constructs trinary and quadratic pairs.						* 
+* >> triangularPairs.js										*
+* >> quadraticPairs.js										*
+* 												*
+* hyperHash.exe: convert each pair list into a an extremely effiecient hash table in C.		* 
+* >> triangularPairs.hash									*
+* >> quadraticPairs.hash									*
+* 												*
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+*************************************************************************************************
+* 												*
+*					    The Execution					*
+* 												*
+*************************************************************************************************
+* ARCH-FLOW:										        *
+* >> 												*
+*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
+*												*
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+* 
+*************************************************************************************************

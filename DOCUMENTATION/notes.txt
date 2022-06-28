@@ -1,0 +1,35 @@
+Get prices from each api.
+In an effort to make these mult-tenant, we will use a combination of aliases, custom bash commands and directory sturcturing to easily access each api price 'solution':
+
+./solutions/polygon/paraswap
+./solutions/polygon/clipper
+./solutions/arbitrum/paraswap
+
+yet:
+
+./solutions/paraswap
+./solutions/clipper
+
+
+in other words:
+
+./s/p/paraswap => ./s/paraswap 137
+
+
+done ---
+
+--------------------------------------------------------------
+
+Seperate getPairs into tow files: 
+1. getPairs.js: makes every possible binary pair.
+2. structureAdvancePairs.js: makes every possible triangular and quadratic pair.
+
+Reasoning:
+	After getPairs.js, filter every binary pair by testing if that pair can recive a proper price quote. 
+
+		##Likewise, a filter on every coin should be performed to ensure that every coin can be sold and bought successfully by calling the [network]scan api. (Actually this might just be an optimization left for later. Use dashboard to track failed txns, and to determine the need for this safegaurd).
+
+--------------------------------------------------------------
+
+Next we will use json-rpc, and other creative solutions to call smart contracts from C.
+This will allow us to extract data into c from our bash solutions then update prices within c, and thereon execute smart contracts based on each price/data set.
