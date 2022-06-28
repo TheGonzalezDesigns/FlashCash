@@ -58,6 +58,8 @@ let initQuantity = 0;
 let totalLoss = 0;
 let relTotalLoss = 0;
 const MIN_CAP = 1000000
+//const MAX_TOKENS = 840;
+const MAX_TOKENS = 216; //perm(216, 3) = ~<10M max MDA size in C
 
 const getCalcTokens = coins => {
 	relPurged = coins.length
@@ -76,7 +78,6 @@ const getCalcTokens = coins => {
 	relPurged = ((relPurged  - _coins.length)/relPurged) * 100;
 	let totalVol = 0;
 	let totalCap = 0;
-	const MAX_TOKENS = 840;
 	const __coins = _coins;
 	//__coins.forEach(token => console.log(token))
 	__coins.forEach(coin => totalVol += coin.volatility);
