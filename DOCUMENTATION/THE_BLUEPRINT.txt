@@ -7,7 +7,9 @@ ________________________________________________________________________________
 
 *************************************************************************************************
 * ARCH-FLOW:										        *
-* >> API -> ARCHITECTURE -> EXECUTION                                                           *
+* >> ANALYSIS -> API -> ARCHITECTURE -> EXECUTION                                               *
+* -----------------------------------------------                                               *
+* >> {          SOLUTIONS           } <> { NETWORKS } <> { EXCHANGES }                          *
 *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
 *												*
 * API: Retrieves any and all token information.						        *
@@ -28,6 +30,31 @@ ________________________________________________________________________________
 
 *************************************************************************************************
 * 												*
+*					  The ANALYSIS						*
+* 												*
+* 				       Completed 7.1.2022					*
+* 												*
+*************************************************************************************************
+* ARCH-FLOW:										        *
+* >> fetchNetworks.sh -> fetchChainlist.sh  -> identifyNetwork.js -> hyperHash.cpp		*
+*											        *
+*											        *
+*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
+*												*
+* fetchNetworks.sh: Downloads all networks listed on CoinGecko			 		*
+* >> networks.json										*
+*												*
+* fetchChainlist.sh: Downloads all networks listed on chainlist.org		 		*
+* >> chainlist.html										*
+*												*
+* identifyNetwork.js: Identifies a network's chainID and GoinGecko name ID.			* 
+* >> {exchange}/DATA/name									*
+* >> {exchange}/DATA/chainID									*
+* >> {exchange}/DATA/analysis_report.txt							*
+*												*
+*												*
+*************************************************************************************************
+* 												*
 *					    The API						*
 * 												*
 * 				       Completed 6.21.2022					*
@@ -35,7 +62,7 @@ ________________________________________________________________________________
 *************************************************************************************************
 * ARCH-FLOW:										        *
 * >> ./SOLUTIONS/networks/{network}/{exchanges}/getTokenList.sh -> parseList.js 		*
-* -> fetchTokens.sh -> cleanList.js -> calcTokens.js -> filterTokens.js				*
+* -> fetchTokens.sh -> cleanList.js -> calcTokens.js -> filterTokens.js	-> formatTokens.js	*
 *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
 *												*
 * getTokenList.sh: retrieves all coins listed on the given exchange for the given network	*
@@ -55,6 +82,9 @@ ________________________________________________________________________________
 * >> hiVolTokens.json										*
 * >> loVolTokens.json										*
 *											        *
+* formatToken.js: reformats previous json data for C file input.				*
+* >> {file}.cf											*
+* //Add the assesor pipeline, before formatToken					        *
 *											        *
 *************************************************************************************************
 * 												*
@@ -62,7 +92,7 @@ ________________________________________________________________________________
 * 												*
 *************************************************************************************************
 * ARCH-FLOW:										        *
-* >> injectBaseFlashTokens.js -> getPairs.js -> hyperHash.exe					*
+* >> injectBaseFlashTokens.js -> getPairs.c -> hyperHash.cpp					*
 *											        *
 *											        *
 *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
@@ -72,13 +102,11 @@ ________________________________________________________________________________
 * >> hiVolTokens.json										*
 * >> loVolTokens.json										*
 *												*
-* getPairs.js: constructs trinary and quadratic pairs.						* 
-* >> triangularPairs.js										*
-* >> quadraticPairs.js										*
+* getPairs.js: constructs trinary pairs.							* 
+* >> triangularPairs. ??? //TBD									*
 * 												*
 * hyperHash.exe: convert each pair list into a an extremely effiecient hash table in C.		* 
 * >> triangularPairs.hash									*
-* >> quadraticPairs.hash									*
 * 												*
 * 
 * 

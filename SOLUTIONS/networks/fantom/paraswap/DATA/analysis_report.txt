@@ -1,0 +1,49 @@
+
+
+       Analysis Report for ./../SOLUTIONS/networks/fantom//paraswap on fantom
+________________________________________________________________
+
+
+Chain Identification:
+
+{
+  "ID": "fantom",
+  "chainID": 250
+}
+----------------------------------------------------------------
+
+
+Chain Details:
+
+{
+  "name": "Fantom Opera",
+  "chain": "FTM",
+  "rpc": ["https: //rpc.ftm.tools",
+  "https: //fantom-mainnet.gateway.pokt.network/v1/lb/62759259ea1b320039c9e7ac",
+  "https: //rpc.ankr.com/fantom",
+  "https: //rpc.fantom.network",
+  "https: //rpc2.fantom.network",
+  "https: //rpc3.fantom.network",
+  "https: //rpcapi.fantom.network",
+  "https: //fantom-mainnet.public.blastapi.io"],
+  "faucets": ["https: //free-online-app.com/faucet-for-eth-evm-chains/"],
+  "nativeCurrency": {
+  "name": "Fantom",
+  "symbol": "FTM",
+  "decimals": 18
+},
+  "infoURL": "https: //fantom.foundation",
+  "shortName": "ftm",
+  "chainId": 250,
+  "networkId": 250,
+  "icon": "fantom",
+  "explorers": [{
+  "name": "ftmscan",
+  "url": "https: //ftmscan.com",
+  "icon": "ftmscan",
+  "standard": "EIP3091"
+}],
+  "tvl": 968680048.0544938,
+  "chainSlug": "fantom"
+}
+________________________________________________________________

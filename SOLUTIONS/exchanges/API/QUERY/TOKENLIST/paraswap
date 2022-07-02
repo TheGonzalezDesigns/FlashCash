@@ -1,0 +1,9 @@
+#!/bin/bash
+
+network=$1
+file=$2
+
+rm -f -- $file
+touch $file
+
+curl https://apiv5.paraswap.io/tokens/$network >> $file

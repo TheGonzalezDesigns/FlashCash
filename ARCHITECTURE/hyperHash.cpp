@@ -1,0 +1,95 @@
+#include <iostream>
+#include <string>
+#include <unordered_map>
+#include <vector>
+#include <string.h>
+
+using namespace std;
+
+typedef string Contract;
+typedef double Rate;
+typedef struct Tokens {
+    Contract contract;
+    Rate rate;
+} Token;
+
+int main() {
+
+	string msg = "Heyy";
+	cout << msg << endl;
+
+	//unordered_map<int, int> um = { {1, 1}, {2, 4}, {3, 9}};
+	//um[4] = 8;
+	//um.insert(pair<int,int>(5, 25));
+	//um.insert(make_pair(39, 5));
+
+	//auto it = um.find(4);
+	
+	//cout << (*it).first << "----" << (*it).second << endl;
+
+	//for (auto x : um) {
+	//	cout << x.first << "=>" << x.second << endl;
+	//}
+	Token tokens[16];
+	vector<Token> _t;
+	Contract contracts [16] ={
+		"0xfdc26cda2d2440d0e83cd1dee8e8be48405806dc",
+		"0xd5d86fc8d5c0ea1ac1ac5dfab6e529c9967a45e9",
+		"0xc6c855ad634dcdad23e64da71ba85b8c51e5ad7c",
+		"0xfbdd194376de19a88118e84e279b977f165d01b8",
+		"0xa1428174f516f527fafdd146b883bb4428682737",
+		"0x4e830f67ec499e69930867f9017aeb5b3f629c73",
+		"0x71b821aa52a49f32eed535fca6eb5aa130085978",
+		"0x14af1f2f02dccb1e43402339099a05a5e363b83c",
+		"0x8c4476dfec8e7eedf2de3e9e9461b7c14c828d46",
+		"0x2b88ad57897a8b496595925f43048301c37615da",
+		"0x8a0e8b4b0903929f47c3ea30973940d4a9702067",
+		"0xf0059cc2b3e980065a906940fbce5f9db7ae40a7",
+		"0xf6f85b3f9fd581c2ee717c404f7684486f057f95",
+		"0x3809dcdd5dde24b37abe64a5a339784c3323c44f",
+		"0x6968105460f67c3bf751be7c15f92f5286fd0ce5",
+		"0x0e7252706393470ffb0629da2caa39fc9340f2d4",
+	};
+	unordered_map<double, string> _m;
+
+	int i = 0;
+	for (auto v : contracts) {
+		tokens[i].contract = v;
+		tokens[i++].rate = i;
+		cout << v << endl; // find works only with unordered map
+	}
+
+	for (auto v : tokens) {
+		_t.push_back(v);
+		cout << v.rate << endl;
+	}
+
+	for (auto v : _t) {
+		_m.insert({v.rate, v.contract});
+		// cout << v.rate << endl;
+	}
+		cout << (_m.find(1))->second << endl;
+
+
+	// int _arr[] = {1,1,1,1,1,1,1,1,1,3,3,3,3,2,2,4,4,4,3,5,5,5,0,0,0};
+	// vector<int> arr(_arr, _arr + sizeof _arr / sizeof _arr[0]);
+
+
+
+	// vector<int> arr(contracts, contracts + sizeof contracts / sizeof contracts[0]);
+	// unordered_map<int,Contract> um = {};
+
+	// for (auto v : arr) {
+	// 	if (um.find(v) != um.end()) {
+	// 		um[v]++;
+	// 	} else {
+	// 		um[v] = "0x0000000000000000000000000000000000000000"; //used to be 0
+	// 	}
+	// }
+
+	// for (auto x : um) {
+	// 	cout << x.first << " -> " << x.second << endl;
+	// }
+
+	return 0;
+}

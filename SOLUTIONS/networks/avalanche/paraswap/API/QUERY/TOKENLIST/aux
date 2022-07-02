@@ -1,0 +1,9 @@
+#!/bin/bash
+
+network=43114
+relPathA=../SOLUTIONS/networks/polygon/paraswap
+relPathB=../SOLUTIONS/exchanges
+file=$relPathA/DATA/tokenList.json
+script=$relPathB/API/QUERY/TOKENLIST/paraswap
+
+$script $network $file

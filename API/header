@@ -1,0 +1,12 @@
+#!/bin/bash
+
+clear
+echo Flash Cash Arbitrage Bot
+echo -e
+echo Created by [BLC-MGC-MNY]
+echo -e
+echo ____________________________________________
+echo -e
+echo --------------- API Starting ---------------
+echo ____________________________________________
+echo -e

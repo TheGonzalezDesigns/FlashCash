@@ -1,0 +1,11 @@
+#!/bin/bash
+
+./header
+cd ./ANALYSIS
+./start $1 $2
+cd ..
+cd ./API
+./start $1 $2
+cd ..
+cd ./ARCHITECTURE
+./start $1 $2

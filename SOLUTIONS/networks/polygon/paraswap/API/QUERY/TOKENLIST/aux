@@ -1,0 +1,11 @@
+#!/bin/bash
+
+exchange=$1
+network=$2
+chainID=$3
+relPathA=../SOLUTIONS/networks/$2/$1
+relPathB=../SOLUTIONS/exchanges
+file=$relPathA/DATA/tokenList.json
+script=$relPathB/API/QUERY/TOKENLIST/$1
+
+$script $chainID $file

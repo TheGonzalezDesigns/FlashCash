@@ -1,5 +1,0 @@
-#!/bin/bash
-
-rm -f -- ./DATA/CoinGeckoTokens.ba 
-
-node ./NODE_SCRIPTS/getCoinGeckoCoins.js && mv CoinGeckoTokens.ba ./DATA && ./BASH_SCRIPTS/fetchTokens.sh 1.2

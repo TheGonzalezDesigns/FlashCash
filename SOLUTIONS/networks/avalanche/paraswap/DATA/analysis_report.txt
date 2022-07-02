@@ -1,0 +1,43 @@
+
+
+       Analysis Report for ./../SOLUTIONS/networks/avalanche//paraswap on avalanche
+________________________________________________________________
+
+
+Chain Identification:
+
+{
+  "ID": "avalanche",
+  "chainID": 43114
+}
+----------------------------------------------------------------
+
+
+Chain Details:
+
+{
+  "name": "Avalanche C-Chain",
+  "chain": "AVAX",
+  "rpc": ["https: //api.avax.network/ext/bc/C/rpc",
+  "https: //rpc.ankr.com/avalanche",
+  "https: //ava-mainnet.public.blastapi.io/ext/bc/C/rpc"],
+  "faucets": ["https: //free-online-app.com/faucet-for-eth-evm-chains/"],
+  "nativeCurrency": {
+  "name": "Avalanche",
+  "symbol": "AVAX",
+  "decimals": 18
+},
+  "infoURL": "https: //www.avax.network/",
+  "shortName": "Avalanche",
+  "chainId": 43114,
+  "networkId": 43114,
+  "slip44": 9005,
+  "explorers": [{
+  "name": "snowtrace",
+  "url": "https: //snowtrace.io",
+  "standard": "EIP3091"
+}],
+  "tvl": 2755607767.6412883,
+  "chainSlug": "avalanche"
+}
+________________________________________________________________

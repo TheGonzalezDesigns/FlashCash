@@ -1,0 +1,43 @@
+#!/bin/bash
+
+exchange=$1
+network=$2
+status=1
+errStatus=0
+relPath=../SOLUTIONS/networks/$2/
+
+if [[ -z $exchange ]]; then
+	echo "Error: Missing exchange."
+	status=0
+	errStatus=1
+fi
+
+if [[ -z $network ]]; then
+	echo "Error: Missing network."
+	status=0
+	errStatus=2
+fi
+
+exchange=$relPath/$exchange
+
+./header
+
+until [ $status -eq 0 ]; do
+	
+	./fetchNetworks.sh \
+	&& ./fetchChainlist.sh
+	node ./identifyNetwork.js $exchange $network
+	status=$?
+	
+	if [[ $status -ne 0  ]]; then
+		sleep 10
+		./header
+	fi
+
+done
+
+if [[ $status -eq 0 && $errStatus -eq 0 ]]; then
+	echo -e
+	echo 'Successfully analyzed '$network'.'
+	echo -e
+fi
