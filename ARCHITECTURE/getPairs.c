@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 
+typedef char Serial[269];
+typedef char Hash[10];
 typedef char Contract[43];
 typedef double Rate;
 typedef unsigned short Volume;
@@ -30,6 +32,7 @@ typedef struct TriangularPairs {
     BinaryPair A;
     BinaryPair B;
     BinaryPair C;
+    Hash       hash;
 } TriangularPair;
 
 typedef struct Coordinates {
@@ -47,10 +50,15 @@ typedef struct BidimensionalTriangularPairs {
 typedef struct Census {
     Volume      contractVolume;
     Permutation permutations;
-    Contract *  contracts;
+    Contract    * contracts;
 } Census;
 
 Census          getFileData(const char*);
+void            printData(char * filename, char * data);
+char            * serialize(TriangularPair);
+char            * hashPairs(TriangularPair);
+char            * tail(const char *);
+char            * export(BTP all); 
 
 bool            sameCoin(Token A, Token B);
 bool            samePair(BinaryPair A, BinaryPair B);
@@ -64,12 +72,14 @@ void            genTokens(Contract *, short, Token *);
 TriangularPair  getSampleTPair();
 int             getTPSampleSize();
 Coordinates     getCoordinates(const unsigned int index);
-TriangularPair ** create2DArray(const unsigned int quantity);
+TriangularPair  ** create2DArray(const unsigned int quantity);
 
 int main(int argc, char* argv[])
 {
     clock_t t;
-    double time_taken; // in seconds
+    double time_taken;
+
+    printf("Filename:\t%s", argv[1]);
 
     Census census = getFileData(argv[1]);
 
@@ -116,12 +126,17 @@ int main(int argc, char* argv[])
     //         printf("\n#%i-A:\t%s::%s", *_c, tPairs.pairs[tPairs.coordinates.row][tPairs.coordinates.slot].A.A.contract, tPairs.pairs[tPairs.coordinates.row][tPairs.coordinates.slot].A.B.contract);
     //         printf("\n#%i-B:\t%s::%s", *_c, tPairs.pairs[tPairs.coordinates.row][tPairs.coordinates.slot].B.A.contract, tPairs.pairs[tPairs.coordinates.row][tPairs.coordinates.slot].B.B.contract);
     //         printf("\n#%i-C:\t%s::%s", *_c, tPairs.pairs[tPairs.coordinates.row][tPairs.coordinates.slot].C.A.contract, tPairs.pairs[tPairs.coordinates.row][tPairs.coordinates.slot].C.B.contract);
+    //         printf("\n\n#%i-S:\t%s", *_c, tPairs.pairs[tPairs.coordinates.row][tPairs.coordinates.slot].hash);
+    //         printf("\n\n#%i-Z:\t%s", *_c, serialize(tPairs.pairs[tPairs.coordinates.row][tPairs.coordinates.slot]));
     //     }
     //     else
     //     {
     //         printf("\nOut of bounds, keep it below %li.\n", tPairs.permutations.trinary);
     //     }
     // } while(*_c != 666);
+
+    printData(argv[2], export(tPairs));
+    //
     
     free(_c);
     free(binaries);
@@ -175,6 +190,7 @@ void buildTriangularPairs(BinaryPair * binaries, BTP tPairs)
                     if (!(samePair(binaries[a], binaries[c]) || samePair(binaries[b], binaries[c])) && pairTrails(binaries[b], binaries[c]) && pairTrails(binaries[c], binaries[a]))
                     {
                         tri.C = binaries[c];
+                        strcpy(tri.hash, hashPairs(tri));
                         tPairs.coordinates = getCoordinates(t++);
                         tPairs.pairs[tPairs.coordinates.row][tPairs.coordinates.slot] = tri;
                     }
@@ -211,7 +227,8 @@ void genTokens(Contract * contracts, short quantity, Token * tokens)
     }
 }
 
-TriangularPair getSampleTPair() {
+TriangularPair getSampleTPair()
+{
     Token tToken;
     strcpy(tToken.contract, "0x0000000000000000000000000000000000000000");
     tToken.rate = 42.351442424245;
@@ -226,7 +243,8 @@ TriangularPair getSampleTPair() {
     return tPair;
 }
 
-int getTPSampleSize() {
+int getTPSampleSize()
+{
     
     const TriangularPair tPair = getSampleTPair();
     
@@ -250,7 +268,8 @@ Coordinates getCoordinates(const unsigned int index)
     return coordinates;
 }
 
-TriangularPair ** create2DArray(const unsigned int quantity) {
+TriangularPair ** create2DArray(const unsigned int quantity) 
+{
     TriangularPair ** MDA;
     const int size = getTPSampleSize();
     const int margin = 24355;
@@ -276,7 +295,8 @@ TriangularPair ** create2DArray(const unsigned int quantity) {
     return MDA;
 }
 
-Census getFileData(const char* filename) {
+Census getFileData(const char* filename)
+{
     Census _census;
     int quantity, binary, trinary, quadratic;
     char nFlag[] = "%*s";
@@ -331,4 +351,79 @@ Census getFileData(const char* filename) {
     }
 
     return _census;
+}
+
+void printData(char * filename, char * data)
+{
+    FILE* output_file = fopen(filename, "w");
+    struct stat sb;
+
+    printf("__________________________________________________________\n");
+    if (!output_file) {
+        printf("\nFailed to update %s \n", filename);
+        exit(EXIT_FAILURE);
+    }
+    if (stat(filename, &sb) == -1) {
+        perror("stat");
+        exit(EXIT_FAILURE);
+    }
+    fprintf(output_file, "%s", data);
+    printf("\nSuccessfully updated %s \n", filename);
+
+    fclose(output_file);
+}
+
+char * serialize(TriangularPair pair)
+{
+    char * serial = calloc(1, sizeof(Serial));
+
+    strcat(serial, pair.hash);
+    strcat(serial, " ");
+    strcat(serial, pair.A.A.contract);
+    strcat(serial, " ");
+    strcat(serial, pair.A.B.contract);
+    strcat(serial, " ");
+    strcat(serial, pair.B.A.contract);
+    strcat(serial, " ");
+    strcat(serial, pair.B.B.contract);
+    strcat(serial, " ");
+    strcat(serial, pair.C.A.contract);
+    strcat(serial, " ");
+    strcat(serial, pair.C.B.contract);
+    strcat(serial, "\n");
+
+    return serial;
+}
+
+char * hashPairs(TriangularPair pair)
+{
+    char * hash = calloc(10, sizeof(char));
+    strcat(hash, tail(pair.A.A.contract));
+    strcat(hash, tail(pair.B.A.contract));
+    strcat(hash, tail(pair.C.A.contract));
+    return hash;
+}
+
+char * tail(const char *str)
+{
+    char * result = calloc(4, sizeof(char));
+    strncpy(result, str + 39, 3);
+    return result;
+}
+
+char * export(BTP all) 
+{
+    int q = all.permutations.trinary;
+    char * data = calloc(q, sizeof(Serial));
+
+    for (int i = 0; i < q - 1; i++)
+    {
+        all.coordinates = getCoordinates(i);
+        // serialize(all.pairs[all.coordinates.row][all.coordinates.slot]);
+        // printf("%i:\t%s", i, serialize(all.pairs[all.coordinates.row][all.coordinates.slot]));
+        // printf("%i:\t%s", i, all.pairs[all.coordinates.row][all.coordinates.slot].A.A.contract);
+        strcat(data, serialize(all.pairs[all.coordinates.row][all.coordinates.slot]));
+    }
+
+    return data;
 }

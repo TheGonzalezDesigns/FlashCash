@@ -23,8 +23,8 @@ exchange=$relPath/$exchange
 ./header
 
 until [ $status -eq 0 ]; do
-	./getPairs.o $exchange'/DATA/hiVolTokens.cf' \
-	&& ./getPairs.o $exchange'/DATA/loVolTokens.cf'
+	./getPairs.o $exchange'/DATA/hiVolTokens.cf' $exchange'/DATA/hiCTV.srls'\
+	&& ./getPairs.o $exchange'/DATA/loVolTokens.cf' $exchange'/DATA/loCTV.srls'
 	status=$?
 	
 	if [[ $status -ne 0  ]]; then
