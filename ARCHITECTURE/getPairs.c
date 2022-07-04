@@ -6,8 +6,9 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 
-typedef char Serial[269];
-typedef char Hash[10];
+typedef char bSerial[93];
+typedef char Serial[317];
+typedef char Hash[11];
 typedef char Contract[43];
 typedef double Rate;
 typedef unsigned short Volume;
@@ -26,6 +27,7 @@ typedef struct Tokens {
 typedef struct BinaryPairs {
     Token A;
     Token B;
+    Hash  hash;
 } BinaryPair;
 
 typedef struct TriangularPairs {
@@ -55,10 +57,13 @@ typedef struct Census {
 
 Census          getFileData(const char*);
 void            printData(char * filename, char * data);
+char            * bSerialize(BinaryPair pair);
 char            * serialize(TriangularPair);
+char            * hashQuote(BinaryPair);
 char            * hashPairs(TriangularPair);
 char            * tail(const char *);
-char            * export(BTP all); 
+char            * export(BTP); 
+char            * exportBinaries(BinaryPair *, int); 
 
 bool            sameCoin(Token A, Token B);
 bool            samePair(BinaryPair A, BinaryPair B);
@@ -135,13 +140,22 @@ int main(int argc, char* argv[])
     //     }
     // } while(*_c != 666);
 
-    printData(argv[2], export(tPairs));
+    char * _d, * _b;
+
+    _d = export(tPairs);
+    _b = exportBinaries(binaries, tPairs.permutations.binary);
+
+    printData(argv[2], _d);
+    printData(argv[3], _b);
     //
-    
+    free(_b);
+    free(_d);
     free(_c);
     free(binaries);
     free(census.contracts);
     free(tPairs.pairs);
+    
+    printf("\n__________________________________________________________\n");
 
     return 0;
 }
@@ -166,6 +180,8 @@ BinaryPair binaryPair(Token A, Token B)
     BinaryPair binary;
     binary.A = A;
     binary.B = B;
+    strcpy(binary.hash, hashQuote(binary));
+    printf("\nHash:\t%s", binary.hash);
     return binary;
 }
 
@@ -209,7 +225,9 @@ void buildBinaryPairs(Token * tokens, short quantity, BinaryPair * binaries)
             if (!sameCoin(tokens[a], tokens[b])) 
             {
                 binaries[i].A = tokens[a];
-                binaries[i++].B = tokens[b];
+                binaries[i].B = tokens[b];
+                strcpy(binaries[i].hash, hashQuote(binaries[i]));
+                i++;
             }
         }
     }
@@ -379,20 +397,52 @@ char * serialize(TriangularPair pair)
 
     strcat(serial, pair.hash);
     strcat(serial, " ");
+    strcat(serial, pair.A.hash);
+    strcat(serial, " ");
     strcat(serial, pair.A.A.contract);
     strcat(serial, " ");
     strcat(serial, pair.A.B.contract);
+    strcat(serial, "\n");
+    strcat(serial, pair.B.hash);
     strcat(serial, " ");
     strcat(serial, pair.B.A.contract);
     strcat(serial, " ");
     strcat(serial, pair.B.B.contract);
+    strcat(serial, "\n");
+    strcat(serial, pair.C.hash);
     strcat(serial, " ");
     strcat(serial, pair.C.A.contract);
     strcat(serial, " ");
     strcat(serial, pair.C.B.contract);
     strcat(serial, "\n");
 
+    // printf("\n%s:\t%s\n", pair.hash, serial);
+
     return serial;
+}
+
+char * bSerialize(BinaryPair pair)
+{
+    char * serial = calloc(1, sizeof(bSerial));
+
+    strcat(serial, pair.hash);
+    strcat(serial, " ");
+    strcat(serial, pair.A.contract);
+    strcat(serial, " ");
+    strcat(serial, pair.B.contract);
+    strcat(serial, "\n");
+
+    // printf("\n%s:\t%s\n", pair.hash, serial);
+
+    return serial;
+}
+
+char * hashQuote(BinaryPair pair)
+{
+    char * hash = calloc(7, sizeof(char));
+    strcat(hash, tail(pair.A.contract));
+    strcat(hash, tail(pair.B.contract));
+    return hash;
 }
 
 char * hashPairs(TriangularPair pair)
@@ -423,6 +473,17 @@ char * export(BTP all)
         // printf("%i:\t%s", i, serialize(all.pairs[all.coordinates.row][all.coordinates.slot]));
         // printf("%i:\t%s", i, all.pairs[all.coordinates.row][all.coordinates.slot].A.A.contract);
         strcat(data, serialize(all.pairs[all.coordinates.row][all.coordinates.slot]));
+    }
+
+    return data;
+}
+char * exportBinaries(BinaryPair * binaries, int quantity)
+{
+    char * data = calloc(quantity, sizeof(bSerial));
+
+    for (int i = 0; i < quantity - 1; i++)
+    {
+        strcat(data, bSerialize(binaries[i]));
     }
 
     return data;

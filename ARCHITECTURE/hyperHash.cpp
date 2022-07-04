@@ -5,421 +5,142 @@
 #include <string.h>
 #include "flat_hash_map.hpp"
 #include <fstream>
+#include <cstdio>
+#include <stdlib.h>
 
 using namespace std;
 
+typedef string Hash;
+typedef string Serial;
 typedef string Contract;
 typedef double Rate;
+typedef unsigned short Volume;
+
 typedef struct Tokens {
-    Contract contract;
-    Rate rate;
+    Contract	contract;
+    Rate		rate;
 } Token;
 
+typedef struct BinaryPairs {
+    Token	A;
+    Token	B;
+	Hash	hash;
+} BinaryPair;
+
+typedef vector<BinaryPair> bVector;
+
+typedef struct TriangularPairs {
+    bVector	pairs; //to ascess via pairs[i]
+    Hash    hash;
+} TriangularPair;
+
+typedef vector<TriangularPair> tVector;
+typedef TriangularPair * tRef;
+typedef vector<tRef> tRefs;
+typedef ska::flat_hash_map<Hash, TriangularPair> flatTrinaries;
+
+typedef struct Quotes {
+	BinaryPair	binary;
+	tRefs		trinaries;
+} Quote;
+
+typedef vector<Quote> qVector;
+
+// start getting prices and stream them into the program
+
 int main(int argc, char* argv[]) {//"pairs.dcsn"
-	fstream newfile;   
+	fstream newfile;
+	tVector tPairs;
+	BinaryPair bPair;
+	bVector bPairs;
+	TriangularPair tPair;
+	string tp;
 	
-	newfile.open(argv[1], ios::in); //open a file to perform read operation using file object
-   if (newfile.is_open()){   //checking whether the file is open
-      string tp;
-      while(getline(newfile, tp)){  //read data from file object and put it into string.
-         cout << tp << "\n";   //print the data of the string
+	cout << "File:\t" << argv[1] << endl; 
+
+	newfile.open(argv[1], ios::in);
+
+   if (newfile.is_open())
+   { 
+      while(getline(newfile, tp, ' '))
+	  { 
+		tPair.hash = tp;
+
+		for(int i = 0; i < 3; i++) {
+			getline(newfile, tp, ' ');
+			bPair.hash = tp;
+			getline(newfile, tp, ' ');
+			bPair.A.contract = tp;
+			getline(newfile, tp, '\n');
+			bPair.B.contract = tp;
+			tPair.pairs.push_back(bPair);
+		}
+		tPairs.push_back(tPair);
+		tPair.pairs.clear();
       }
+	  cout << "Aww hell yes. Let's get trading!" << endl;
       newfile.close();   //close the file object.
+   } else {
+		cout << "Aww hell nah. This file closed then a mothefucker." << endl;
+		exit(EXIT_FAILURE);
    }
 
-	string msg = "Heyy";
-	cout << msg << endl;
+	cout << "\nFile:\t" << argv[2] << endl; 
+
+	newfile.open(argv[2], ios::in);
+
+   if (newfile.is_open())
+   { 
+      while(getline(newfile, tp, ' '))
+	  { 
+		bPair.hash = tp;
+		getline(newfile, tp, ' ');
+		bPair.A.contract = tp;
+		getline(newfile, tp, '\n');
+		bPair.B.contract = tp;
+		bPairs.push_back(bPair);
+      }
+	  cout << "\nAww hell yes. Let's get it!!" << endl;
+      newfile.close();   //close the file object.
+   } else {
+		cout << "Aww hell nah. This other file closed then a mothefucker." << endl;
+		exit(EXIT_FAILURE);
+   }
+
+	flatTrinaries tDeath;
+
+	for(auto t : tPairs)
+	{
+		tDeath.insert({t.hash, t});
+	}
+
+	qVector warDogs;
+	Quote	proMoney; //Listen I got bored at this point, 200k in two days tho, thats where we need to be
+	tRefs	references;
+
+	for(auto binary : bPairs)
+	{
+		proMoney.binary = binary;
+		for(auto _t : tDeath)
+		{
+			for(int i = 0; i < 3; i++)
+			{
+				if(_t.second.pairs[i].hash == binary.hash)
+				{
+					// cout << "Found matching hash:\t" << _t.second.hash << " | " << _t.second.pairs[i].hash << " == " << binary.hash << " | B-" << i + 1 << endl; 
+					ajak.push_back(&_t.second);
+				}
+			}
+		}
+		proMoney.trinaries = ajak;
+		ajak.clear();
+		warDogs.push_back(proMoney);
+	}
+
+	Quote * it = &(warDogs[0]);
+	cout << "Hash:\t" << it->binary.hash << " | " << it->trinaries[0]->hash << endl; 
+
 	
-	//unordered_map<int, int> um = { {1, 1}, {2, 4}, {3, 9}};
-	//um[4] = 8;
-	//um.insert(pair<int,int>(5, 25));
-	//um.insert(make_pair(39, 5));
-
-	//auto it = um.find(4);
-	
-	//cout << (*it).first << "----" << (*it).second << endl;
-
-	//for (auto x : um) {
-	//	cout << x.first << "=>" << x.second << endl;
-	//}
-	Token tokens[(16 * 20)];
-	vector<Token> _t;
-	Contract contracts [(16 * 20)] ={
-		"0xfdc26cda2d2440d0e83cd1dee8e8be48405806dc",
-		"0xd5d86fc8d5c0ea1ac1ac5dfab6e529c9967a45e9",
-		"0xc6c855ad634dcdad23e64da71ba85b8c51e5ad7c",
-		"0xfbdd194376de19a88118e84e279b977f165d01b8",
-		"0xa1428174f516f527fafdd146b883bb4428682737",
-		"0x4e830f67ec499e69930867f9017aeb5b3f629c73",
-		"0x71b821aa52a49f32eed535fca6eb5aa130085978",
-		"0x14af1f2f02dccb1e43402339099a05a5e363b83c",
-		"0x8c4476dfec8e7eedf2de3e9e9461b7c14c828d46",
-		"0x2b88ad57897a8b496595925f43048301c37615da",
-		"0x8a0e8b4b0903929f47c3ea30973940d4a9702067",
-		"0xf0059cc2b3e980065a906940fbce5f9db7ae40a7",
-		"0xf6f85b3f9fd581c2ee717c404f7684486f057f95",
-		"0x3809dcdd5dde24b37abe64a5a339784c3323c44f",
-		"0x6968105460f67c3bf751be7c15f92f5286fd0ce5",
-		"0x0e7252706393470ffb0629da2caa39fc9340f2d4",
-		"0xfdc26cda2d2440d0e83cd1dee8e8be48405806dc",
-		"0xd5d86fc8d5c0ea1ac1ac5dfab6e529c9967a45e9",
-		"0xc6c855ad634dcdad23e64da71ba85b8c51e5ad7c",
-		"0xfbdd194376de19a88118e84e279b977f165d01b8",
-		"0xa1428174f516f527fafdd146b883bb4428682737",
-		"0x4e830f67ec499e69930867f9017aeb5b3f629c73",
-		"0x71b821aa52a49f32eed535fca6eb5aa130085978",
-		"0x14af1f2f02dccb1e43402339099a05a5e363b83c",
-		"0x8c4476dfec8e7eedf2de3e9e9461b7c14c828d46",
-		"0x2b88ad57897a8b496595925f43048301c37615da",
-		"0x8a0e8b4b0903929f47c3ea30973940d4a9702067",
-		"0xf0059cc2b3e980065a906940fbce5f9db7ae40a7",
-		"0xf6f85b3f9fd581c2ee717c404f7684486f057f95",
-		"0x3809dcdd5dde24b37abe64a5a339784c3323c44f",
-		"0x6968105460f67c3bf751be7c15f92f5286fd0ce5",
-		"0x0e7252706393470ffb0629da2caa39fc9340f2d4",
-		"0xfdc26cda2d2440d0e83cd1dee8e8be48405806dc",
-		"0xd5d86fc8d5c0ea1ac1ac5dfab6e529c9967a45e9",
-		"0xc6c855ad634dcdad23e64da71ba85b8c51e5ad7c",
-		"0xfbdd194376de19a88118e84e279b977f165d01b8",
-		"0xa1428174f516f527fafdd146b883bb4428682737",
-		"0x4e830f67ec499e69930867f9017aeb5b3f629c73",
-		"0x71b821aa52a49f32eed535fca6eb5aa130085978",
-		"0x14af1f2f02dccb1e43402339099a05a5e363b83c",
-		"0x8c4476dfec8e7eedf2de3e9e9461b7c14c828d46",
-		"0x2b88ad57897a8b496595925f43048301c37615da",
-		"0x8a0e8b4b0903929f47c3ea30973940d4a9702067",
-		"0xf0059cc2b3e980065a906940fbce5f9db7ae40a7",
-		"0xf6f85b3f9fd581c2ee717c404f7684486f057f95",
-		"0x3809dcdd5dde24b37abe64a5a339784c3323c44f",
-		"0x6968105460f67c3bf751be7c15f92f5286fd0ce5",
-		"0x0e7252706393470ffb0629da2caa39fc9340f2d4",
-		"0xfdc26cda2d2440d0e83cd1dee8e8be48405806dc",
-		"0xd5d86fc8d5c0ea1ac1ac5dfab6e529c9967a45e9",
-		"0xc6c855ad634dcdad23e64da71ba85b8c51e5ad7c",
-		"0xfbdd194376de19a88118e84e279b977f165d01b8",
-		"0xa1428174f516f527fafdd146b883bb4428682737",
-		"0x4e830f67ec499e69930867f9017aeb5b3f629c73",
-		"0x71b821aa52a49f32eed535fca6eb5aa130085978",
-		"0x14af1f2f02dccb1e43402339099a05a5e363b83c",
-		"0x8c4476dfec8e7eedf2de3e9e9461b7c14c828d46",
-		"0x2b88ad57897a8b496595925f43048301c37615da",
-		"0x8a0e8b4b0903929f47c3ea30973940d4a9702067",
-		"0xf0059cc2b3e980065a906940fbce5f9db7ae40a7",
-		"0xf6f85b3f9fd581c2ee717c404f7684486f057f95",
-		"0x3809dcdd5dde24b37abe64a5a339784c3323c44f",
-		"0x6968105460f67c3bf751be7c15f92f5286fd0ce5",
-		"0x0e7252706393470ffb0629da2caa39fc9340f2d4",
-		"0xfdc26cda2d2440d0e83cd1dee8e8be48405806dc",
-		"0xd5d86fc8d5c0ea1ac1ac5dfab6e529c9967a45e9",
-		"0xc6c855ad634dcdad23e64da71ba85b8c51e5ad7c",
-		"0xfbdd194376de19a88118e84e279b977f165d01b8",
-		"0xa1428174f516f527fafdd146b883bb4428682737",
-		"0x4e830f67ec499e69930867f9017aeb5b3f629c73",
-		"0x71b821aa52a49f32eed535fca6eb5aa130085978",
-		"0x14af1f2f02dccb1e43402339099a05a5e363b83c",
-		"0x8c4476dfec8e7eedf2de3e9e9461b7c14c828d46",
-		"0x2b88ad57897a8b496595925f43048301c37615da",
-		"0x8a0e8b4b0903929f47c3ea30973940d4a9702067",
-		"0xf0059cc2b3e980065a906940fbce5f9db7ae40a7",
-		"0xf6f85b3f9fd581c2ee717c404f7684486f057f95",
-		"0x3809dcdd5dde24b37abe64a5a339784c3323c44f",
-		"0x6968105460f67c3bf751be7c15f92f5286fd0ce5",
-		"0x0e7252706393470ffb0629da2caa39fc9340f2d4",
-		"0xfdc26cda2d2440d0e83cd1dee8e8be48405806dc",
-		"0xd5d86fc8d5c0ea1ac1ac5dfab6e529c9967a45e9",
-		"0xc6c855ad634dcdad23e64da71ba85b8c51e5ad7c",
-		"0xfbdd194376de19a88118e84e279b977f165d01b8",
-		"0xa1428174f516f527fafdd146b883bb4428682737",
-		"0x4e830f67ec499e69930867f9017aeb5b3f629c73",
-		"0x71b821aa52a49f32eed535fca6eb5aa130085978",
-		"0x14af1f2f02dccb1e43402339099a05a5e363b83c",
-		"0x8c4476dfec8e7eedf2de3e9e9461b7c14c828d46",
-		"0x2b88ad57897a8b496595925f43048301c37615da",
-		"0x8a0e8b4b0903929f47c3ea30973940d4a9702067",
-		"0xf0059cc2b3e980065a906940fbce5f9db7ae40a7",
-		"0xf6f85b3f9fd581c2ee717c404f7684486f057f95",
-		"0x3809dcdd5dde24b37abe64a5a339784c3323c44f",
-		"0x6968105460f67c3bf751be7c15f92f5286fd0ce5",
-		"0x0e7252706393470ffb0629da2caa39fc9340f2d4",
-		"0xfdc26cda2d2440d0e83cd1dee8e8be48405806dc",
-		"0xd5d86fc8d5c0ea1ac1ac5dfab6e529c9967a45e9",
-		"0xc6c855ad634dcdad23e64da71ba85b8c51e5ad7c",
-		"0xfbdd194376de19a88118e84e279b977f165d01b8",
-		"0xa1428174f516f527fafdd146b883bb4428682737",
-		"0x4e830f67ec499e69930867f9017aeb5b3f629c73",
-		"0x71b821aa52a49f32eed535fca6eb5aa130085978",
-		"0x14af1f2f02dccb1e43402339099a05a5e363b83c",
-		"0x8c4476dfec8e7eedf2de3e9e9461b7c14c828d46",
-		"0x2b88ad57897a8b496595925f43048301c37615da",
-		"0x8a0e8b4b0903929f47c3ea30973940d4a9702067",
-		"0xf0059cc2b3e980065a906940fbce5f9db7ae40a7",
-		"0xf6f85b3f9fd581c2ee717c404f7684486f057f95",
-		"0x3809dcdd5dde24b37abe64a5a339784c3323c44f",
-		"0x6968105460f67c3bf751be7c15f92f5286fd0ce5",
-		"0x0e7252706393470ffb0629da2caa39fc9340f2d4",
-		"0xfdc26cda2d2440d0e83cd1dee8e8be48405806dc",
-		"0xd5d86fc8d5c0ea1ac1ac5dfab6e529c9967a45e9",
-		"0xc6c855ad634dcdad23e64da71ba85b8c51e5ad7c",
-		"0xfbdd194376de19a88118e84e279b977f165d01b8",
-		"0xa1428174f516f527fafdd146b883bb4428682737",
-		"0x4e830f67ec499e69930867f9017aeb5b3f629c73",
-		"0x71b821aa52a49f32eed535fca6eb5aa130085978",
-		"0x14af1f2f02dccb1e43402339099a05a5e363b83c",
-		"0x8c4476dfec8e7eedf2de3e9e9461b7c14c828d46",
-		"0x2b88ad57897a8b496595925f43048301c37615da",
-		"0x8a0e8b4b0903929f47c3ea30973940d4a9702067",
-		"0xf0059cc2b3e980065a906940fbce5f9db7ae40a7",
-		"0xf6f85b3f9fd581c2ee717c404f7684486f057f95",
-		"0x3809dcdd5dde24b37abe64a5a339784c3323c44f",
-		"0x6968105460f67c3bf751be7c15f92f5286fd0ce5",
-		"0x0e7252706393470ffb0629da2caa39fc9340f2d4",
-		"0xfdc26cda2d2440d0e83cd1dee8e8be48405806dc",
-		"0xd5d86fc8d5c0ea1ac1ac5dfab6e529c9967a45e9",
-		"0xc6c855ad634dcdad23e64da71ba85b8c51e5ad7c",
-		"0xfbdd194376de19a88118e84e279b977f165d01b8",
-		"0xa1428174f516f527fafdd146b883bb4428682737",
-		"0x4e830f67ec499e69930867f9017aeb5b3f629c73",
-		"0x71b821aa52a49f32eed535fca6eb5aa130085978",
-		"0x14af1f2f02dccb1e43402339099a05a5e363b83c",
-		"0x8c4476dfec8e7eedf2de3e9e9461b7c14c828d46",
-		"0x2b88ad57897a8b496595925f43048301c37615da",
-		"0x8a0e8b4b0903929f47c3ea30973940d4a9702067",
-		"0xf0059cc2b3e980065a906940fbce5f9db7ae40a7",
-		"0xf6f85b3f9fd581c2ee717c404f7684486f057f95",
-		"0x3809dcdd5dde24b37abe64a5a339784c3323c44f",
-		"0x6968105460f67c3bf751be7c15f92f5286fd0ce5",
-		"0x0e7252706393470ffb0629da2caa39fc9340f2d4",
-		"0xfdc26cda2d2440d0e83cd1dee8e8be48405806dc",
-		"0xd5d86fc8d5c0ea1ac1ac5dfab6e529c9967a45e9",
-		"0xc6c855ad634dcdad23e64da71ba85b8c51e5ad7c",
-		"0xfbdd194376de19a88118e84e279b977f165d01b8",
-		"0xa1428174f516f527fafdd146b883bb4428682737",
-		"0x4e830f67ec499e69930867f9017aeb5b3f629c73",
-		"0x71b821aa52a49f32eed535fca6eb5aa130085978",
-		"0x14af1f2f02dccb1e43402339099a05a5e363b83c",
-		"0x8c4476dfec8e7eedf2de3e9e9461b7c14c828d46",
-		"0x2b88ad57897a8b496595925f43048301c37615da",
-		"0x8a0e8b4b0903929f47c3ea30973940d4a9702067",
-		"0xf0059cc2b3e980065a906940fbce5f9db7ae40a7",
-		"0xf6f85b3f9fd581c2ee717c404f7684486f057f95",
-		"0x3809dcdd5dde24b37abe64a5a339784c3323c44f",
-		"0x6968105460f67c3bf751be7c15f92f5286fd0ce5",
-		"0x0e7252706393470ffb0629da2caa39fc9340f2d4",
-		"0xfdc26cda2d2440d0e83cd1dee8e8be48405806dc",
-		"0xd5d86fc8d5c0ea1ac1ac5dfab6e529c9967a45e9",
-		"0xc6c855ad634dcdad23e64da71ba85b8c51e5ad7c",
-		"0xfbdd194376de19a88118e84e279b977f165d01b8",
-		"0xa1428174f516f527fafdd146b883bb4428682737",
-		"0x4e830f67ec499e69930867f9017aeb5b3f629c73",
-		"0x71b821aa52a49f32eed535fca6eb5aa130085978",
-		"0x14af1f2f02dccb1e43402339099a05a5e363b83c",
-		"0x8c4476dfec8e7eedf2de3e9e9461b7c14c828d46",
-		"0x2b88ad57897a8b496595925f43048301c37615da",
-		"0x8a0e8b4b0903929f47c3ea30973940d4a9702067",
-		"0xf0059cc2b3e980065a906940fbce5f9db7ae40a7",
-		"0xf6f85b3f9fd581c2ee717c404f7684486f057f95",
-		"0x3809dcdd5dde24b37abe64a5a339784c3323c44f",
-		"0x6968105460f67c3bf751be7c15f92f5286fd0ce5",
-		"0x0e7252706393470ffb0629da2caa39fc9340f2d4",
-		"0xfdc26cda2d2440d0e83cd1dee8e8be48405806dc",
-		"0xd5d86fc8d5c0ea1ac1ac5dfab6e529c9967a45e9",
-		"0xc6c855ad634dcdad23e64da71ba85b8c51e5ad7c",
-		"0xfbdd194376de19a88118e84e279b977f165d01b8",
-		"0xa1428174f516f527fafdd146b883bb4428682737",
-		"0x4e830f67ec499e69930867f9017aeb5b3f629c73",
-		"0x71b821aa52a49f32eed535fca6eb5aa130085978",
-		"0x14af1f2f02dccb1e43402339099a05a5e363b83c",
-		"0x8c4476dfec8e7eedf2de3e9e9461b7c14c828d46",
-		"0x2b88ad57897a8b496595925f43048301c37615da",
-		"0x8a0e8b4b0903929f47c3ea30973940d4a9702067",
-		"0xf0059cc2b3e980065a906940fbce5f9db7ae40a7",
-		"0xf6f85b3f9fd581c2ee717c404f7684486f057f95",
-		"0x3809dcdd5dde24b37abe64a5a339784c3323c44f",
-		"0x6968105460f67c3bf751be7c15f92f5286fd0ce5",
-		"0x0e7252706393470ffb0629da2caa39fc9340f2d4",
-		"0xfdc26cda2d2440d0e83cd1dee8e8be48405806dc",
-		"0xd5d86fc8d5c0ea1ac1ac5dfab6e529c9967a45e9",
-		"0xc6c855ad634dcdad23e64da71ba85b8c51e5ad7c",
-		"0xfbdd194376de19a88118e84e279b977f165d01b8",
-		"0xa1428174f516f527fafdd146b883bb4428682737",
-		"0x4e830f67ec499e69930867f9017aeb5b3f629c73",
-		"0x71b821aa52a49f32eed535fca6eb5aa130085978",
-		"0x14af1f2f02dccb1e43402339099a05a5e363b83c",
-		"0x8c4476dfec8e7eedf2de3e9e9461b7c14c828d46",
-		"0x2b88ad57897a8b496595925f43048301c37615da",
-		"0x8a0e8b4b0903929f47c3ea30973940d4a9702067",
-		"0xf0059cc2b3e980065a906940fbce5f9db7ae40a7",
-		"0xf6f85b3f9fd581c2ee717c404f7684486f057f95",
-		"0x3809dcdd5dde24b37abe64a5a339784c3323c44f",
-		"0x6968105460f67c3bf751be7c15f92f5286fd0ce5",
-		"0x0e7252706393470ffb0629da2caa39fc9340f2d4",
-		"0xfdc26cda2d2440d0e83cd1dee8e8be48405806dc",
-		"0xd5d86fc8d5c0ea1ac1ac5dfab6e529c9967a45e9",
-		"0xc6c855ad634dcdad23e64da71ba85b8c51e5ad7c",
-		"0xfbdd194376de19a88118e84e279b977f165d01b8",
-		"0xa1428174f516f527fafdd146b883bb4428682737",
-		"0x4e830f67ec499e69930867f9017aeb5b3f629c73",
-		"0x71b821aa52a49f32eed535fca6eb5aa130085978",
-		"0x14af1f2f02dccb1e43402339099a05a5e363b83c",
-		"0x8c4476dfec8e7eedf2de3e9e9461b7c14c828d46",
-		"0x2b88ad57897a8b496595925f43048301c37615da",
-		"0x8a0e8b4b0903929f47c3ea30973940d4a9702067",
-		"0xf0059cc2b3e980065a906940fbce5f9db7ae40a7",
-		"0xf6f85b3f9fd581c2ee717c404f7684486f057f95",
-		"0x3809dcdd5dde24b37abe64a5a339784c3323c44f",
-		"0x6968105460f67c3bf751be7c15f92f5286fd0ce5",
-		"0x0e7252706393470ffb0629da2caa39fc9340f2d4",
-		"0xfdc26cda2d2440d0e83cd1dee8e8be48405806dc",
-		"0xd5d86fc8d5c0ea1ac1ac5dfab6e529c9967a45e9",
-		"0xc6c855ad634dcdad23e64da71ba85b8c51e5ad7c",
-		"0xfbdd194376de19a88118e84e279b977f165d01b8",
-		"0xa1428174f516f527fafdd146b883bb4428682737",
-		"0x4e830f67ec499e69930867f9017aeb5b3f629c73",
-		"0x71b821aa52a49f32eed535fca6eb5aa130085978",
-		"0x14af1f2f02dccb1e43402339099a05a5e363b83c",
-		"0x8c4476dfec8e7eedf2de3e9e9461b7c14c828d46",
-		"0x2b88ad57897a8b496595925f43048301c37615da",
-		"0x8a0e8b4b0903929f47c3ea30973940d4a9702067",
-		"0xf0059cc2b3e980065a906940fbce5f9db7ae40a7",
-		"0xf6f85b3f9fd581c2ee717c404f7684486f057f95",
-		"0x3809dcdd5dde24b37abe64a5a339784c3323c44f",
-		"0x6968105460f67c3bf751be7c15f92f5286fd0ce5",
-		"0x0e7252706393470ffb0629da2caa39fc9340f2d4",
-		"0xfdc26cda2d2440d0e83cd1dee8e8be48405806dc",
-		"0xd5d86fc8d5c0ea1ac1ac5dfab6e529c9967a45e9",
-		"0xc6c855ad634dcdad23e64da71ba85b8c51e5ad7c",
-		"0xfbdd194376de19a88118e84e279b977f165d01b8",
-		"0xa1428174f516f527fafdd146b883bb4428682737",
-		"0x4e830f67ec499e69930867f9017aeb5b3f629c73",
-		"0x71b821aa52a49f32eed535fca6eb5aa130085978",
-		"0x14af1f2f02dccb1e43402339099a05a5e363b83c",
-		"0x8c4476dfec8e7eedf2de3e9e9461b7c14c828d46",
-		"0x2b88ad57897a8b496595925f43048301c37615da",
-		"0x8a0e8b4b0903929f47c3ea30973940d4a9702067",
-		"0xf0059cc2b3e980065a906940fbce5f9db7ae40a7",
-		"0xf6f85b3f9fd581c2ee717c404f7684486f057f95",
-		"0x3809dcdd5dde24b37abe64a5a339784c3323c44f",
-		"0x6968105460f67c3bf751be7c15f92f5286fd0ce5",
-		"0x0e7252706393470ffb0629da2caa39fc9340f2d4",
-		"0xfdc26cda2d2440d0e83cd1dee8e8be48405806dc",
-		"0xd5d86fc8d5c0ea1ac1ac5dfab6e529c9967a45e9",
-		"0xc6c855ad634dcdad23e64da71ba85b8c51e5ad7c",
-		"0xfbdd194376de19a88118e84e279b977f165d01b8",
-		"0xa1428174f516f527fafdd146b883bb4428682737",
-		"0x4e830f67ec499e69930867f9017aeb5b3f629c73",
-		"0x71b821aa52a49f32eed535fca6eb5aa130085978",
-		"0x14af1f2f02dccb1e43402339099a05a5e363b83c",
-		"0x8c4476dfec8e7eedf2de3e9e9461b7c14c828d46",
-		"0x2b88ad57897a8b496595925f43048301c37615da",
-		"0x8a0e8b4b0903929f47c3ea30973940d4a9702067",
-		"0xf0059cc2b3e980065a906940fbce5f9db7ae40a7",
-		"0xf6f85b3f9fd581c2ee717c404f7684486f057f95",
-		"0x3809dcdd5dde24b37abe64a5a339784c3323c44f",
-		"0x6968105460f67c3bf751be7c15f92f5286fd0ce5",
-		"0x0e7252706393470ffb0629da2caa39fc9340f2d4",
-		"0xfdc26cda2d2440d0e83cd1dee8e8be48405806dc",
-		"0xd5d86fc8d5c0ea1ac1ac5dfab6e529c9967a45e9",
-		"0xc6c855ad634dcdad23e64da71ba85b8c51e5ad7c",
-		"0xfbdd194376de19a88118e84e279b977f165d01b8",
-		"0xa1428174f516f527fafdd146b883bb4428682737",
-		"0x4e830f67ec499e69930867f9017aeb5b3f629c73",
-		"0x71b821aa52a49f32eed535fca6eb5aa130085978",
-		"0x14af1f2f02dccb1e43402339099a05a5e363b83c",
-		"0x8c4476dfec8e7eedf2de3e9e9461b7c14c828d46",
-		"0x2b88ad57897a8b496595925f43048301c37615da",
-		"0x8a0e8b4b0903929f47c3ea30973940d4a9702067",
-		"0xf0059cc2b3e980065a906940fbce5f9db7ae40a7",
-		"0xf6f85b3f9fd581c2ee717c404f7684486f057f95",
-		"0x3809dcdd5dde24b37abe64a5a339784c3323c44f",
-		"0x6968105460f67c3bf751be7c15f92f5286fd0ce5",
-		"0x0e7252706393470ffb0629da2caa39fc9340f2d4",
-		"0xfdc26cda2d2440d0e83cd1dee8e8be48405806dc",
-		"0xd5d86fc8d5c0ea1ac1ac5dfab6e529c9967a45e9",
-		"0xc6c855ad634dcdad23e64da71ba85b8c51e5ad7c",
-		"0xfbdd194376de19a88118e84e279b977f165d01b8",
-		"0xa1428174f516f527fafdd146b883bb4428682737",
-		"0x4e830f67ec499e69930867f9017aeb5b3f629c73",
-		"0x71b821aa52a49f32eed535fca6eb5aa130085978",
-		"0x14af1f2f02dccb1e43402339099a05a5e363b83c",
-		"0x8c4476dfec8e7eedf2de3e9e9461b7c14c828d46",
-		"0x2b88ad57897a8b496595925f43048301c37615da",
-		"0x8a0e8b4b0903929f47c3ea30973940d4a9702067",
-		"0xf0059cc2b3e980065a906940fbce5f9db7ae40a7",
-		"0xf6f85b3f9fd581c2ee717c404f7684486f057f95",
-		"0x3809dcdd5dde24b37abe64a5a339784c3323c44f",
-		"0x6968105460f67c3bf751be7c15f92f5286fd0ce5",
-		"0x0e7252706393470ffb0629da2caa39fc9340f2d4",
-		"0xfdc26cda2d2440d0e83cd1dee8e8be48405806dc",
-		"0xd5d86fc8d5c0ea1ac1ac5dfab6e529c9967a45e9",
-		"0xc6c855ad634dcdad23e64da71ba85b8c51e5ad7c",
-		"0xfbdd194376de19a88118e84e279b977f165d01b8",
-		"0xa1428174f516f527fafdd146b883bb4428682737",
-		"0x4e830f67ec499e69930867f9017aeb5b3f629c73",
-		"0x71b821aa52a49f32eed535fca6eb5aa130085978",
-		"0x14af1f2f02dccb1e43402339099a05a5e363b83c",
-		"0x8c4476dfec8e7eedf2de3e9e9461b7c14c828d46",
-		"0x2b88ad57897a8b496595925f43048301c37615da",
-		"0x8a0e8b4b0903929f47c3ea30973940d4a9702067",
-		"0xf0059cc2b3e980065a906940fbce5f9db7ae40a7",
-		"0xf6f85b3f9fd581c2ee717c404f7684486f057f95",
-		"0x3809dcdd5dde24b37abe64a5a339784c3323c44f",
-		"0x6968105460f67c3bf751be7c15f92f5286fd0ce5",
-		"0x0e7252706393470ffb0629da2caa39fc9340f2d4",
-	};
-	// unordered_map<double, Token> _m;
-	typedef ska::flat_hash_map<double, Token> T;
-	 T _m;
-	 T::hasher fn = _m.hash_function();
-
-	 std::cout << "this: " << fn (12) << std::endl;
-	 std::cout << "this: " << fn (10) << std::endl; // just chaing first type to string to fn(str)
-	// ska::flat_hash_map<double, Token> _fhm;
-	// sla::flat_hash_map
-	// _m.hash_function("0x0e7252706393470ffb0629da2caa39fc9340f2d4");
-
-	int i = 0;
-	for (auto v : contracts) {
-		tokens[i].contract = v;
-		tokens[i++].rate = i;
-		// cout << v << endl; // find works only with unordered map
-	}
-
-	for (auto v : tokens) {
-		_t.push_back(v);
-		// cout << v.rate << endl;
-	}
-
-	for (auto v : _t) {
-		_m.insert({v.rate, v});
-		// cout << v.rate << endl;
-	}
-	i = 1;
-	for (auto v : _m) {
-		Token *it = &(_m.find(i++))->second;// = 14;
-		it->rate *= 2;
-		// cout << it->rate << endl;
-	}
-
-
-	// int _arr[] = {1,1,1,1,1,1,1,1,1,3,3,3,3,2,2,4,4,4,3,5,5,5,0,0,0};
-	// vector<int> arr(_arr, _arr + sizeof _arr / sizeof _arr[0]);
-
-
-
-	// vector<int> arr(contracts, contracts + sizeof contracts / sizeof contracts[0]);
-	// unordered_map<int,Contract> um = {};
-
-	// for (auto v : arr) {
-	// 	if (um.find(v) != um.end()) {
-	// 		um[v]++;
-	// 	} else {
-	// 		um[v] = "0x0000000000000000000000000000000000000000"; //used to be 0
-	// 	}
-	// }
-
-	// for (auto x : um) {
-	// 	cout << x.first << " -> " << x.second << endl;
-	// }
 
 	return 0;
 }
