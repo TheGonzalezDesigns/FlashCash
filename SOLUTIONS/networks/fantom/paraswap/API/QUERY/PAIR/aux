@@ -1,27 +1,26 @@
 #!/bin/bash
 
-network=250
-source=$1
+exchange=$1
+network=$2
+source=$3
 srcDec=18
-dest=$2
+dest=$4
 destDec=18
-amount=$3
+amount=$5
 #side=BUY
-exchange=paraswap
-script=../../../exchanges/API/QUERY/PAIR/$exchange
-#echo network: $network
-#echo source: $source
-#echo srcDec: $srcDec
-#echo dest: $dest
-#echo destDesc: $destDec
-#echo acmount: $amount
+script=./../SOLUTIONS/exchanges/API/QUERY/PAIR/$exchange
+echo network: $network
+echo source: $source
+echo srcDec: $srcDec
+echo dest: $dest
+echo destDesc: $destDec
+echo acmount: $amount
 #echo side: $side
-#echo exchange $exchange
-#echo -e
-#echo -e --------------------------------
-#echo -e
-#dir $script
+echo exchange $exchange
+echo -e
+echo -e --------------------------------
+echo -e
 bash $script $network $source $srcDec $dest $destDec $amount $side
-#echo -e
-#echo -e --------------------------------
-#echo -e
+echo -e
+echo -e --------------------------------
+echo -e

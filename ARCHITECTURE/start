@@ -23,8 +23,10 @@ exchange=$relPath/$exchange
 ./header
 
 until [ $status -eq 0 ]; do
+	./genBinaries.o $exchange'/DATA/hiVolTokens.cf' $exchange'/DATA/hiCTV.srls' $exchange'/DATA/hiCTVBinaries.srls'\
+	&& ./deployBinaries.sh $exchange $exchange'/DATA/hiCTVBinaries.srls'
 	#./getPairs.o $exchange'/DATA/hiVolTokens.cf' $exchange'/DATA/hiCTV.srls' $exchange'/DATA/hiCTVBinaries.srls'\
-	./hyperHash.o $exchange'/DATA/hiCTV.srls' $exchange'/DATA/hiCTVBinaries.srls' \
+	#./hyperHash.o $exchange'/DATA/hiCTV.srls' $exchange'/DATA/hiCTVBinaries.srls' \
 	#&& ./hyperHash.o $exchange'/DATA/hiCTV.srls' $exchange'/DATA/hiCTVBinaries.srls' \
 	#&& ./getPairs.o $exchange'/DATA/loVolTokens.cf' $exchange'/DATA/loCTV.srls' $exchange'/DATA/loCTVBinaries.srls'\
 	#&& ./hyperHash.o $exchange'/DATA/loCTV.srls' $exchange'/DATA/loCTVBinaries.srls'

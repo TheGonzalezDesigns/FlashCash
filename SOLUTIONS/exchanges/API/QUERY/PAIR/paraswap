@@ -10,3 +10,8 @@ side=$7
 #link="https://apiv5.paraswap.io/prices?network=${network}&srcToken=${source}&srcDecimals=${srcDec}&destToken=${dest}&destDecimals=${destDec}&amount=${amount}&side=${side}" # removed side to allow the api to provide best side.
 link="https://apiv5.paraswap.io/prices?network=${network}&srcToken=${source}&srcDecimals=${srcDec}&destToken=${dest}&destDecimals=${destDec}&amount=${amount}"
 curl $link
+echo -e
+#echo -e
+#echo *****
+echo -e $link
+#curl -s -w %time_total -o /dev/null $link

@@ -1,9 +1,11 @@
 #!/bin/bash
 
-network=250
-relPathA=../SOLUTIONS/networks/fantom/paraswap
+exchange=$1
+network=$2
+chainID=$3
+relPathA=../SOLUTIONS/networks/$2/$1
 relPathB=../SOLUTIONS/exchanges
 file=$relPathA/DATA/tokenList.json
-script=$relPathB/API/QUERY/TOKENLIST/paraswap
+script=$relPathB/API/QUERY/TOKENLIST/$1
 
-$script $network $file
+$script $chainID $file
