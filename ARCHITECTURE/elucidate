@@ -1,0 +1,573 @@
+{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}{
+	"block": ["priceRoute", "blockNumber"],
+    "fiat": {
+        "quote": ["priceRoute", "destUSD"],
+        "bid": ["priceRoute", "srcUSD"],
+        "gas": ["priceRoute", "gasCostUSD"]
+    },
+    "token": {
+        "quote": ["priceRoute", "destAmount"],
+        "bid": ["priceRoute", "srcAmount"],
+        "gas": ["priceRoute", "gasCost"]
+    },
+    "direction": ["priceRoute", "side"]
+}

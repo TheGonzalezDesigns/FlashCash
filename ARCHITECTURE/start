@@ -24,7 +24,8 @@ exchange=$relPath/$exchange
 
 until [ $status -eq 0 ]; do
 	./genBinaries.o $exchange'/DATA/hiVolTokens.cf' $exchange'/DATA/hiCTV.srls' $exchange'/DATA/hiCTVBinaries.srls'\
-	&& ./deployBinaries.sh $exchange $exchange'/DATA/hiCTVBinaries.srls'
+	&& ./deployBinaries.sh $exchange $exchange'/DATA/hiCTVBinaries.srls' \
+	&& ./groupQuotes.sh $exchange $network
 	#./getPairs.o $exchange'/DATA/hiVolTokens.cf' $exchange'/DATA/hiCTV.srls' $exchange'/DATA/hiCTVBinaries.srls'\
 	#./hyperHash.o $exchange'/DATA/hiCTV.srls' $exchange'/DATA/hiCTVBinaries.srls' \
 	#&& ./hyperHash.o $exchange'/DATA/hiCTV.srls' $exchange'/DATA/hiCTVBinaries.srls' \

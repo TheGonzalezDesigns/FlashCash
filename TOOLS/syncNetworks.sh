@@ -1,11 +1,11 @@
 #!/bin/bash
 
-directory=SOLUTIONS/networks
+directory=../SOLUTIONS/networks
 networks=$(dir $directory)
 model="polygon"
 template=$directory/$model/*
 
-echo "Now syncing all netwiorks with $model."
+echo "Now syncing all networks with $model."
 echo -e
 
 for network in ${networks[@]} 

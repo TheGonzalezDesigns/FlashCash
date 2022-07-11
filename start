@@ -1,6 +1,9 @@
 #!/bin/bash
 
 ./header
+cd ./BUREAU
+./start $1 $2
+cd ..
 cd ./ANALYSIS
 ./start $1 $2
 cd ..

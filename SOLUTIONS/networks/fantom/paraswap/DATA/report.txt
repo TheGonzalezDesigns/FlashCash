@@ -1,30 +1,30 @@
 
 
-       Calculation Report for ./../SOLUTIONS/networks/polygon//paraswap on polygon
+       Calculation Report for ./../SOLUTIONS/networks/fantom//paraswap on fantom
 ________________________________________________________________
 
 
 Volatility Stats:
 ________________________________________________________________
 
-High Vol Tokens:	19
-High Vol Binaries:	342
-High Vol Trinaries:	5814
-High Vol Quadratics:	93024
+High Vol Tokens:	10
+High Vol Binaries:	90
+High Vol Trinaries:	720
+High Vol Quadratics:	5040
 ----------------------------------------------------------------
 
-Low Vol Tokens: 	143
-Low Vol Binaries:	20306
-Low Vol Trinaries:	2863146
-Low Vol Quadratics:	400840440
+Low Vol Tokens: 	28
+Low Vol Binaries:	756
+Low Vol Trinaries:	19656
+Low Vol Quadratics:	491400
 ----------------------------------------------------------------
 
-Dataless Tokens:	354
-Relative Loss:  	%12.592592592592592
+Dataless Tokens:	80
+Relative Loss:  	%20
 ................................................................
 
-Undercapped Tokens:	192
-Relative Loss:  	%45.76271186440678
+Undercapped Tokens:	42
+Relative Loss:  	%47.5
 Min Market Cap:  	$1000000 USD
 ----------------------------------------------------------------
 
@@ -34,22 +34,22 @@ ________________________________________________________________
 
 Highest CTV Token:
 {
-  "contract": "0xb33eaad8d922b1083446dc23f610c2567fb5180f",
-  "ctv": 12298.430099062298,
-  "vol": 5.682959517792329,
-  "relVol": 27.087396517340643,
-  "cap": "2,829,513,144",
-  "relCap": 454.02776494925104
+  "contract": "0x29b0da86e484e1c0029b56e817912d778ac0ec69",
+  "ctv": 5775.490230335307,
+  "vol": 4.6793203102948935,
+  "relVol": 20.092951672640837,
+  "cap": ",189,637,065",
+  "relCap": 287.4386165074685
 }
 ----------------------------------------------------------------
 
 Lowest CTV Token:
 {
-  "contract": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
-  "ctv": -819160.7343402497,
-  "vol": 1.611740701635861,
-  "relVol": -63.95682056318696,
-  "cap": "65,923,472,740",
-  "relCap": 12808.027777599566
+  "contract": "0xdc301622e621166bd8e82f2ca0a26c13ad0be355",
+  "ctv": -143190.20649368866,
+  "vol": 1.8187486214637243,
+  "relVol": -53.32251784055357,
+  "cap": "1,363,332,540",
+  "relCap": 2685.3609374159687
 }
 ________________________________________________________________
