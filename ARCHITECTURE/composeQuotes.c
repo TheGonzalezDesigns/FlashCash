@@ -45,7 +45,7 @@ char *extractQuote(const char *filename)
 
     fclose(input_file);
     free(file_contents);
-    return NULL;
+    return data;
 }
 
 char *extractHash(const char *catalog, int quantity)
@@ -65,18 +65,25 @@ char *reference(char *hash, const char *dir, const int length)
 
 void composeQuotes(const char *catalog, const int quantity, const char *dir, const int length)
 {
+    FILE *dispatch = fopen("dispatch.json", "w");
 
     char *hash = NULL;
     char *ref = NULL;
+    char *data = NULL;
 
+    fprintf(dispatch, "%c", '[');
     for (int i = 1; i < quantity; i++)
     {
         hash = extractHash(catalog, i);
         ref = reference(hash, dir, length);
-        // printf("\nFile[%i]:\t%s\n", i - 1, ref);
-        extractQuote(ref);
+        data = extractQuote(ref);
+        if (data)
+            fprintf(dispatch, "%s%c\n", data, (i + 1 < quantity ? ',' : ']'));
         free(ref);
+        free(data);
     }
+
+    fclose(dispatch);
 }
 
 int main(int argc, char *argv[])
