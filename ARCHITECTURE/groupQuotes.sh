@@ -17,15 +17,11 @@ if [[ -z $network ]]; then
 	errStatus=2
 fi
 
-quotes="$exchange/DATA/QUOTES"
-dispatch="$quotes/dispatch"
-files=$(dir $quotes -t1 --hide=dispatch)
+SECONDS=0
+quotes=$exchange"/DATA/QUOTES/"
+files=$(dir $quotes --hide=dispatch -1)
+quantity=$(ls $quotes | wc -l)
+duration=$SECONDS
 
-rm -rf $dispatch
-touch $dispatch
-
-for quote in ${files[@]}
-do
-	data=$(<"$quotes/$quote")
-	echo "$data" >> $dispatch
-done
+./composeQuotes.o "$files" "$quantity" "$quotes/" # will open all files and send them to filterQuotes.js
+echo "$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed."

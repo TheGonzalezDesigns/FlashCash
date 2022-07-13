@@ -23,14 +23,10 @@ exchange=$relPath/$exchange
 ./header
 
 until [ $status -eq 0 ]; do
-	./genBinaries.o $exchange'/DATA/hiVolTokens.cf' $exchange'/DATA/hiCTV.srls' $exchange'/DATA/hiCTVBinaries.srls'\
-	&& ./deployBinaries.sh $exchange $exchange'/DATA/hiCTVBinaries.srls' \
-	&& ./groupQuotes.sh $exchange $network
-	#./getPairs.o $exchange'/DATA/hiVolTokens.cf' $exchange'/DATA/hiCTV.srls' $exchange'/DATA/hiCTVBinaries.srls'\
-	#./hyperHash.o $exchange'/DATA/hiCTV.srls' $exchange'/DATA/hiCTVBinaries.srls' \
-	#&& ./hyperHash.o $exchange'/DATA/hiCTV.srls' $exchange'/DATA/hiCTVBinaries.srls' \
-	#&& ./getPairs.o $exchange'/DATA/loVolTokens.cf' $exchange'/DATA/loCTV.srls' $exchange'/DATA/loCTVBinaries.srls'\
-	#&& ./hyperHash.o $exchange'/DATA/loCTV.srls' $exchange'/DATA/loCTVBinaries.srls'
+	./continue 86400 ./genPairs.o $exchange'/DATA/hiVolTokens.cf' $exchange'/DATA/hiCTV.srls' $exchange'/DATA/hiCTVBinaries.srls'\
+	&& ./continue 0 ./hyperHash.o $exchange'/DATA/hiCTV.srls' $exchange'/DATA/hiCTVBinaries.srls' \
+	&& ./continue 18000 ./deployBinaries.sh $exchange $exchange'/DATA/hiCTVBinaries.srls' \
+	./continue 2 ./groupQuotes.sh $exchange $network
 	status=$?
 	
 	if [[ $status -ne 0  ]]; then
@@ -47,3 +43,8 @@ if [[ $status -eq 0 && $errStatus -eq 0 ]]; then
 	echo "Get excited bitch, we're about to be rich!"
 	echo -e
 fi
+
+#loop hiden
+#loop shown
+#loop loops the process over and over again with a wait time
+#hiden means the process within has a & flag added

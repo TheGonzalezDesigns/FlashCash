@@ -21,25 +21,26 @@ map = objetify(map);
 
 const elucidate = data => {
     return {
-        "hash": hash,
-        "block": access(data, map.block),
-        "fiat": {
-            "quote": access(data, map.fiat.quote),
-            "bid": access(data, map.fiat.bid),
-            "gas": access(data, map.fiat.gas)
+        "\"hash\"": `\"${hash}\"`,
+        "\"block\"": access(data, map.block),
+        "\"fiat\"": {
+            "\"quote\"": access(data, map.fiat.quote),
+            "\"bid\"": access(data, map.fiat.bid),
+            "\"gas\"": access(data, map.fiat.gas)
         },
-        "token": {
-            "quote": access(data, map.token.quote),
-            "bid": access(data, map.token.bid),
-            "gas": access(data, map.token.gas)
+        "\"token\"": {
+            "\"quote\"": access(data, map.token.quote),
+            "\"bid\"": access(data, map.token.bid),
+            "\"gas\"": access(data, map.token.gas)
         },
-        "direction": access(data, map.direction)
+        "\"direction\"": `\"${access(data, map.direction)}\"`,
+        // "\"raw\"": data
     }
 };
 const assess = code => console.error(`Error:\t${code}`); // send to assesor to review error header
 
 const print = (hash, data) => {
-    const cmnd = `echo "${JSON.stringify(data)}" >> ${exchange}/DATA/QUOTES/${hash}`;
+    const cmnd = `rm -rf ${exchange}/DATA/QUOTES/${hash} && echo "${JSON.stringify(data)}" >> ${exchange}/DATA/QUOTES/${hash}`;
     // console.log(cmnd)
     exec(cmnd)
 }
