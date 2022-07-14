@@ -27,7 +27,8 @@ Chain Details:
   "https: //matic-mainnet-archive-rpc.bwarelabs.com",
   "https: //poly-rpc.gateway.pokt.network",
   "https: //rpc.ankr.com/polygon",
-  "https: //polygon-mainnet.public.blastapi.io"],
+  "https: //polygon-mainnet.public.blastapi.io",
+  "https: //polygonapi.terminet.io/rpc"],
   "faucets": [],
   "nativeCurrency": {
   "name": "MATIC",
@@ -44,7 +45,7 @@ Chain Details:
   "url": "https: //polygonscan.com",
   "standard": "EIP3091"
 }],
-  "tvl": 1592065903.4802783,
+  "tvl": 1573463633.3659732,
   "chainSlug": "polygon"
 }
 ________________________________________________________________

@@ -58,7 +58,7 @@ let relCapped = 0;
 let initQuantity = 0;
 let totalLoss = 0;
 let relTotalLoss = 0;
-const MIN_CAP = 1000000
+const MIN_CAP = 1000000 //move to genConstants then move genConstants to bureau, last command, this means we'll sqeueez the optimizer epix in between architecture and execution. The assesor below will come at a later time. Afterwords check paraswaps github for their trading bot to find how they introduced slippage. you want to include slippage as part of the gas filter such that the profit - slippage is still greater than the gas. when executing filtered and optimized trinaries/pairs, must be sorted such that the most profitable and (block)recent transactions go out first. after all this, you have to modify the genPairs program such that it has a sub program that weaves all binaries into threes whearas every three rows is followed by three rows begening with the tail of the last binary of the previous three rows. this will guarantee that when requesting quotes there will be a higher count of structurable trinaries/quadratics/pairs. additionally you must ponder what the difference is between profit in a quadratic trade vs a trinary trade given that both trades are going to be profitable anyway. it might just be that its a matter of whats more profitable. but is it worth it to genereate both quadratics and trinaries, i mean assuming the total amount of filtered quotes will be low anyways, it may be possible to generate quadratics and trinaries with genPairs before hand and move them to hyperHash. Thankfully given flat_hash_maps performance benchmarks, storing and querying quadratics and trinaries should be pretty easy.  
 //const MAX_TOKENS = 840;
 const MAX_TOKENS = 216; //perm(216, 3) = ~<10M max MDA size in C
 

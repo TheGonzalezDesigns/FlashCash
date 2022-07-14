@@ -25,7 +25,8 @@ exRelPath=$relPath/$exchange
 
 until [ $status -eq 0 ]; do
 
-	../TOOLS/syncNetworks.sh
+	./genConstants.sh "$exchange" "$network" $1 \
+	&& ../TOOLS/syncNetworks.sh
 	status=$?
 	
 	if [[ $status -ne 0  ]]; then

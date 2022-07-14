@@ -5,3 +5,17 @@ node_modules/
 *.cf
 *.ba
 ARCHITECTURE/todo.txt
+DATA
+/DATA
+DATA/
+*/DATA/*
+/DATA/*
+*/DATA/
+DATA/*
+*/DATA
+**/DATA
+DATA/**
+**/DATA/
+/DATA/**
+*/DATA/**
+**/DATA/*

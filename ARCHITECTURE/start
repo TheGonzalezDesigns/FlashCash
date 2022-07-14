@@ -30,11 +30,11 @@ until [ $status -eq 0 ]; do
 	# ./continue 2 ./groupQuotes.sh $exchange $network
 	# ./continue 2 node ./filterQuotes.js $exchange $network "high"
 
-	#&& ./genPairs.o $exchange'/DATA/'$vol'VolTokens.cf' $exchange'/DATA/'$vol'CTV.srls' $exchange'/DATA/'$vol'CTVBinaries.srls'\
-	./genConstants.sh "$exchange" "$network" $1
-	# && ./hyperHash.o $exchange'/DATA/'$vol'CTV.srls' $exchange'/DATA/'$vol'CTVBinaries.srls' \
-	# ./deployBinaries.sh $exchange $exchange"/DATA/"$vol"CTVBinaries.srls" $vol \
-	./groupQuotes.sh $exchange $network $vol \
+	
+	./genPairs.o $exchange'/DATA/'$vol'VolTokens.cf' $exchange'/DATA/'$vol'CTV.srls' $exchange'/DATA/'$vol'CTVBinaries.srls'\
+	&& ./hyperHash.o $exchange'/DATA/'$vol'CTV.srls' $exchange'/DATA/'$vol'CTVBinaries.srls' \
+	./deployBinaries.sh $exchange $exchange"/DATA/"$vol"CTVBinaries.srls" $vol \
+	&& ./groupQuotes.sh $exchange $network $vol \
 	&& node ./filterQuotes.js $exchange $network $vol
 	status=$?
 	
