@@ -2,6 +2,7 @@
 
 exchange=$1
 network=$2
+vol=$3
 status=1
 errStatus=0
 relPath=../SOLUTIONS/networks/$2/
@@ -23,10 +24,18 @@ exchange=$relPath/$exchange
 ./header
 
 until [ $status -eq 0 ]; do
-	./continue 86400 ./genPairs.o $exchange'/DATA/hiVolTokens.cf' $exchange'/DATA/hiCTV.srls' $exchange'/DATA/hiCTVBinaries.srls'\
-	&& ./continue 0 ./hyperHash.o $exchange'/DATA/hiCTV.srls' $exchange'/DATA/hiCTVBinaries.srls' \
-	&& ./continue 18000 ./deployBinaries.sh $exchange $exchange'/DATA/hiCTVBinaries.srls' \
-	./continue 2 ./groupQuotes.sh $exchange $network
+	# ./continue 86400 ./genPairs.o $exchange'/DATA/hiVolTokens.cf' $exchange'/DATA/hiCTV.srls' $exchange'/DATA/hiCTVBinaries.srls'\
+	# && ./continue 0 ./hyperHash.o $exchange'/DATA/hiCTV.srls' $exchange'/DATA/hiCTVBinaries.srls' \
+	# && ./continue 18000 ./deployBinaries.sh $exchange $exchange'/DATA/hiCTVBinaries.srls' \
+	# ./continue 2 ./groupQuotes.sh $exchange $network
+	# ./continue 2 node ./filterQuotes.js $exchange $network "high"
+
+	#&& ./genPairs.o $exchange'/DATA/'$vol'VolTokens.cf' $exchange'/DATA/'$vol'CTV.srls' $exchange'/DATA/'$vol'CTVBinaries.srls'\
+	./genConstants.sh "$exchange" "$network" $1
+	# && ./hyperHash.o $exchange'/DATA/'$vol'CTV.srls' $exchange'/DATA/'$vol'CTVBinaries.srls' \
+	# ./deployBinaries.sh $exchange $exchange"/DATA/"$vol"CTVBinaries.srls" $vol \
+	./groupQuotes.sh $exchange $network $vol \
+	&& node ./filterQuotes.js $exchange $network $vol
 	status=$?
 	
 	if [[ $status -ne 0  ]]; then

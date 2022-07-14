@@ -35,55 +35,94 @@ char *sanitize(char *data)
 char *extractQuote(const char *filename)
 {
     FILE *input_file = fopen(filename, "r");
-    char *data = NULL;
-    struct stat sb;
-    stat(filename, &sb);
-    char *file_contents = calloc(1, sb.st_size);
-    fread(file_contents, sb.st_size, 1, input_file);
-    data = sanitize(file_contents);
-    // printf("\n%s:\t%s", filename, data);
+    if (input_file)
+    {
+        // printf("\nExtracting quote from:\t%s", filename);
+        char *data = NULL;
+        struct stat sb;
+        stat(filename, &sb);
+        char *file_contents = calloc(1, sb.st_size);
+        fread(file_contents, sb.st_size, 1, input_file);
+        data = sanitize(file_contents);
+        // printf("\n%s:\t%s", filename, data);
 
-    fclose(input_file);
-    free(file_contents);
-    return data;
+        fclose(input_file);
+        free(file_contents);
+        return data;
+    }
+    else
+        printf("\nALERT:\t The following file is unavailble | %s", filename);
+    return NULL;
 }
 
 char *extractHash(const char *catalog, int quantity)
 {
-    char *hash = calloc(1, sizeof(Hash));
-    strncpy(&hash, catalog + (quantity * 7), 6);
+    // printf("\nExtracting hash #%i", quantity);
+    char *hash = calloc(7, sizeof(char));
+    strncpy(hash, catalog + (quantity * 7), 6);
+    // printf("\nExtracted hash:\t%s", hash);
     return hash;
 }
 
 char *reference(char *hash, const char *dir, const int length)
 {
     char *ref = calloc(1, (1 + (sizeof(Hash) + (length * sizeof(char)))));
-    sprintf(ref, "%s%s", dir, &hash);
+    sprintf(ref, "%s%s", dir, hash);
 
     return ref;
 }
 
 void composeQuotes(const char *catalog, const int quantity, const char *dir, const int length)
 {
-    FILE *dispatch = fopen("dispatch.json", "w");
+    char *file = NULL;
+    char *filename = "dispatch.json";
+    file = calloc(1, ((strlen(dir) + strlen(filename) + 1) * sizeof(char)));
+    strcpy(file, dir);
+    strcat(file, filename);
+    FILE *dispatch = fopen(file, "w");
 
-    char *hash = NULL;
-    char *ref = NULL;
-    char *data = NULL;
-
-    fprintf(dispatch, "%c", '[');
-    for (int i = 1; i < quantity; i++)
+    if (dispatch)
     {
-        hash = extractHash(catalog, i);
-        ref = reference(hash, dir, length);
-        data = extractQuote(ref);
-        if (data)
-            fprintf(dispatch, "%s%c\n", data, (i + 1 < quantity ? ',' : ']'));
-        free(ref);
-        free(data);
-    }
 
-    fclose(dispatch);
+        if (!quantity)
+        {
+            printf("\nNo quotes to compose at:\t%s", dir);
+            printf("\n__________________________________________________________\n");
+            fprintf(dispatch, "%s\n", "[]");
+        }
+        else
+        {
+            char *hash = NULL;
+            char *ref = NULL;
+            char *data = NULL;
+
+            printf("\nComposing %i Quotes to:\t%s\n", quantity, file);
+            printf("\n__________________________________________________________\n");
+            fprintf(dispatch, "%c\n", '[');
+            for (int i = 1; i < quantity; i++)
+            {
+                hash = extractHash(catalog, i);
+                // printf("\nQuerying hash:\t%s", hash);
+                ref = reference(hash, dir, length);
+                // printf("\nAccessing ref:\t%s", ref);
+                data = extractQuote(ref);
+                if (data)
+                {
+                    fprintf(dispatch, "\t%s%s\n", data, (i + 1 < quantity ? "," : ""));
+                    // printf("\n%s:\n\t%s\n\n", file, data);
+                }
+                free(ref);
+                free(data);
+            }
+            fprintf(dispatch, "%c", ']');
+        }
+        fclose(dispatch);
+    }
+    else
+    {
+        printf("\nALERT:\t The following file is unavailble | %s", file);
+        exit(EXIT_FAILURE);
+    }
 }
 
 int main(int argc, char *argv[])
@@ -103,15 +142,15 @@ int main(int argc, char *argv[])
     t = clock() - t;
     time_taken = ((double)t) / CLOCKS_PER_SEC;
 
-    printf("\n__________________________________________________________\n");
+    // printf("\n__________________________________________________________\n");
     if (time_taken < 1)
-        printf("\nBuilding all pairs took %f ms to execute.\n", time_taken * 1000);
+        printf("\nComposing all available quotes took %f ms to execute.\n", time_taken * 1000);
     else if (time_taken <= 60)
-        printf("\nBuilding all pairs took %f seconds to execute.\n", time_taken);
+        printf("\nComposing all available quotes took %f seconds to execute.\n", time_taken);
     else if (time_taken >= 60)
-        printf("\nBuilding all pairs took %f minutes to execute.\n", time_taken / 60);
+        printf("\nComposing all available quotes took %f minutes to execute.\n", time_taken / 60);
     else if (time_taken >= 60 * 60)
-        printf("\nBuilding all pairs took %f hours to execute.\n", time_taken / 60 / 60);
+        printf("\nComposing all available quotes took %f hours to execute.\n", time_taken / 60 / 60);
     printf("\n\n");
 
     // node./ filterQuotes.js "$dispatch" in system()

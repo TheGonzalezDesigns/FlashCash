@@ -7,6 +7,7 @@ const exchange = process.argv[6];
 const chainID = process.argv[7];
 const xName = process.argv[8];
 let   map = process.argv[9];
+const vol = process.argv[10];
 const script = `${exchange}/API/QUERY/PAIR/aux`
 const cmnd = `${script} ${xName} ${chainID} ${contractA} ${contractB} ${price} &` 
 
@@ -40,8 +41,7 @@ const elucidate = data => {
 const assess = code => console.error(`Error:\t${code}`); // send to assesor to review error header
 
 const print = (hash, data) => {
-    const cmnd = `rm -rf ${exchange}/DATA/QUOTES/${hash} && echo "${JSON.stringify(data)}" >> ${exchange}/DATA/QUOTES/${hash}`;
-    // console.log(cmnd)
+    const cmnd = `rm -rf ${exchange}/DATA/QUOTES/${hash} && echo "${JSON.stringify(data)}" >> ${exchange}/DATA/QUOTES/${vol}Vol/${hash}`;
     exec(cmnd)
 }
 
@@ -50,10 +50,4 @@ exec(cmnd, (error, stdout, stderr) => {
     const data = code == 200 ? getRes(stdout) : null;
     if (data) print(hash, elucidate(data));
     else assess(code);
-    // else elucidate(map);
 });
-
-//then translate, then print to file with hash name
-
-// aux=./API/QUERY/PAIR/aux
-// $aux paraswap 137 0xc2132d05d31c914a87c6611c10748aeb04b58e8f 0x2791bca1f2de4661ed88a30c99a7a9449aa84174 1000000
