@@ -14,7 +14,7 @@ do
 		echo "Syncing $network..."
 		echo -e
 		network=$directory'/'$network
-		cp -r $template $network
+		rsync --exclude={'DATA/*','DATA'} -r $template $network
 	fi
 done
 			

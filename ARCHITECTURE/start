@@ -20,6 +20,12 @@ if [[ -z $network ]]; then
 fi
 
 exchange=$relPath/$exchange
+mrc=$(cat "$exchange/DATA/mrc")
+spread=$(cat "$exchange/DATA/spread")
+
+if [[ -z $vol ]]; then
+	vol=$(cat "$exchange/DATA/volatility")
+fi
 
 ./header
 
@@ -30,12 +36,16 @@ until [ $status -eq 0 ]; do
 	# ./continue 2 ./groupQuotes.sh $exchange $network
 	# ./continue 2 node ./filterQuotes.js $exchange $network "high"
 
+	# ./interlace.o $exchange'/DATA/'$vol'CTVBinaries.srls' 
+	# ./interlace.o $exchange'/DATA/'$vol'CTVBinaries.srls' $exchange'/DATA/'$vol'CTVInterlacedBinaries.srls' "$spread"
 	
 	./genPairs.o $exchange'/DATA/'$vol'VolTokens.cf' $exchange'/DATA/'$vol'CTV.srls' $exchange'/DATA/'$vol'CTVBinaries.srls'\
-	&& ./hyperHash.o $exchange'/DATA/'$vol'CTV.srls' $exchange'/DATA/'$vol'CTVBinaries.srls' \
-	./deployBinaries.sh $exchange $exchange"/DATA/"$vol"CTVBinaries.srls" $vol \
+	./interlace.o $exchange'/DATA/'$vol'CTVBinaries.srls' $exchange'/DATA/'$vol'CTVInterlacedBinaries.srls' $spread \
+	&& ./hyperHash.o $exchange'/DATA/'$vol'CTV.srls' $exchange'/DATA/'$vol'CTVInterlacedBinaries.srls'
+	./deployBinaries.sh $exchange $exchange"/DATA/"$vol"CTVInterlacedBinaries.srls" $vol \
 	&& ./groupQuotes.sh $exchange $network $vol \
-	&& node ./filterQuotes.js $exchange $network $vol
+	&& node ./filterQuotes.js $exchange $network $vol $mrc
+	# node ./filterQuotes.js $exchange $network $vol $mrc
 	status=$?
 	
 	if [[ $status -ne 0  ]]; then

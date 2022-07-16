@@ -2,7 +2,7 @@
 exchange=$1
 file=$2
 vol=$3
-time="$exchange/DATA/time"
+time=$(cat "$exchange/DATA/time")
 
 while read -r line; do
     a=($line)

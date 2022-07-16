@@ -41,7 +41,7 @@ const elucidate = data => {
 const assess = code => console.error(`Error:\t${code}`); // send to assesor to review error header
 
 const print = (hash, data) => {
-    const cmnd = `rm -rf ${exchange}/DATA/QUOTES/${hash} && echo "${JSON.stringify(data)}" >> ${exchange}/DATA/QUOTES/${vol}Vol/${hash}`;
+    const cmnd = `rm -rf ${exchange}/DATA/QUOTES/${hash} && echo "${JSON.stringify(data)}" > ${exchange}/DATA/QUOTES/${vol}Vol/${hash}`;
     exec(cmnd)
 }
 
