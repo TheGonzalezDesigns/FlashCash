@@ -39,12 +39,13 @@ until [ $status -eq 0 ]; do
 	# ./interlace.o $exchange'/DATA/'$vol'CTVBinaries.srls' 
 	# ./interlace.o $exchange'/DATA/'$vol'CTVBinaries.srls' $exchange'/DATA/'$vol'CTVInterlacedBinaries.srls' "$spread"
 	
-	./genPairs.o $exchange'/DATA/'$vol'VolTokens.cf' $exchange'/DATA/'$vol'CTV.srls' $exchange'/DATA/'$vol'CTVBinaries.srls'\
-	./interlace.o $exchange'/DATA/'$vol'CTVBinaries.srls' $exchange'/DATA/'$vol'CTVInterlacedBinaries.srls' $spread \
-	&& ./hyperHash.o $exchange'/DATA/'$vol'CTV.srls' $exchange'/DATA/'$vol'CTVInterlacedBinaries.srls'
-	./deployBinaries.sh $exchange $exchange"/DATA/"$vol"CTVInterlacedBinaries.srls" $vol \
-	&& ./groupQuotes.sh $exchange $network $vol \
-	&& node ./filterQuotes.js $exchange $network $vol $mrc
+	gcc genPairs.c -o genPairs.o \
+	&& ./genPairs.o $exchange'/DATA/'$vol'VolTokens.cf' $exchange'/DATA/'$vol'CTV.srls' $exchange'/DATA/'$vol'CTVBinaries.srls'\
+	&& ./interlace.o $exchange'/DATA/'$vol'CTVBinaries.srls' $exchange'/DATA/'$vol'CTVInterlacedBinaries.srls' $spread \
+	# && ./hyperHash.o $exchange'/DATA/'$vol'CTV.srls' $exchange'/DATA/'$vol'CTVInterlacedBinaries.srls'
+	# ./deployBinaries.sh $exchange $exchange"/DATA/"$vol"CTVInterlacedBinaries.srls" $vol \
+	# && ./groupQuotes.sh $exchange $network $vol \
+	# && node ./filterQuotes.js $exchange $network $vol $mrc
 	# node ./filterQuotes.js $exchange $network $vol $mrc
 	status=$?
 	

@@ -26,6 +26,7 @@ exRelPath=$relPath/$exchange
 until [ $status -eq 0 ]; do
 
 	./genConstants.sh "$exRelPath" "$network" $1 \
+	&& ./composeFlashLoans.sh $network \
 	&& ../TOOLS/syncNetworks.sh
 	status=$?
 	
