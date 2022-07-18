@@ -11,4 +11,5 @@ while read -r line; do
     contract_B=${a[2]}
     ./proxyBinary.sh $hash $contract_A $contract_B $exchange $vol &
     sleep $time
+    ./throttle.sh $exchange
 done <$file

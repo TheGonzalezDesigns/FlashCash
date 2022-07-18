@@ -64,12 +64,12 @@ typedef struct Census
 
 Census getFileData(const char *);
 void printData(char *filename, char *data);
-char *bSerialize(BinaryPair pair, char *);
+char *bSerialize(BinaryPair pair);
 char *serialize(TriangularPair);
 char *hashQuote(BinaryPair);
-char *hashPairs(TriangularPair, char *);
+char *hashPairs(TriangularPair);
 char *tail(const char *);
-char *export(BTP, char *data);
+char *export(BTP);
 char *exportBinaries(BinaryPair *, int);
 
 bool sameCoin(Token A, Token B);
@@ -78,7 +78,7 @@ bool pairTrails(BinaryPair A, BinaryPair B);
 
 BinaryPair binaryPair(Token A, Token B);
 void buildBinaryPairs(Token *, short, BinaryPair *);
-void buildTriangularPairs(BinaryPair *, BTP, TriangularPair *);
+void buildTriangularPairs(BinaryPair *, BTP);
 
 void genTokens(Contract *, short, Token *);
 TriangularPair getSampleTPair();
@@ -90,8 +90,6 @@ int main(int argc, char *argv[])
 {
     clock_t t;
     double time_taken;
-    int tt = 0;
-    char *type[] = {"ms", "seconds", "minutes", "hours", "days"};
 
     Census census = getFileData(argv[1]);
 
@@ -111,138 +109,31 @@ int main(int argc, char *argv[])
     genTokens(census.contracts, tPairs.contractVolume, tokens);
 
     BinaryPair *binaries = calloc(tPairs.permutations.binary, sizeof(BinaryPair));
-    TriangularPair *tri = calloc(1, sizeof(TriangularPair));
 
     buildBinaryPairs(tokens, tPairs.contractVolume, binaries);
-    buildTriangularPairs(binaries, tPairs, tri);
+    buildTriangularPairs(binaries, tPairs);
     t = clock() - t;
     time_taken = ((double)t) / CLOCKS_PER_SEC;
 
     printf("__________________________________________________________\n");
-    tt = 1;
     if (time_taken < 1)
-    {
-        time_taken = time_taken * 1000;
-        tt = 0;
-    }
+        printf("\nBuilding binaries took %f ms to execute.\n", time_taken * 1000);
+    else if (time_taken <= 60)
+        printf("\nBuilding binaries took %f seconds to execute.\n", time_taken);
     else if (time_taken >= 60)
-    {
-        time_taken = time_taken / 60;
-        tt = 2;
-    }
+        printf("\nBuilding binaries took %f minutes to execute.\n", time_taken / 60);
     else if (time_taken >= 60 * 60)
-    {
-        time_taken = time_taken / 60 / 60;
-        tt = 3;
-    }
-    printf("\nBuilding binaries took %f %s to execute.\n", time_taken, type[tt]);
-    printf("\n----------------------------------------------------------\n");
+        printf("\nBuilding binaries took %f hours to execute.\n", time_taken / 60 / 60);
 
     unsigned int *_c = calloc(1, sizeof(unsigned int));
 
     char *_d, *_b;
 
-    printf("\nExporting %li binaries...", tPairs.permutations.binary);
-    printf("\n__________________________________________________________\n");
-    t = clock();
-
+    _d = export(tPairs);
     _b = exportBinaries(binaries, tPairs.permutations.binary);
 
-    t = clock() - t;
-    time_taken = ((double)t) / CLOCKS_PER_SEC;
-    tt = 1;
-    if (time_taken < 1)
-    {
-        time_taken = time_taken * 1000;
-        tt = 0;
-    }
-    else if (time_taken >= 60)
-    {
-        time_taken = time_taken / 60;
-        tt = 2;
-    }
-    else if (time_taken >= 60 * 60)
-    {
-        time_taken = time_taken / 60 / 60;
-        tt = 3;
-    }
-    printf("\nExporting binaries took %f %s to execute.\n", time_taken, type[tt]);
-    printf("\n----------------------------------------------------------\n");
-    printf("\nPrinting binaries...\n");
-    t = clock();
-
-    printData(argv[3], _b);
-
-    t = clock() - t;
-    time_taken = ((double)t) / CLOCKS_PER_SEC;
-    tt = 1;
-    if (time_taken < 1)
-    {
-        time_taken = time_taken * 1000;
-        tt = 0;
-    }
-    else if (time_taken >= 60)
-    {
-        time_taken = time_taken / 60;
-        tt = 2;
-    }
-    else if (time_taken >= 60 * 60)
-    {
-        time_taken = time_taken / 60 / 60;
-        tt = 3;
-    }
-    printf("\nPrinting binaries took %f %s to execute.\n", time_taken, type[tt]);
-    printf("\n----------------------------------------------------------\n");
-    printf("\nExporting %li trinaries...", tPairs.permutations.trinary);
-    printf("\n__________________________________________________________\n");
-    t = clock();
-    char *data = NULL;
-    _d = export(tPairs, data);
-
-    t = clock() - t;
-    time_taken = ((double)t) / CLOCKS_PER_SEC;
-    tt = 1;
-    if (time_taken < 1)
-    {
-        time_taken = time_taken * 1000;
-        tt = 0;
-    }
-    else if (time_taken >= 60)
-    {
-        time_taken = time_taken / 60;
-        tt = 2;
-    }
-    else if (time_taken >= 60 * 60)
-    {
-        time_taken = time_taken / 60 / 60;
-        tt = 3;
-    }
-    printf("\nExporting trinaries took %f %s to execute.\n", time_taken, type[tt]);
-    printf("\n----------------------------------------------------------\n");
-    printf("\nPrinting trinaries...");
-    t = clock();
-
     printData(argv[2], _d);
-
-    t = clock() - t;
-    time_taken = ((double)t) / CLOCKS_PER_SEC;
-    tt = 1;
-    if (time_taken < 1)
-    {
-        time_taken = time_taken * 1000;
-        tt = 0;
-    }
-    else if (time_taken >= 60)
-    {
-        time_taken = time_taken / 60;
-        tt = 2;
-    }
-    else if (time_taken >= 60 * 60)
-    {
-        time_taken = time_taken / 60 / 60;
-        tt = 3;
-    }
-    printf("\nPrinting trinaries took %f %s to execute.\n", time_taken, type[tt]);
+    printData(argv[3], _b);
     //
     free(_b);
     free(_d);
@@ -276,18 +167,18 @@ BinaryPair binaryPair(Token A, Token B)
     BinaryPair binary;
     binary.A = A;
     binary.B = B;
-    strcpy(binary.hash, hashQuote(binary)); // capture and free
+    strcpy(binary.hash, hashQuote(binary));
     printf("\nHash:\t%s", binary.hash);
     return binary;
 }
 
-void buildTriangularPairs(BinaryPair *binaries, BTP tPairs, TriangularPair *tri)
+void buildTriangularPairs(BinaryPair *binaries, BTP tPairs)
 {
+    TriangularPair tri;
 
     unsigned int t = 0;
-    // unsigned long q = 0;
+    unsigned long q = 0;
     const unsigned int quantity = tPairs.permutations.binary;
-    char *hash = NULL;
 
     for (short a = 0; a < quantity; a++)
     {
@@ -295,17 +186,16 @@ void buildTriangularPairs(BinaryPair *binaries, BTP tPairs, TriangularPair *tri)
         {
             if (!samePair(binaries[a], binaries[b]) && pairTrails(binaries[a], binaries[b]))
             {
-                tri->A = binaries[a];
-                tri->B = binaries[b];
+                tri.A = binaries[a];
+                tri.B = binaries[b];
                 for (short c = 0; c < quantity; c++)
                 {
                     if (!(samePair(binaries[a], binaries[c]) || samePair(binaries[b], binaries[c])) && pairTrails(binaries[b], binaries[c]) && pairTrails(binaries[c], binaries[a]))
                     {
-                        tri->C = binaries[c];
-                        strcpy(tri->hash, hashPairs(*tri, hash)); // capture and free
+                        tri.C = binaries[c];
+                        strcpy(tri.hash, hashPairs(tri));
                         tPairs.coordinates = getCoordinates(t++);
-                        // tPairs.pairs[tPairs.coordinates.row][tPairs.coordinates.slot] = *tri;
-                        free(hash);
+                        tPairs.pairs[tPairs.coordinates.row][tPairs.coordinates.slot] = tri;
                     }
                 }
             }
@@ -323,7 +213,7 @@ void buildBinaryPairs(Token *tokens, short quantity, BinaryPair *binaries)
             {
                 binaries[i].A = tokens[a];
                 binaries[i].B = tokens[b];
-                strcpy(binaries[i].hash, hashQuote(binaries[i])); // capture and free
+                strcpy(binaries[i].hash, hashQuote(binaries[i]));
                 i++;
             }
         }
@@ -386,16 +276,16 @@ Coordinates getCoordinates(const unsigned int index)
 TriangularPair **create2DArray(const unsigned int quantity)
 {
     TriangularPair **MDA;
-    // const int size = getTPSampleSize();
+    const int size = getTPSampleSize();
     const int margin = 24355;
-    // const int row = (quantity - 1) / margin;
-    // const int slot = (quantity - 1) % margin;
-    // const int mem = (row + 1) * size;
+    const int row = (quantity - 1) / margin;
+    const int slot = (quantity - 1) % margin;
+    const int mem = (row + 1) * size;
     const TriangularPair sample = getSampleTPair();
     TriangularPair *temp;
     Coordinates coordinates;
 
-    MDA = calloc(margin, sizeof(*MDA)); // maye <-----------------!!!!!!!!!!!!!!!!!!!!!! memory y'asshole
+    MDA = calloc(margin, sizeof(*MDA));
     temp = calloc(margin * margin, sizeof(MDA[0]));
 
     for (int i = 0; i < margin; i++)
@@ -407,7 +297,6 @@ TriangularPair **create2DArray(const unsigned int quantity)
         coordinates = getCoordinates(o);
         MDA[coordinates.row][coordinates.slot] = sample;
     }
-    free(temp);
     return MDA;
 }
 
@@ -430,13 +319,13 @@ Census getFileData(const char *filename)
         exit(EXIT_FAILURE);
     }
 
-    char *file_contents = calloc(1, (sb.st_size + 10));
+    char *file_contents = malloc(sb.st_size);
     fread(file_contents, sb.st_size, 1, input_file);
 
     sscanf(file_contents, "%d%d%d%d", &quantity, &binary, &trinary, &quadratic);
 
-    trans = calloc(((5 + quantity) * 3), sizeof(char));
-    trail = calloc(((5 + quantity) * 3), sizeof(char));
+    trans = calloc(((4 + quantity) * 3), sizeof(char));
+    trail = calloc(((4 + quantity) * 3), sizeof(char));
 
     Contract contracts[quantity];
 
@@ -461,7 +350,7 @@ Census getFileData(const char *filename)
     _census.permutations.binary = binary;
     _census.permutations.trinary = trinary;
     _census.permutations.quadratic = quadratic;
-    _census.contracts = calloc(1, sizeof(contracts));
+    _census.contracts = malloc(sizeof(contracts));
     for (int i = 0; i < quantity; i++)
     {
         strcpy(_census.contracts[i], contracts[i]);
@@ -522,9 +411,9 @@ char *serialize(TriangularPair pair)
     return serial;
 }
 
-char *bSerialize(BinaryPair pair, char *serial)
+char *bSerialize(BinaryPair pair)
 {
-    serial = calloc(2, sizeof(bSerial));
+    char *serial = calloc(1, sizeof(bSerial));
 
     strcat(serial, pair.hash);
     strcat(serial, " ");
@@ -546,9 +435,9 @@ char *hashQuote(BinaryPair pair)
     return hash;
 }
 
-char *hashPairs(TriangularPair pair, char *hash)
+char *hashPairs(TriangularPair pair)
 {
-    hash = calloc(20, sizeof(char));
+    char *hash = calloc(10, sizeof(char));
     strcat(hash, tail(pair.A.A.contract));
     strcat(hash, tail(pair.B.A.contract));
     strcat(hash, tail(pair.C.A.contract));
@@ -562,10 +451,10 @@ char *tail(const char *str)
     return result;
 }
 
-char *export(BTP all, char *data)
+char *export(BTP all)
 {
     int q = all.permutations.trinary;
-    data = calloc(q, sizeof(Serial) + 4);
+    char *data = calloc(q, sizeof(Serial));
 
     for (int i = 0; i < q - 1; i++)
     {
@@ -573,20 +462,18 @@ char *export(BTP all, char *data)
         // serialize(all.pairs[all.coordinates.row][all.coordinates.slot]);
         // printf("%i:\t%s", i, serialize(all.pairs[all.coordinates.row][all.coordinates.slot]));
         // printf("%i:\t%s", i, all.pairs[all.coordinates.row][all.coordinates.slot].A.A.contract);
-        strcat(data, serialize(all.pairs[all.coordinates.row][all.coordinates.slot])); // capture the serial into a var and free afterword
+        strcat(data, serialize(all.pairs[all.coordinates.row][all.coordinates.slot]));
     }
 
     return data;
 }
 char *exportBinaries(BinaryPair *binaries, int quantity)
 {
-    char *data = calloc(quantity, (sizeof(bSerial) + 10));
-    char *tmp = NULL;
+    char *data = calloc(quantity, sizeof(bSerial));
 
     for (int i = 0; i < quantity - 1; i++)
     {
-        strcat(data, bSerialize(binaries[i], tmp)); // same here
-        free(tmp);
+        strcat(data, bSerialize(binaries[i]));
     }
 
     return data;

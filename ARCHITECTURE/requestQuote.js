@@ -21,6 +21,7 @@ const access = (data, keys) => {
 map = objetify(map);
 
 const elucidate = data => {
+    // console.info(`Retrieved: ${hash} @ ${map.block}`)
     return {
         "\"hash\"": `\"${hash}\"`,
         "\"block\"": access(data, map.block),
@@ -38,7 +39,26 @@ const elucidate = data => {
         // "\"raw\"": data
     }
 };
-const assess = code => console.error(`Error:\t${code}`); // send to assesor to review error header
+
+const pause = () => {
+    const cmnd = `./pause.sh ${exchange}`;
+    exec(cmnd, (error, stdout, stderr) => {
+        console.info(`${stdout}`);
+    })
+};
+
+const resume = () => {
+    const cmnd = `./resume.sh ${exchange}`;
+    exec(cmnd, (error, stdout, stderr) => {
+        stdout.length && console.info(`${stdout}`);
+    })
+};
+
+const assess = code => {
+    const _pause = code == 429;
+    _pause || resume() && console.error(`Error:\t${code}`);
+    _pause && pause()
+}
 
 const print = (hash, data) => {
     const cmnd = `rm -rf ${exchange}/DATA/QUOTES/${hash} && echo "${JSON.stringify(data)}" > ${exchange}/DATA/QUOTES/${vol}Vol/${hash}`;
@@ -46,8 +66,12 @@ const print = (hash, data) => {
 }
 
 exec(cmnd, (error, stdout, stderr) => {
+    // stdout.length && console.log(stdout)
     const code = getCode(stdout)
     const data = code == 200 ? getRes(stdout) : null;
-    if (data) print(hash, elucidate(data));
+    if (data) {
+        resume(); 
+        print(hash, elucidate(data));
+    }
     else assess(code);
 });

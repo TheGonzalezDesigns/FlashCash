@@ -22,6 +22,7 @@ fi
 exchange=$relPath/$exchange
 mrc=$(cat "$exchange/DATA/mrc")
 spread=$(cat "$exchange/DATA/spread")
+trailLimit=$(cat "$exchange/DATA/trailLimit")
 
 if [[ -z $vol ]]; then
 	vol=$(cat "$exchange/DATA/volatility")
@@ -39,13 +40,13 @@ until [ $status -eq 0 ]; do
 	# ./interlace.o $exchange'/DATA/'$vol'CTVBinaries.srls' 
 	# ./interlace.o $exchange'/DATA/'$vol'CTVBinaries.srls' $exchange'/DATA/'$vol'CTVInterlacedBinaries.srls' "$spread"
 	
-	gcc genPairs.c -o genPairs.o \
-	&& ./genPairs.o $exchange'/DATA/'$vol'VolTokens.cf' $exchange'/DATA/'$vol'CTV.srls' $exchange'/DATA/'$vol'CTVBinaries.srls'\
-	&& ./interlace.o $exchange'/DATA/'$vol'CTVBinaries.srls' $exchange'/DATA/'$vol'CTVInterlacedBinaries.srls' $spread \
-	# && ./hyperHash.o $exchange'/DATA/'$vol'CTV.srls' $exchange'/DATA/'$vol'CTVInterlacedBinaries.srls'
-	# ./deployBinaries.sh $exchange $exchange"/DATA/"$vol"CTVInterlacedBinaries.srls" $vol \
-	# && ./groupQuotes.sh $exchange $network $vol \
-	# && node ./filterQuotes.js $exchange $network $vol $mrc
+	# gcc genPairs.c -o genPairs.o \
+	# valgrind ./genPairs.o $exchange'/DATA/'$vol'VolTokens.cf' $exchange'/DATA/'$vol'CTV.srls' $exchange'/DATA/'$vol'CTVBinaries.srls'
+	./interlace.o $exchange'/DATA/'$vol'CTVBinaries.srls' $exchange'/DATA/'$vol'CTVInterlacedBinaries.srls' $spread \
+	&& ./hyperHash.o $exchange'/DATA/'$vol'CTV.srls' $exchange'/DATA/'$vol'CTVInterlacedBinaries.srls'
+	./deployBinaries.sh $exchange $exchange"/DATA/"$vol"CTVInterlacedBinaries.srls" $vol \
+	&& ./groupQuotes.sh $exchange $network $vol \
+	&& node ./filterQuotes.js $exchange $network $vol $mrc $trailLimit
 	# node ./filterQuotes.js $exchange $network $vol $mrc
 	status=$?
 	

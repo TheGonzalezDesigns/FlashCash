@@ -22,5 +22,6 @@ const report = {
     tokens: tokens
 } 
 
-console.info(quantity ? report : "No flash loans available." && process.exit(1));
+console.info(quantity ? report : "No flash loans available. Please add a provider to continue on this network.");
 console.log("\n__________________________________________________________\n")
+quantity || process.exit(1)
