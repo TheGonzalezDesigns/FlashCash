@@ -8,12 +8,19 @@
 
 using namespace std;
 
-typedef unsigned int 			Price;
+typedef float				Amount;
+typedef unsigned			Quantity;
+typedef unsigned short			State;
+typedef double 				Percentage;
+typedef Percentage			Statistic;
+typedef unsigned short			Count;
+
+typedef Quantity 			Price;
 typedef double				QTime;
-typedef unsigned int 			Volat;
+typedef State	 			Volat;
 enum 					volatillity{low=0, high=1};
-typedef unsigned short int 		Spread;
-typedef unsigned short int 		TLimit;
+typedef Count 				Spread;
+typedef Count	 			TLimit;
 
 typedef struct 	profiles
 {
@@ -25,22 +32,62 @@ typedef struct 	profiles
 	
 } 					Profile;
 
+enum					pervalence{uncommon=0, common=1};
+typedef	Statistic			Frequency;
+
+typedef Statistic			Comprehensivity;
+
 typedef struct 	hints
+{
+		optional<Price> 	price;
+		optional<Frequency>	priceFreq;
+		optional<QTime> 	qTime;
+		optional<Frequency>	qTimeFreq;
+		optional<Volat> 	volat;
+		optional<Frequency>	volatFreq;
+		optional<Spread>	spread;
+		optional<Frequency>	spreadFreq;
+		optional<TLimit>	tLimit;
+		optional<Frequency>	tLimitFreq;
+		Comprehensivity		comprehensivity;
+	
+} 					Hint;
+
+typedef struct 	ideas
 {
 		optional<Price> 	price;
 		optional<QTime> 	qTime;
 		optional<Volat> 	volat;
 		optional<Spread>	spread;
 		optional<TLimit>	tLimit;
+		Comprehensivity		clarity;
 	
-} 					Hint;
-
-typedef vector<profiles>		Archive;
+} 					Idea;
+//typedef vector<profiles>		Archive; //Obsolete through History
 typedef vector<hints>			Suggestions;
 
-typedef double 				Percentage;
-typedef double 				Boundary;
-typedef double 				Origin;
+typedef Statistic			Confidence;
+
+typedef struct	recommendations
+{
+		Suggestions		suggestions;
+		Idea			idea;
+		Confidence		confidence;
+
+}					Recommendation;
+
+typedef vector<recommendations>		Advice;
+
+typedef struct	wisdom
+{
+		Advice			advice;
+		Idea			idea;
+		Confidence		confidence;
+
+}					Wisdom;
+
+typedef Percentage			Boundary;
+typedef Percentage			Origin;
 
 typedef struct	ranges 
 {
@@ -51,38 +98,116 @@ typedef struct	ranges
 
 }					Range;
 
-typedef Percentage 			Superiority;
-typedef Percentage 			Inferiority;
-enum					stature{inferior=0, superior=1}
-typedef	unsigned short int		Status;
-typedef Percentage 			Lead;
+typedef unsigned			Block;
+typedef vector<Block>			Blocks;
+typedef Statistic			Age;
+
+typedef struct	timelines
+{
+		Blocks			blocks;
+		Block			oldest;
+		Block			newest;
+		Age			age;			
+
+}					Timeline;
+
+typedef struct	quotes
+{
+		Block			block;
+		Price			quote;
+		Price			bid;
+		Price			gas;
+		Statistic		profitability;
+}					Quote;
+
+typedef vector<quotes>			Snapshot;
+
+typedef Amount				Profit;
+typedef Statistic 			Score;
+
+typedef struct 	qscores 
+{
+		Count			quotes;
+		Profit			average;
+		Score			score;
+
+}					QScore;
+
+typedef struct	sets 
+{
+		QScore			qscore;
+		Timeline		timeline;
+		Snapshot		snapshot;
+
+}					Set; //Sets are converted to records by calculation
+
+typedef Statistic 			Superiority;
+typedef Statistic 			Inferiority;
+enum					stature{inferior=0, superior=1};
+typedef	State				Status;
+typedef Superiority 			Lead;
 
 typedef struct	ranks 
 {
 		optional<Superiority>	superiority;
 		optional<Inferiority>	inferiority;
-		optional<Lead>		lead;
 		Status			status;
+
 } 					Rank;
 
 typedef struct	records
 {
 		Profile 		profile;
+		Timeline		timeline;
 		Rank			rank;
+		Score			qscore;
 
 } 					Record;
 
 typedef vector<records> 		History;
 
-struct synopses 
+typedef struct 	optima
 {
-	Percentage food;
+		Profile			profile;
+		Lead			lead;
+
+}					Optimum;
+
+typedef struct synopses 
+{
+		History 		history;
+		Hint			hint;
+		Timeline		timeline;
+		optional<Optimum>	optimum;
+
 } 					Synopsis;
+
+typedef vector<Synopsis>		Chronicle;
+
+enum					reset{erase=0,keep=1};
+
+typedef struct 	accounts
+{
+		Chronicle		chronicle;
+		Recommendation		recommendation;
+		Timeline		timeline;
+		optional<State>		state;
+}					Account;
+
+enum					report{failure=0,success=1};
+
+typedef struct 	optimzers
+{
+		Account			account;
+		Widsom			Wisdom;
+		optional<State>		state;
+}					Optimizer;
 
 int main(int argc, char *argv[])
 {
-
-    return 0;
+	Optimizer Director;
+	
+	return 0;
 }
 
-//VTLTY: Taming the market with relative desisions.
+//VTLTY: Taming the market with relative decisions.
