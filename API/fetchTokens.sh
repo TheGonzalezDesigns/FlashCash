@@ -5,7 +5,7 @@ network=$2
 waitTime=$3
 source=$exchange'/DATA/contracts.ba'
 reqs=($(cat $source))
-totalWaitTime=$(echo "(${#reqs[@]}*$waitTime)/60" | bc -l)
+totalWaitTime=$(echo "scale=2;(${#reqs[@]}*$waitTime)/60" | bc -l)
 items='['
 fn=$exchange/DATA/allTokenData.json
 rm -f -- $fn

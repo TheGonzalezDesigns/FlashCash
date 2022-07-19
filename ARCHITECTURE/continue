@@ -1,15 +1,17 @@
 #!/bin/bash
-time=$1
-script="$2"
+exchange=$1
+time=$2
+script="$3"
 flag="loud"
-cmd="$script $3 $4 $5 $6 $7"
-if [[ "$2" == "silent" ]]; then
+cmd="$script $4 $5 $6 $7 $8"
+TOOLS=./../TOOLS
+if [[ "$3" == "silent" ]]; then
 	flag="silent"
-	script="$3"
-	cmd="$script $4 $5 $6 $7 $8"
+	script="$4"
+	cmd="$script $5 $6 $7 $8 $9"
 fi
 
-totalWaitTime=$(./../TOOLS/estimateTime.sh $time)
+totalWaitTime=$("$TOOLS/estimateTime.sh" $time)
 
 echo -e
 echo  "$script has begun."
@@ -21,27 +23,39 @@ $cmd
 status=1
 errStatus=0
 
-sub() {
-until false; do
-	sleep $time
-	if [[ $flag == "silent" ]]; then
-		$cmd &
-	else
-		echo -e
-		echo  "$script has begun."
-		echo  "It will continue in $totalWaitTime"
-		echo -e
-		$cmd
-	fi
-	status=$?
-	
-	if [[ $status -ne 0  ]]; then
-		echo "ATTENTION: $script is not working at the moment."
-		sleep 5
-	fi
 
-done
-}
+
+sub() (
+	hesitate() {
+		state=true
+
+		while $state; do
+			br=$(cat "$exchange/DATA/break")
+			if [[ $br -eq 1 ]]; then
+				state=false
+			fi
+		done
+	}
+	until false; do
+		sleep $time
+		if [[ $flag == "silent" ]]; then
+			$cmd &
+		else
+			echo -e
+			echo  "$script has begun."
+			echo  "It will continue in $totalWaitTime"
+			echo -e
+			$cmd
+		fi
+		status=$?
+		
+		if [[ $status -ne 0  ]]; then
+			echo "ATTENTION: $script is not working at the moment."
+			sleep 5
+		fi
+		hesitate
+	done
+)
 
 sub & 
 

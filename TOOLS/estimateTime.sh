@@ -5,7 +5,7 @@ totalWaitTime=""
 compare() (IFS=" "
   exec awk "BEGIN{if (!($*)) exit(1)}"
 )
-if [ "$time" -eq 0 ]; then
+if compare "$time == 0"; then
 	totalWaitTime="no time."
 	flag="silent"
 elif compare "$time < 1"; then

@@ -8,6 +8,7 @@ wait=7
 m=".00998"
 th=0
 ps=0
+br=0
 
 if [[ -z $exchange ]]; then
 	echo "Error: Missing exchange."
@@ -29,6 +30,7 @@ if [[ $status -eq 1 ]]; then
     trailLimit="$exchange/DATA/trailLimit"
     throttle="$exchange/DATA/throttle"
     pause="$exchange/DATA/pause"
+    break="$exchange/DATA/break"
 
     echo -e
     read -p "Enter price: " -t $wait p
@@ -118,6 +120,7 @@ if [[ $status -eq 1 ]]; then
     echo "$m" > "$mrc"
     echo "$th" > "$throttle"
     echo "$ps" > "$pause"
+    echo "$br" > "$break"
     echo -e
     echo "--------------------------------------------"
     echo -e
@@ -128,6 +131,7 @@ if [[ $status -eq 1 ]]; then
     echo "Current spread: $(cat $spread)"
     echo "Current quote deployment throttle time: $(cat $throttle)"
     echo "Current quote requests paused: $(cat $pause)"
+    echo "Current break: $(cat $break)"
     echo -e
     echo "--------------------------------------------"
     echo -e

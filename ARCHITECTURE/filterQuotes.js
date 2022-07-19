@@ -80,7 +80,7 @@ if (quantity >= 3) {
     printData(output, quotes);
 } else console.warn("Sorry no luck!");
 
-
+// reformat the data for hyperhash | redesign hyperhash to by a small c++ script that instantly generates all permutations of a giveb batch, sort them by most profitable and launch in profitability descending order.
 
 
 

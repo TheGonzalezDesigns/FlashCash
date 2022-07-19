@@ -3,6 +3,10 @@ exchange=$1
 throttle="$exchange/DATA/throttle"
 pause="$exchange/DATA/pause"
 
+if [[ -z $throttle ]]; then
+  throttle=0
+fi
+
 ompare() (IFS=" "
   exec awk "BEGIN{if (!($*)) exit(1)}"
 )
