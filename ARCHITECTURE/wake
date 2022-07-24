@@ -1,0 +1,14 @@
+#!/bin/bash
+
+sleepers="../DUMP/sleepers"
+
+pids=$(dir $sleepers)
+
+for pid in ${pids[@]};
+do
+	sleeper="$sleepers/$pid"
+	echo "Waking $pid"
+	echo -e
+	kill $pid
+	rm -f $sleeper
+done

@@ -12,3 +12,6 @@ cd ./API
 cd ..
 cd ./ARCHITECTURE
 ./start $1 $2
+cd ..
+cd ./OPTIMIZATION
+./start $1 $2

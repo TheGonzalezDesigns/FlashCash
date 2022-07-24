@@ -1,0 +1,18 @@
+#!/bin/bash
+
+tm=$1
+
+sleep $tm &
+
+id=$!
+
+sleeper="../DUMP/sleepers/$id"
+
+touch $sleeper
+
+wait 
+
+echo "I'm done waiting!"
+echo -e
+
+rm -f $sleeper

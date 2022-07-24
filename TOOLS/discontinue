@@ -1,0 +1,30 @@
+#!/bin/bash
+
+proci="$(ps -ax | grep "bin/bash ./continue")"
+
+for process in ${proci[@]}
+
+	do
+		process=$(echo $process | perl -pe "s/(?>\s).+//g" | perl -pe "s/[^\d]//g")
+		if ! [[ -z  $process ]]; then
+			if [[ $process -gt 100 ]]; then
+				#kill $process && echo "Killed: $process"
+				process=$(ps -p $process | grep continue | awk '{print $1;}')
+				if ! [[ -z $process ]]; then
+					kill $process
+				fi
+			fi
+		fi
+	done
+
+alert="\tAll systems are discontinued!"
+
+echo -e
+echo -e "\t*********************************************************"
+echo -e "\t*                                                       *"
+echo -e "\t*\t\t\tATTENTION:			*"
+echo -e "\t*                                                       *"
+echo -e "\t*\t$alert  		*"
+echo -e "\t*                                                       *"
+echo -e "\t*********************************************************"
+echo -e

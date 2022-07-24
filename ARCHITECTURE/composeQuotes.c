@@ -34,24 +34,35 @@ char *sanitize(char *data)
 }
 char *extractQuote(const char *filename)
 {
-    FILE *input_file = fopen(filename, "r");
+    FILE *input_file = fopen(filename, "r+");
     if (input_file)
     {
         // printf("\nExtracting quote from:\t%s", filename);
         char *data = NULL;
         struct stat sb;
         stat(filename, &sb);
-        char *file_contents = calloc(1, sb.st_size);
+        char *file_contents = calloc(1, sb.st_size + 10);
         fread(file_contents, sb.st_size, 1, input_file);
-        data = sanitize(file_contents);
-        // printf("\n%s:\t%s", filename, data);
 
-        fclose(input_file);
-        free(file_contents);
-        return data;
+        if (file_contents[0] == '-')
+        {
+            fclose(input_file);
+            remove(filename);
+        }
+        else
+        {
+            data = sanitize(file_contents);
+            // printf("\n%s:\t%s", filename, data);
+            // clear files
+            fseek(input_file, 0, SEEK_SET);
+            fprintf(input_file, "%s\n", "-");
+            fclose(input_file);
+            free(file_contents);
+            return data;
+        }
     }
-    else
-        printf("\nALERT:\t The following file is unavailble | %s", filename);
+    // else
+    //     printf("\nALERT:\t The following file is unavailble | %s", filename);
     return NULL;
 }
 
@@ -99,6 +110,7 @@ void composeQuotes(const char *catalog, const int quantity, const char *dir, con
             printf("\nComposing %i Quotes to:\t%s\n", quantity, file);
             printf("\n__________________________________________________________\n");
             fprintf(dispatch, "%c\n", '[');
+
             for (int i = 1; i < quantity; i++)
             {
                 hash = extractHash(catalog, i);
@@ -120,7 +132,7 @@ void composeQuotes(const char *catalog, const int quantity, const char *dir, con
     }
     else
     {
-        printf("\nALERT:\t The following file is unavailble | %s", file);
+        // printf("\nALERT:\t The following file is unavailble | %s", file);
         exit(EXIT_FAILURE);
     }
 }
@@ -130,10 +142,15 @@ int main(int argc, char *argv[])
     clock_t t;
     double time_taken;
     t = clock();
-
-    int quantity;
+    int quantity, tLimit;
     char *catalog = argv[1];
     sscanf(argv[2], "%d", &quantity);
+    sscanf(argv[4], "%d", &tLimit);
+
+    quantity += 1;
+    if (quantity < tLimit)
+        return 0;
+
     char *dir = argv[3];
     int length = strlen(dir);
 
@@ -153,6 +170,5 @@ int main(int argc, char *argv[])
         printf("\nComposing all available quotes took %f hours to execute.\n", time_taken / 60 / 60);
     printf("\n\n");
 
-    // node./ filterQuotes.js "$dispatch" in system()
     return 0;
 }

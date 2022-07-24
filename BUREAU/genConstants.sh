@@ -8,7 +8,7 @@ wait=7
 m=".00998"
 th=0
 ps=0
-br=0
+br=1
 
 if [[ -z $exchange ]]; then
 	echo "Error: Missing exchange."
@@ -105,7 +105,7 @@ if [[ $status -eq 1 ]]; then
     if [[ -z $p || -z $t || -z $v || -z $s || -z $tl ]]; then
         echo "No input provided, defaulting variables."
         echo 10000 > "$price"
-        echo "0.085" > "$time"
+        echo "0.85" > "$time"
         echo "lo" > "$vol"
         echo 5 > "$spread"
         echo 3 > "$trailLimit"

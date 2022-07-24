@@ -31,14 +31,18 @@ sub() (
 
 		while $state; do
 			br=$(cat "$exchange/DATA/break")
-			if [[ $br -eq 1 ]]; then
+			ps=$(cat "$exchange/DATA/pause")
+			if [[ $ps -gt 0 ]]; then
+				state=true
+			elif [[ $br -eq 1 ]]; then
 				state=false
 			fi
 		done
 	}
 	until false; do
+		sleep $time
 		if [[ $flag == "silent" ]]; then
-			$cmd
+			$cmd &
 		else
 			echo -e
 			echo  "$script has begun."
@@ -52,11 +56,10 @@ sub() (
 			echo "ATTENTION: $script is not working at the moment."
 			sleep 5
 		fi
-		sleep $time
 		hesitate
 	done
 )
 
-sub &
+sub & 
 
 # //export loop to different wrapper 

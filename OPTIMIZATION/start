@@ -1,0 +1,56 @@
+#!/bin/bash
+
+exchange=$1
+network=$2
+vol=$3
+status=1
+errStatus=0
+relPath=../SOLUTIONS/networks/$2/
+
+if [[ -z $exchange ]]; then
+	echo "Error: Missing exchange."
+	status=0
+	errStatus=1
+fi
+
+if [[ -z $network ]]; then
+	echo "Error: Missing network."
+	status=0
+	errStatus=2
+fi
+
+exchange=$relPath/$exchange
+
+if [[ -z $vol ]]; then
+	vol=$(cat "$exchange/DATA/volatility")
+fi
+
+./header
+
+DATA=$exchange/DATA
+vol=$DATA/QUOTES/$vol"Vol"
+refined=$vol/refined.srls
+
+until [ $status -eq 0 ]; do
+	./opVariables $refined $DATA
+	status=$?
+	
+	if [[ $status -ne 0  ]]; then
+		sleep 5
+		./header
+	fi
+
+done
+
+if [[ $status -eq 0 && $errStatus -eq 0 ]]; then
+	echo -e
+	echo 'Successfully optimized arbitrage pairs for the '$exchange' contracts on '$2'.'
+	echo -e
+	echo "Get excited bitch, we're about to be rich!"
+	echo -e
+fi
+
+#loop hiden
+#loop shown
+#loop loops the process over and over again with a wait time
+#hiden means the process within has a & flag added

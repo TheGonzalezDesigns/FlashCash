@@ -1,3 +1,4 @@
+
 const { exec } = require("child_process");
 const hash = process.argv[2];
 const contractA = process.argv[3];
@@ -22,7 +23,7 @@ map = objetify(map);
 
 const elucidate = data => {
     // console.info(`Retrieved: ${hash} @ ${map.block}`)
-    return {
+    let o = {
         "\"hash\"": `\"${hash}\"`,
         "\"block\"": access(data, map.block),
         "\"fiat\"": {
@@ -38,6 +39,8 @@ const elucidate = data => {
         "\"direction\"": `\"${access(data, map.direction)}\"`,
         // "\"raw\"": data
     }
+	console.log(o);
+	return o;
 };
 
 const pause = () => {

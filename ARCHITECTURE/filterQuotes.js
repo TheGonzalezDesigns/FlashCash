@@ -1,4 +1,4 @@
-const fs = require('fs');
+// const fs = require('fs');
 // const { permutations } = require('mathjs');
 const exchange = `./${process.argv[2]}`;
 if (exchange === './undefined') {
@@ -15,18 +15,33 @@ const sourceFiles = {
     low: `${exchange}/DATA/QUOTES/loVol/dispatch.json`,
 };
 const outputFiles = {
-    high: `${exchange}/DATA/QUOTES/hiVol/refined.json`,
-    low: `${exchange}/DATA/QUOTES/loVol/refined.json`,
+    high: `${exchange}/DATA/QUOTES/hiVol/refined.srls`,
+    low: `${exchange}/DATA/QUOTES/loVol/refined.srls`,
 };
 const vol = `${process.argv[4]}` == 'hi' ? "high" : "low";
 const MRC = process.argv[5];
 const trailLimit = process.argv[6];
 
-const input = fs.readFileSync(sourceFiles[vol], "utf8");
-const printData = (output, data) => fs.writeFile(output, JSON.stringify(data), err => console.log(`${output} creation ${err ? 'failed' : 'succeeded'}`));
+// const input = fs.readFileSync(sourceFiles[vol], "utf8");
+const input = await Bun.file(sourceFiles[vol]).text();
+//console.log(input);
+// const printData = (output, data) => fs.writeFile(output, JSON.stringify(data), err => console.log(`${output} creation ${err ? 'failed' : 'succeeded'}`));
+const printData = (output, data) => Bun.write(output, JSON.stringify(data));
 const output = outputFiles[vol];
 
-let quotes = input.length > 2 && input[input.length - 1] === ']' ? JSON.parse(input) : [];
+let parse = data => {
+    let res;
+    try {
+        JSON.parse(data);
+    } catch(e) {
+        process.exit(1);
+    }
+    return JSON.parse(data);
+}
+
+let quotes = input !== '' && input && input.length > 2 && input[input.length - 1] === ']' ? parse(input) : [];
+
+if (quotes.length < 1) process.exit(1);
 
 const mostRecent = quotes => [...quotes].sort((a, b) => b.block - a.block)[0].block
 const applyMRC = (quote) => quote - (quote * MRC);
@@ -43,16 +58,17 @@ let printStats = () => {
     }, 0);
     let trinaries = 12144;
     avg /= quantity;
-    avgTri = avg * 3;
-    maxProfit = avgTri * trinaries;
-    halfProfit = avgTri * trinaries * .5;
-    quarterProfit = avgTri * trinaries * .25;
-    tenthProfit = avgTri * trinaries * .10;
-    hundProfit = avgTri * trinaries * .01;
-    thouProfit = avgTri * trinaries * .001;
-    tenthouProfit = avgTri * trinaries * .0001;
-    hundhouProfit = avgTri * trinaries * .00001;
+    let avgTri = avg * 3;
+    let maxProfit = avgTri * trinaries;
+    let halfProfit = avgTri * trinaries * .5;
+    let quarterProfit = avgTri * trinaries * .25;
+    let tenthProfit = avgTri * trinaries * .10;
+    let hundProfit = avgTri * trinaries * .01;
+    let thouProfit = avgTri * trinaries * .001;
+    let tenthouProfit = avgTri * trinaries * .0001;
+    let hundhouProfit = avgTri * trinaries * .00001;
 
+    console.info("LATEST:\t", MR);
     console.log("Quotes available:\t", quantity);
     console.log("Avg profit per transaction:\t", avg);
     console.log("Avg profit per set:\t", avgTri);
@@ -75,13 +91,36 @@ let printStats = () => {
 
 let quantity = quotes.length;
 // let trinaries = permutations(quantity) * .0000000000001;
+
+let formatData = quotes => {
+	return (quotes.map(quote => {
+		let data = "";
+
+		data += quote.hash + " "
+		data += quote.block + " "
+		data += quote.fiat.quote + " "
+		data += quote.fiat.bid + " "
+		data += quote.fiat.gas + " "
+		data += quote.token.quote + " "
+		data += quote.token.bid + " "
+		data += quote.token.gas
+		//console.log(quote)
+		//console.log("Data:\t", data)
+		return data;
+	}).join("|"));
+};
+//console.log(formatData(quotes));
 if (quantity >= 3) {
-    
-    printData(output, quotes);
-} else console.warn("Sorry no luck!");
+	// printStats();
+    printData(output, formatData(quotes));
+    console.clear();
+    console.warn("Found something!");
+    console.log("\n__________________________________________________________\n")
+}
+// } else false && console.warn("Sorry no luck!");
 
 // reformat the data for hyperhash | redesign hyperhash to by a small c++ script that instantly generates all permutations of a giveb batch, sort them by most profitable and launch in profitability descending order.
 
 
 
-console.log("\n__________________________________________________________\n")
+// console.log("\n__________________________________________________________\n")

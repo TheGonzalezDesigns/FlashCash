@@ -15,5 +15,5 @@ if compare "$throttle > 0"; then
     echo "Now throttling requests..."
     echo ____________________________________________
     echo -e
-    sleep "$throttle"
+    ./clockout "$throttle"
 fi

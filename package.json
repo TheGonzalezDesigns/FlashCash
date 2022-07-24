@@ -4,6 +4,7 @@
     "cheerio": "^1.0.0-rc.12",
     "child_process": "^1.0.2",
     "coingecko-api": "^1.0.10",
+    "create-require": "^1.1.1",
     "mathjs": "^10.6.3",
     "request": "^2.88.2"
   }

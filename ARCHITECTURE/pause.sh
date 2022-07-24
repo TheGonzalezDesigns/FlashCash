@@ -4,7 +4,7 @@ throttle="$exchange/DATA/throttle"
 tl=$(cat $throttle)
 pause="$exchange/DATA/pause"
 ps=$(cat $pause)
-rate=1.5
+rate=.5
 
 # Program for Fibonacci
 # Series
@@ -36,6 +36,7 @@ time=$(echo "scale=3; ($b * $rate)/100" | bc -l)
 totalWaitTime=$(./../TOOLS/estimateTime.sh $time)
 # echo $wait > $throttle
 
+clear
 echo -e
 echo "Paused for ${totalWaitTime}"
 echo ____________________________________________

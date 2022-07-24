@@ -1,0 +1,7 @@
+14699 pts/8    S      0:00 /bin/bash ./continue ../SOLUTIONS/networks/polygon//paraswap 1 echo hello
+14700 pts/8    S      0:00 /bin/bash ./continue ../SOLUTIONS/networks/polygon//paraswap 1 echo hello
+14705 pts/8    S      0:00 /bin/bash ./continue ../SOLUTIONS/networks/polygon//paraswap 0 ./deployBinaries.sh ../SOLUTIONS/networks/polygon//paraswap ../SOLUTIONS/networks/polygon//paraswap/DATA/hiCTVInterlacedBinaries.srls hi
+14706 pts/8    S      0:00 /bin/bash ./continue ../SOLUTIONS/networks/polygon//paraswap 0 ./deployBinaries.sh ../SOLUTIONS/networks/polygon//paraswap ../SOLUTIONS/networks/polygon//paraswap/DATA/hiCTVInterlacedBinaries.srls hi
+14717 pts/8    S      0:00 /bin/bash ./continue ../SOLUTIONS/networks/polygon//paraswap 1.2 echo world
+14718 pts/8    S      0:00 /bin/bash ./continue ../SOLUTIONS/networks/polygon//paraswap 1.2 echo world
+23789 pts/7    S+     0:00 grep continue
