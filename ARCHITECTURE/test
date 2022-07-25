@@ -1,0 +1,9 @@
+#!/bin/bash
+sleep $1 &
+./start paraswap fantom hi
+wait
+killall -r again
+killall -r continue
+killall -r deploy
+killall -r bun
+killall -r node

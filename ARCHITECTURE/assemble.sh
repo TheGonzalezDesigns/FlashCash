@@ -11,7 +11,5 @@ spread=$(cat "$exchange/DATA/spread")
 trailLimit=$(cat "$exchange/DATA/trailLimit")
 
 ./groupQuotes.sh $exchange $network $vol $trailLimit \
-&& wait \
-&& sleep .0125 \
-&& wait \
+&& sleep .0005 \
 && bun run ./filterQuotes.js $exchange $network $vol $mrc $trailLimit

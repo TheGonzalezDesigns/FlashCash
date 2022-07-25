@@ -1,5 +1,3 @@
-// const fs = require('fs');
-// const { permutations } = require('mathjs');
 const exchange = `./${process.argv[2]}`;
 if (exchange === './undefined') {
     console.error('ERROR: No exchange provided to calculate.');
@@ -15,33 +13,74 @@ const sourceFiles = {
     low: `${exchange}/DATA/QUOTES/loVol/dispatch.json`,
 };
 const outputFiles = {
-    high: `${exchange}/DATA/QUOTES/hiVol/refined.srls`,
-    low: `${exchange}/DATA/QUOTES/loVol/refined.srls`,
+	raw: 
+		{
+    			high: `${exchange}/DATA/QUOTES/hiVol/raw.srls`,
+    			low: `${exchange}/DATA/QUOTES/loVol/raw.srls`
+		},
+	refined:
+		{
+    			high: `${exchange}/DATA/QUOTES/hiVol/refined.srls`,
+    			low: `${exchange}/DATA/QUOTES/loVol/refined.srls`
+		}
 };
 const vol = `${process.argv[4]}` == 'hi' ? "high" : "low";
 const MRC = process.argv[5];
 const trailLimit = process.argv[6];
 
-// const input = fs.readFileSync(sourceFiles[vol], "utf8");
-const input = await Bun.file(sourceFiles[vol]).text();
-//console.log(input);
-// const printData = (output, data) => fs.writeFile(output, JSON.stringify(data), err => console.log(`${output} creation ${err ? 'failed' : 'succeeded'}`));
-const printData = (output, data) => Bun.write(output, JSON.stringify(data));
-const output = outputFiles[vol];
+let input = await Bun.file(sourceFiles[vol]).text();
+//console.log("\nRaw...\n", input)
+input = [...input].join("").replaceAll(" ", "").replaceAll("\n", "").replaceAll(",]", "]");
+//console.log("\nSany...\n", input)
+const printData = (output, data) => Bun.write(output, JSON.stringify(data)) && console.warn(`Printing data to ${output}\n`, data);
+const raw = outputFiles.raw[vol];
+const refined = outputFiles.refined[vol];
 
 let parse = data => {
     let res;
     try {
-        JSON.parse(data);
+        res = JSON.parse(data);
     } catch(e) {
+	//console.error("Alert:\tCould not parse unsanitized input!")
         process.exit(1);
     }
-    return JSON.parse(data);
+    return res;
 }
 
+//console.log("input !== '':\t", input !== '');
+//console.log("input:\t", input);
+//console.log("input.length > 2:\t", input.length > 2);
+//console.log("input[input.length - 1]:\t", input[input.length - 1] === ']');
 let quotes = input !== '' && input && input.length > 2 && input[input.length - 1] === ']' ? parse(input) : [];
 
-if (quotes.length < 1) process.exit(1);
+let empty = o => Object.entries(o).length == 0;
+
+quotes = [...quotes].filter(q => !empty(q));
+
+if (quotes.length < 1) {
+	//console.error("Too short:\t", quotes)
+	process.exit(1)
+}
+//else console.log("Proccessing quotes...", quotes)
+let formatData = quotes => {
+	//console.log("Formating", quotes)
+	return (quotes.map(quote => {
+		let data = "";
+
+		data += quote.hash + " "
+		data += quote.block + " "
+		data += quote.fiat.quote + " "
+		data += quote.fiat.bid + " "
+		data += quote.fiat.gas + " "
+		data += quote.token.quote + " "
+		data += quote.token.bid + " "
+		data += quote.token.gas
+		//console.log(quote)
+		//console.log("Data:\t", data)
+		return data;
+	}).join("|"));
+};
+printData(raw, formatData(quotes));
 
 const mostRecent = quotes => [...quotes].sort((a, b) => b.block - a.block)[0].block
 const applyMRC = (quote) => quote - (quote * MRC);
@@ -92,33 +131,16 @@ let printStats = () => {
 let quantity = quotes.length;
 // let trinaries = permutations(quantity) * .0000000000001;
 
-let formatData = quotes => {
-	return (quotes.map(quote => {
-		let data = "";
-
-		data += quote.hash + " "
-		data += quote.block + " "
-		data += quote.fiat.quote + " "
-		data += quote.fiat.bid + " "
-		data += quote.fiat.gas + " "
-		data += quote.token.quote + " "
-		data += quote.token.bid + " "
-		data += quote.token.gas
-		//console.log(quote)
-		//console.log("Data:\t", data)
-		return data;
-	}).join("|"));
-};
-//console.log(formatData(quotes));
-if (quantity >= 3) {
+if (quantity >= 1) {
 	// printStats();
-    printData(output, formatData(quotes));
     console.clear();
-    console.warn("Found something!");
-    console.log("\n__________________________________________________________\n")
-}
-// } else false && console.warn("Sorry no luck!");
-
+    console.error("\nFound something!");
+    console.error("\n__________________________________________________________\n")
+    let data = formatData(quotes);
+    console.error(data);
+    printData(refined, data);
+} else false && console.warn("Sorry no luck!");
+printData(sourceFiles[vol], "--");
 // reformat the data for hyperhash | redesign hyperhash to by a small c++ script that instantly generates all permutations of a giveb batch, sort them by most profitable and launch in profitability descending order.
 
 

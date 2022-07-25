@@ -37,29 +37,31 @@ char *extractQuote(const char *filename)
     FILE *input_file = fopen(filename, "r+");
     if (input_file)
     {
-        // printf("\nExtracting quote from:\t%s", filename);
+        printf("\nExtracting quote from:\t%s", filename);
         char *data = NULL;
         struct stat sb;
         stat(filename, &sb);
-        char *file_contents = calloc(1, sb.st_size + 10);
+        char *file_contents = calloc(1, sb.st_size);
         fread(file_contents, sb.st_size, 1, input_file);
 
         if (file_contents[0] == '-')
         {
-            fclose(input_file);
+            //printf("\nMarked Quote:\t%s", file_contents);
             remove(filename);
-        }
-        else
-        {
-            data = sanitize(file_contents);
-            // printf("\n%s:\t%s", filename, data);
-            // clear files
-            fseek(input_file, 0, SEEK_SET);
-            fprintf(input_file, "%s\n", "-");
-            fclose(input_file);
-            free(file_contents);
+            data = calloc(3, sizeof(char));
+            strcpy(data, "{}\0");
             return data;
         }
+        else 
+        {
+            //printf("\nUnnarked Quote:\t%s", file_contents);
+            data = sanitize(file_contents);
+            fseek(input_file, 0, SEEK_SET);
+            fprintf(input_file, "%s\n", "--");
+            return data;
+        }
+        free(file_contents);
+        fclose(input_file);
     }
     // else
     //     printf("\nALERT:\t The following file is unavailble | %s", filename);
@@ -90,51 +92,66 @@ void composeQuotes(const char *catalog, const int quantity, const char *dir, con
     file = calloc(1, ((strlen(dir) + strlen(filename) + 1) * sizeof(char)));
     strcpy(file, dir);
     strcat(file, filename);
-    FILE *dispatch = fopen(file, "w");
+    FILE *dispatch = fopen(file, "w+");
 
     if (dispatch)
     {
-
-        if (!quantity)
+        struct stat sb;
+        stat(filename, &sb);
+        char *file_contents = calloc(1, sb.st_size);
+        fread(file_contents, sb.st_size, 1, dispatch);
+        
+        if (file_contents[0] == '-')
         {
-            printf("\nNo quotes to compose at:\t%s", dir);
-            printf("\n__________________________________________________________\n");
-            fprintf(dispatch, "%s\n", "[]");
+            //printf("\nMarked Dispatch:\t%s", file_contents);
+            remove(filename);
         }
         else
         {
-            char *hash = NULL;
-            char *ref = NULL;
-            char *data = NULL;
+            //printf("\nUnmarked Dispatch:\t%s", file_contents);
+            fseek(dispatch, 0, SEEK_SET);
 
-            printf("\nComposing %i Quotes to:\t%s\n", quantity, file);
-            printf("\n__________________________________________________________\n");
-            fprintf(dispatch, "%c\n", '[');
-
-            for (int i = 1; i < quantity; i++)
+            if (!quantity)
             {
-                hash = extractHash(catalog, i);
-                // printf("\nQuerying hash:\t%s", hash);
-                ref = reference(hash, dir, length);
-                // printf("\nAccessing ref:\t%s", ref);
-                data = extractQuote(ref);
-                if (data)
-                {
-                    fprintf(dispatch, "\t%s%s\n", data, (i + 1 < quantity ? "," : ""));
-                    // printf("\n%s:\n\t%s\n\n", file, data);
-                }
-                free(ref);
-                free(data);
+                printf("\nNo quotes to compose at:\t%s", dir);
+                printf("\n__________________________________________________________\n");
+                fprintf(dispatch, "%s\n", "[]");
             }
-            fprintf(dispatch, "%c", ']');
+            else
+            {
+                char *hash = NULL;
+                char *ref = NULL;
+                char *data = NULL;
+
+                printf("\nComposing %i Quotes to:\t%s\n", quantity, file);
+                printf("\n__________________________________________________________\n");
+                fprintf(dispatch, "%c\n", '[');
+
+                for (int i = 1; i < quantity; i++)
+                {
+                    hash = extractHash(catalog, i);
+                    // printf("\nQuerying hash:\t%s", hash);
+                    ref = reference(hash, dir, length);
+                    // printf("\nAccessing ref:\t%s", ref);
+                    data = extractQuote(ref);
+                    if (data)
+                    {
+                        fprintf(dispatch, "\t%s%s\n", data, (i + 1 < quantity ? "," : ""));
+                        //printf("\n%s:\n\t%s\n\n", file, data);
+                    }
+                    free(hash);
+                    free(ref);
+                    free(data);
+                }
+                fprintf(dispatch, "%c", ']');
+            }
         }
-        fclose(dispatch);
+        free(file_contents);
     }
-    else
-    {
-        // printf("\nALERT:\t The following file is unavailble | %s", file);
-        exit(EXIT_FAILURE);
-    }
+    free(file);
+    // printf("\nALERT:\t The following file is unavailble | %s", file);
+    fclose(dispatch);
+    if (!dispatch) exit(EXIT_FAILURE);
 }
 
 int main(int argc, char *argv[])
@@ -147,9 +164,9 @@ int main(int argc, char *argv[])
     sscanf(argv[2], "%d", &quantity);
     sscanf(argv[4], "%d", &tLimit);
 
-    quantity += 1;
-    if (quantity < tLimit)
-        return 0;
+    //quantity += 1;
+    //if (quantity < tLimit)
+    ///    return 0;
 
     char *dir = argv[3];
     int length = strlen(dir);

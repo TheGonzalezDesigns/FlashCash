@@ -32,7 +32,7 @@ fi
 
 until [ $status -eq 0 ]; do
 	../TOOLS/switch.sh $exchange 1
-	sleep 1
+	sleep .01
 	# gcc genPairs.c -o genPairs.o \
 	# valgrind ./genPairs.o $exchange'/DATA/'$vol'VolTokens.cf' $exchange'/DATA/'$vol'CTV.srls' $exchange'/DATA/'$vol'CTVBinaries.srls'
 	./continue $exchange 500 silent ./interlace.o $exchange'/DATA/'$vol'CTVBinaries.srls' $exchange'/DATA/'$vol'CTVInterlacedBinaries.srls' $spread
