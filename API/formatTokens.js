@@ -33,10 +33,10 @@ const reformat = file => {
 	let lines = "";
 	const record = ln => lines += ln + "\n";
 	const report = ln => record(ln) || console.info(ln);
-	report(fileData.quantity);
-	report(fileData.binaries);
-	report(fileData.trinaries);
-	report(fileData.quadratics);
+	//report(fileData.quantity);
+	//report(fileData.binaries);
+	//report(fileData.trinaries);
+	//report(fileData.quadratics);
 	fileData.contracts.forEach(c => report(c));
 	output[file] = lines;
 }

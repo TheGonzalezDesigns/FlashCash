@@ -1,6 +1,5 @@
 #!/bin/bash
 sleep $1 &
-./start $2 $3 $4
 wait
 killall -r again
 killall -r continue

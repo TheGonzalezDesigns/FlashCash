@@ -28,46 +28,22 @@ if [[ -z $vol ]]; then
 	vol=$(cat "$exchange/DATA/volatility")
 fi
 
-./header
-
 until [ $status -eq 0 ]; do
-	src="$exchange/DATA/$vol"
-	input=$src"VolTokens.cf"
-	outputA=$src"CTV.srls"
-	outputB=$src"CTVBinaries.srls"
-	g++ ./composeBinaries.cpp -o ./composeBinaries.o \
-	&& ./composeBinaries.o $input $outputB
+	./composeBinaries.o $exchange'/DATA/'$vol'VolTokens.cf' $exchange'/DATA/'$vol'CTVBinaries.srls' \
+	&& ./interlace.o $exchange'/DATA/'$vol'CTVBinaries.srls' $exchange'/DATA/'$vol'CTVInterlacedBinaries.srls' $spread
 	status=$?
 	
 	if [[ $status -ne 0  ]]; then
-		sleep 25
-		./header
+		sleep 5
 	fi
 
 done
 
 if [[ $status -eq 0 && $errStatus -eq 0 ]]; then
 	echo -e
-	echo 'Debugging completed.'
+	echo 'Successfully constructed binary pairs for the '$exchange' contracts on '$2'.'
 	echo -e
-fi
-#!/bin/bash
-
-exchange=$1
-network=$2
-vol=$3
-status=1
-errStatus=0
-
-if [[ -z $exchange ]]; then
-	echo "Error: Missing exchange."
-	status=0
-	errStatus=1
-fi
-
-if [[ -z $network ]]; then
-	echo "Error: Missing network."
-	status=0
-	errStatus=2
+	echo "Get excited bitch, we're about to be rich!"
+	echo -e
 fi
 

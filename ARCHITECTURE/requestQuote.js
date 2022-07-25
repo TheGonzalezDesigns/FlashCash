@@ -51,7 +51,7 @@ const pause = () => {
 };
 
 const resume = () => {
-    const cmnd = `./resume.sh ${exchange}`;
+    const cmnd = `./resume.sh ${exchange} && ./wake`;
     exec(cmnd, (error, stdout, stderr) => {
         stdout.length && console.info(`${stdout}`);
     })
