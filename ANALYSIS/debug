@@ -18,17 +18,15 @@ if [[ -z $network ]]; then
 	errStatus=2
 fi
 
-exRelPath=$relPath/$exchange
+exchange=$relPath/$exchange
 
 ./header
 
-
 until [ $status -eq 0 ]; do
-
-	./genConstants.sh "$exRelPath" "$network" $1 \
-	&& ./composeFlashLoans.sh $network \
-	&& ../TOOLS/syncNetworks.sh \
-	&& ./establish.sh $1 $network
+	
+	#./fetchNetworks.sh \
+	#&& ./fetchChainlist.sh
+	node ./identifyNetwork.js $exchange $network
 	status=$?
 	
 	if [[ $status -ne 0  ]]; then
@@ -39,9 +37,7 @@ until [ $status -eq 0 ]; do
 done
 
 if [[ $status -eq 0 && $errStatus -eq 0 ]]; then
-    echo ____________________________________________
 	echo -e
-	echo 'The Bureaucracy is finished.'
-    echo ____________________________________________
+	echo 'Successfully analyzed '$network'.'
 	echo -e
 fi

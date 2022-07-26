@@ -32,7 +32,7 @@ vol=$DATA/QUOTES/$vol"Vol"
 refined=$vol/refined.srls
 
 until [ $status -eq 0 ]; do
-	./opVariables $refined $DATA
+	#./opVariables $refined $DATA
 	status=$?
 	
 	if [[ $status -ne 0  ]]; then
@@ -49,8 +49,3 @@ if [[ $status -eq 0 && $errStatus -eq 0 ]]; then
 	echo "Get excited bitch, we're about to be rich!"
 	echo -e
 fi
-
-#loop hiden
-#loop shown
-#loop loops the process over and over again with a wait time
-#hiden means the process within has a & flag added

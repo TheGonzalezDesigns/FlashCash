@@ -1,6 +1,6 @@
 
 
-       Analysis Report for ./../SOLUTIONS/networks/polygon//paraswap on polygon
+Analysis Report for ./../SOLUTIONS/networks/polygon//paraswap on polygon
 ________________________________________________________________
 
 
@@ -45,7 +45,7 @@ Chain Details:
   "url": "https: //polygonscan.com",
   "standard": "EIP3091"
 }],
-  "tvl": 1590268828.3451037,
+  "tvl": 1762565813.3238308,
   "chainSlug": "polygon"
 }
 ________________________________________________________________

@@ -33,24 +33,39 @@ const getChain = (net) => {
 
 let chain = getChain(network);
 
-let findNet = net => {
-	let ID = chainID = _net = data = null;
-	for (let i = net.length; i > 0 && ID === null; i--)
-	{
-		_net = [...net].splice(0,i).join("");
-		data = [...nets].filter(n => (n.id + "").search(_net) === 0)[0];
+let getChainID = chain => chain.chainId
+let findByID = ID => nets.filter(net => net.chain_identifier === ID)[0]
 
-		if (!(data === undefined || data == null)) {
-			ID = data.id;
-			chainID = data.chain_identifier;
-		}
+let findNet = net => {
+	//console.log("Hello World", nets)
+	let ID = chainID = _net = data = null;
+	let alt = findByID(getChainID(chain))
+
+	if (alt !== undefined)
+	{
+		//console.log("alt:\t", alt);
+		ID = alt.id;
+		chainID = alt.chain_identifier;
 	}
-	chainID = chainID !== null ? chainID : chain.chainID;
+	else
+	{
+		for (let i = net.length; i > 0 && ID === null; i--)
+		{
+			_net = [...net].splice(0,i).join("");
+			data = [...nets].filter(n => (n.id + "").search(_net) === 0)[0];
+			console.info(`${i}:\t`, data);
+			if (!(data === undefined || data == null)) {
+				ID = data.id;
+				chainID = data.chain_identifier;
+			}
+		}
+		chainID = chainID !== null ? chainID : chain.chainID;
+	}
     return { ID, chainID };
 }
 
 const net = findNet(network); 
-
+//console.info("Net:\t", net);
 const printData = (output, data) => fs.writeFile(output, data, err => console.log(`${output} update ${err ? 'failed' : 'succeeded'}`));
 
 let reportData = "";
@@ -65,7 +80,7 @@ const printReport = (file, data) => fs.writeFile(file, data, err => console.log(
 printData(outputFiles.name, net.ID);
 printData(outputFiles.chainID, JSON.stringify(net.chainID));
 
-report(`\n       Analysis Report for ${exchange} on ${network}`)
+report(`\nAnalysis Report for ${exchange} on ${network}`)
 report('________________________________________________________________\n')
 report('\nChain Identification:\n')
 report(net, true);
