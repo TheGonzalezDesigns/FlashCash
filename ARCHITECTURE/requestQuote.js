@@ -1,5 +1,4 @@
-
-const { exec } = require("child_process");
+const { exec } = require("shelljs");
 const hash = process.argv[2];
 const contractA = process.argv[3];
 const contractB = process.argv[4];
@@ -14,7 +13,12 @@ const cmnd = `${script} ${xName} ${chainID} ${contractA} ${contractB} ${price} &
 
 const objetify = str => JSON.parse(([...str].join("")))
 const getRes = res => objetify([...res].splice(res.search(/{.+}/), res.length).join(""))
-const getCode = res => objetify([...res].splice(0, res.search(/$/m)).splice(res.search(/(?<=HTTP\/2\s)\d+/), res.search(/$/m)).join("").replace(/\s/, ''))
+const getCode = res => objetify([...res]
+	.splice(0, res.search(/$/m))
+	.splice(res.search(/(?<=HTTP\/2\s)\d+/), res.search(/$/m))
+	.join("")
+	.replace(/\s/, ''))
+
 const access = (data, keys) => {
     keys.forEach(key => data = data[key]);
     return data;
@@ -42,6 +46,10 @@ const elucidate = data => {
 	console.log(o);
 	return o;
 };
+let exc = (cmd, fn) => {
+    let prcs = exec(cmd);
+    fn(prcs.stderr, prcs.stdout, prcs.stderr);
+}
 
 const pause = () => {
     const cmnd = `./pause.sh ${exchange}`;
@@ -65,16 +73,34 @@ const assess = code => {
 
 const print = (hash, data) => {
     const cmnd = `rm -rf ${exchange}/DATA/QUOTES/${hash} && echo "${JSON.stringify(data)}" > ${exchange}/DATA/QUOTES/${vol}Vol/${hash}`;
+    exec(cmnd, (error, stdout, stderr) => {
+        console.error(`${stderr}`);
+    })
+}
+
+const parse = (hash, data) => {	
+    const cmnd = `./parse.sh "${hash}" "${JSON.stringify(JSON.stringify(data))}" &`;
     exec(cmnd)
 }
 
+const echo = (hash, data) => {	
+    const cmnd = `echo "${JSON.stringify(JSON.stringify(data))}" > ./${hash}`;
+    exec(cmnd)
+}
+
+const _process = (hash, data) => {
+        print(hash, elucidate(data));
+	    parse(hash, data);
+        // console.log(data)
+}
+
 exec(cmnd, (error, stdout, stderr) => {
-    // stdout.length && console.log(stdout)
+    //stdout.length && console.log(stdout)
     const code = getCode(stdout)
     const data = code == 200 ? getRes(stdout) : null;
     if (data) {
-        resume(); 
-        print(hash, elucidate(data));
+        resume();
+	    _process(hash, data);
     }
     else assess(code);
 });

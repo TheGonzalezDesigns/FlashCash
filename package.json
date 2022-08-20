@@ -2,11 +2,13 @@
   "dependencies": {
     "bent": "^7.3.12",
     "cheerio": "^1.0.0-rc.12",
-    "child_process": "^1.0.2",
+    "child-process-ext": "^2.1.1",
     "coingecko-api": "^1.0.10",
     "create-require": "^1.1.1",
+    "jsonic": "^1.0.1",
     "mathjs": "^10.6.3",
     "n": "^9.0.0",
-    "request": "^2.88.2"
+    "request": "^2.88.2",
+    "shelljs": "^0.8.5"
   }
 }

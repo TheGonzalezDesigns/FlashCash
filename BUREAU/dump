@@ -1,0 +1,8 @@
+#!/bin/bash
+
+dump=../DUMP
+var=$1
+val=$2
+path=$dump/$var
+
+./place $dump $var $val

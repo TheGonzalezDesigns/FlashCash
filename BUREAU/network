@@ -1,0 +1,3 @@
+#!/bin/bash
+
+./dump network $1

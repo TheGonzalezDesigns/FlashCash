@@ -8,10 +8,14 @@ cd ./ANALYSIS
 ./start $1 $2
 cd ..
 cd ./API
-./operate $1 $2
+./start $1 $2
 cd ..
 cd ./ARCHITECTURE
 ./start $1 $2
 cd ..
-cd ./OPTIMIZATION
+#cd ./OPTIMIZATION
+#./start $1 $2
+#cd ..
+cd ./EXECUTION
 ./start $1 $2
+cd ..

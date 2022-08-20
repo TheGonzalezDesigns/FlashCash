@@ -31,11 +31,6 @@ fi
 ./header
 
 until [ $status -eq 0 ]; do
-	../TOOLS/switch.sh $exchange 1
-	sleep .01
-	./continue $exchange 14400 silent ./compose $1 $2 $3
-	./continue $exchange 0 ./deployBinaries.sh $exchange $exchange"/DATA/"$vol"CTVInterlacedBinaries.srls" $vol 
-	./again $exchange .0375 silent ./assemble.sh $1 $network $vol
 	status=$?
 	
 	if [[ $status -ne 0  ]]; then
@@ -47,13 +42,9 @@ done
 
 if [[ $status -eq 0 && $errStatus -eq 0 ]]; then
 	echo -e
-	echo 'Successfully constructed arbitrage pairs for the '$exchange' contracts on '$2'.'
+	echo 'Successfully executed arbitrage pairs for the '$exchange' contracts on '$2'.'
 	echo -e
-	echo "Get excited bitch, we're about to be rich!"
+	echo "Get excited bitch, we're might just be rich!"
 	echo -e
 fi
 
-#loop hiden
-#loop shown
-#loop loops the process over and over again with a wait time
-#hiden means the process within has a & flag added

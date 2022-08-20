@@ -28,32 +28,44 @@ if [[ -z $vol ]]; then
 	vol=$(cat "$exchange/DATA/volatility")
 fi
 
-./header
-
 until [ $status -eq 0 ]; do
-	../TOOLS/switch.sh $exchange 1
-	sleep .01
-	./continue $exchange 14400 silent ./compose $1 $2 $3
-	./continue $exchange 0 ./deployBinaries.sh $exchange $exchange"/DATA/"$vol"CTVInterlacedBinaries.srls" $vol 
-	./again $exchange .0375 silent ./assemble.sh $1 $network $vol
+	src="$exchange/DATA/$vol"
+	input=$src"VolTokens.cf"
+	outputA=$src"CTV.srls"
+	outputB=$src"CTVBinaries.srls"
+	./composeBinaries.o $input $outputB \
+	&& ./interlace.o $exchange'/DATA/'$vol'CTVBinaries.srls' $exchange'/DATA/'$vol'CTVInterlacedBinaries.srls' $spread \
+
 	status=$?
 	
 	if [[ $status -ne 0  ]]; then
-		sleep 5
-		./header
+		sleep 25
 	fi
 
 done
 
 if [[ $status -eq 0 && $errStatus -eq 0 ]]; then
 	echo -e
-	echo 'Successfully constructed arbitrage pairs for the '$exchange' contracts on '$2'.'
-	echo -e
-	echo "Get excited bitch, we're about to be rich!"
+	echo 'Token binaries are ready.'
 	echo -e
 fi
+#!/bin/bash
 
-#loop hiden
-#loop shown
-#loop loops the process over and over again with a wait time
-#hiden means the process within has a & flag added
+exchange=$1
+network=$2
+vol=$3
+status=1
+errStatus=0
+
+if [[ -z $exchange ]]; then
+	echo "Error: Missing exchange."
+	status=0
+	errStatus=1
+fi
+
+if [[ -z $network ]]; then
+	echo "Error: Missing network."
+	status=0
+	errStatus=2
+fi
+

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+network=$(./network)
+exchange=$(./exchange)
+rel=../SOLUTIONS/networks/$network/$exchange
+
+./dump rel $rel
