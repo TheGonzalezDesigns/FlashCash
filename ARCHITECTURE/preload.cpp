@@ -11,8 +11,7 @@ typedef string Hash;
 typedef long   Block;
 typedef string Serial;
 typedef string Filename;
-typedef string Head;
-typedef string Tail;
+typedef string Port;
 
 typedef struct _quotes
 {
@@ -58,7 +57,7 @@ Quotes getQuotes(Filename input)
 			quotes.push_back(parse(serial));
 
 		}
-		cout << "Loaded refined serials from:\t" << input << endl;
+		//cout << "Loaded refined serials from:\t" << input << endl;
 		load.close();
 	}
 	else
@@ -101,12 +100,12 @@ auto assemble(Quotes quotes)
 		for(auto i = 0; i < limit; i++)
 		{
 				
-			sig += "\t\t[\n\t\t\t{\n\t\t\t\t\\\"hash\\\": \\\"" + quote.hash + "\\\",\n\t\t\t\t\\\"block\\\": " + to_string(quote.block) + "\n\t\t\t}"; 
+			sig += "\t\t[\n\t\t\t{\n\t\t\t\t\"hash\": \"" + quote.hash + "\",\n\t\t\t\t\"block\": " + to_string(quote.block) + "\n\t\t\t}"; 
 			for(auto x = 1; x < i; x++)
 			{
 				if (quote.hash != quotes[x].hash) 
 				{
-					sig += ",\n\t\t\t{\n\t\t\t\t\\\"hash\\\": \\\"" + quotes[x].hash + "\\\",\n\t\t\t\t\\\"block\\\": " + to_string(quotes[x].block) + "\n\t\t\t}";
+					sig += ",\n\t\t\t{\n\t\t\t\t\"hash\": \"" + quotes[x].hash + "\",\n\t\t\t\t\"block\": " + to_string(quotes[x].block) + "\n\t\t\t}";
 				}	
 			}
 			sig += "\n\t\t],";
@@ -126,17 +125,14 @@ int main(int argc, char *argv[])
 	clock_t t;
 	double time_taken;
 	size_t o;
-	string sig;
 	string command;
-	t = clock();
 	
 	Filename input = argv[1];
 	uint tLimit = stoi(argv[2]);
-	command = "curl -H 'Content-Type: application/json' -d '";
-	sig = assemble(sift(getQuotes(input), tLimit));
-
-	command += sig + "' -X POST \"http://localhost:3000\"";
+	Port port = argv[3];
 	
+	t = clock();
+	command = "curl -H 'Content-Type: application/json' -d '" + assemble(sift(getQuotes(input), tLimit)) + "' -X POST \"http://localhost:" + port + "\"";
 	o = system(command.c_str());
 
 	t = clock() - t;

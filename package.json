@@ -5,6 +5,7 @@
     "child-process-ext": "^2.1.1",
     "coingecko-api": "^1.0.10",
     "create-require": "^1.1.1",
+    "hono": "^2.0.9",
     "jsonic": "^1.0.1",
     "mathjs": "^10.6.3",
     "n": "^9.0.0",
