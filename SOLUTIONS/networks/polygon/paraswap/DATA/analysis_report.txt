@@ -36,7 +36,7 @@ Chain Details:
   "decimals": 18
 },
   "infoURL": "https: //polygon.technology/",
-  "shortName": "MATIC",
+  "shortName": "matic",
   "chainId": 137,
   "networkId": 137,
   "slip44": 966,
@@ -45,7 +45,7 @@ Chain Details:
   "url": "https: //polygonscan.com",
   "standard": "EIP3091"
 }],
-  "tvl": 1920060631.305796,
+  "tvl": 2100143700.7975137,
   "chainSlug": "polygon"
 }
 ________________________________________________________________

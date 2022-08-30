@@ -28,10 +28,15 @@ chainID=$(cat $exRelPath/DATA/chainID)
 until [ $status -eq 0 ]; do
 
 	./$exRelPath/API/QUERY/TOKENLIST/aux $exchange $network $chainID \
+	&& echo "Parsing list" \
 	&& bun run ./parseList.js $exRelPath \
+	&& echo "Fetching tokens" \
 	&& ./fetchTokens.sh $exRelPath $networkID 1.25 \
+	&& echo "Cleaning list" \
 	&& bun run ./cleanList.js $exRelPath \
+	&& echo "Calculating tokens" \
 	&& bun run ./calcTokens.js $exRelPath $network \
+	&& echo "Formating tokens" \
 	&& bun run ./formatTokens.js $exRelPath $network
 	status=$?
 	

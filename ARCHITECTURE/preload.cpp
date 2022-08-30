@@ -11,6 +11,7 @@ typedef string Hash;
 typedef long   Block;
 typedef string Serial;
 typedef string Filename;
+typedef string Directory;
 typedef string Port;
 
 typedef struct _quotes
@@ -35,34 +36,42 @@ Quote parse(Serial serial)
 	end = block.find_first_of(" ");
 	block = block.substr(0, end);
 
+	if(hash[0] == '\"') {
+		hash = hash.substr(1, hash.length() - 1);
+	}
+
 	quote.hash = hash;
 	quote.block = stol(block);
 	
 	return quote;
 }
 
-Quotes getQuotes(Filename input)
+Quotes getQuotes(Directory dir)
 {
+	Filename refined = dir + "/refined.srls"; 
 	fstream load;
-
+	
 	Quotes quotes;
 	Serial serial;
 
-	load.open(input, ios::in);
+	load.open(refined, ios::in);
 
 	if (load.is_open())
 	{
 		while (getline(load, serial, '\n'))
 		{
 			quotes.push_back(parse(serial));
+			//cout << "Hash:\t " << parse(serial).hash << endl;
+			//cout << "Serial:\t " << serial << endl;
 
 		}
-		//cout << "Loaded refined serials from:\t" << input << endl;
+		//cout << "Loaded refined serials from:\t" << refined << endl;
 		load.close();
+
 	}
 	else
 	{
-		cout << "Attention: Could not load refined serials from:\t" << input << endl;
+		cout << "Attention: Could not load refined serials from:\t" << refined << endl;
 		exit(EXIT_FAILURE);
 	}
 
@@ -87,37 +96,56 @@ Quotes sift(Quotes quotes, uint tLimit)
 	return sifted;
 }
 
-auto assemble(Quotes quotes)
+auto assemble(Quotes quotes, Directory dir)
 {
 	size_t index = 0;
 	size_t limit = quotes.size();
 	string sig;
-
-	sig = "[\n";
-	for (auto quote : quotes)
+	string ledger = "[";
+	string object = "";
+	Filename parsed = dir + "/parsed/collection.json";
+	//cout << "Limit:\t" << limit << endl;
+	if (limit > 0)
 	{
-		sig += "\t[\n";
-		for(auto i = 0; i < limit; i++)
+		sig = "[\n";
+		for (auto quote : quotes)
 		{
-				
-			sig += "\t\t[\n\t\t\t{\n\t\t\t\t\"hash\": \"" + quote.hash + "\",\n\t\t\t\t\"block\": " + to_string(quote.block) + "\n\t\t\t}"; 
-			for(auto x = 1; x < i; x++)
+			ledger += "{\n\t\t\t\t\"hash\": \"" + quote.hash + "\",\n\t\t\t\t\"block\": " + to_string(quote.block) + "\n\t\t\t},"; 
+			sig += "\t[\n";
+			for(auto i = 0; i < limit; i++)
 			{
-				if (quote.hash != quotes[x].hash) 
+				
+				sig += "\t\t[\n\t\t\t{\n\t\t\t\t\"hash\": \"" + quote.hash + "\",\n\t\t\t\t\"block\": " + to_string(quote.block) + "\n\t\t\t}"; 
+				for(auto x = 1; x < i; x++)
 				{
-					sig += ",\n\t\t\t{\n\t\t\t\t\"hash\": \"" + quotes[x].hash + "\",\n\t\t\t\t\"block\": " + to_string(quotes[x].block) + "\n\t\t\t}";
-				}	
+					if (quote.hash != quotes[x].hash) 
+					{
+						sig += ",\n\t\t\t{\n\t\t\t\t\"hash\": \"" + quotes[x].hash + "\",\n\t\t\t\t\"block\": " + to_string(quotes[x].block) + "\n\t\t\t}";
+					}	
+				}
+				sig += "\n\t\t],";
 			}
-			sig += "\n\t\t],";
+			sig.pop_back();
+			sig += "\n\t],";
+			index++;
 		}
+		ledger.pop_back();
+		ledger += "],";
 		sig.pop_back();
-		sig += "\n\t],";
-		index++;
-	}
-	sig.pop_back();
-	sig += "\n]";
+		sig += "\n]";
 
-	return sig;
+		object += "{\"ledger\":" + ledger + "\"data\":" + sig + ",\"collection\":\"" + parsed + "\"}";
+	}
+	else 
+	{
+		ledger = "[],";
+		sig = ledger;
+		parsed = "[]";
+		object = "{\"ledger\":" + ledger + "\"data\":" + sig + "\"collection\":" + parsed + "}";
+	}
+	
+
+	return object;
 }
 
 int main(int argc, char *argv[])
@@ -127,27 +155,31 @@ int main(int argc, char *argv[])
 	size_t o;
 	string command;
 	
-	Filename input = argv[1];
+	Directory directory = argv[1];
 	uint tLimit = stoi(argv[2]);
 	Port port = argv[3];
 	
-	t = clock();
-	command = "curl -H 'Content-Type: application/json' -d '" + assemble(sift(getQuotes(input), tLimit)) + "' -X POST \"http://localhost:" + port + "\"";
-	o = system(command.c_str());
-
-	t = clock() - t;
-   	time_taken = ((double)t) / CLOCKS_PER_SEC;
-
-	printf("\n__________________________________________________________\n");
-	if (time_taken < 1)
-		printf("\nComposing all available quotes took %f ms to execute.\n", time_taken * 1000);
-	else if (time_taken <= 60)
-		printf("\nComposing all available quotes took %f seconds to execute.\n", time_taken);
-	else if (time_taken >= 60)
-		printf("\nComposing all available quotes took %f minutes to execute.\n", time_taken / 60);
-	else if (time_taken >= 60 * 60)
-		printf("\nComposing all available quotes took %f hours to execute.\n", time_taken / 60 / 60);
-	printf("\n\n");
+	//do {
+		t = clock();
+		command = "curl -H 'Content-Type: application/json' -d '" + assemble(sift(getQuotes(directory), tLimit), directory) + "' -X POST \"http://localhost:" + port + "\"";
 	
+		//cout << command << endl;
+
+		o = system(command.c_str());
+
+		t = clock() - t;
+   		time_taken = ((double)t) / CLOCKS_PER_SEC;
+
+		printf("\n__________________________________________________________\n");
+		if (time_taken < 1)
+			printf("\nComposing all available quotes took %f ms to execute.\n", time_taken * 1000);
+		else if (time_taken <= 60)
+			printf("\nComposing all available quotes took %f seconds to execute.\n", time_taken);
+		else if (time_taken >= 60)
+			printf("\nComposing all available quotes took %f minutes to execute.\n", time_taken / 60);
+		else if (time_taken >= 60 * 60)
+			printf("\nComposing all available quotes took %f hours to execute.\n", time_taken / 60 / 60);
+		printf("\n\n");
+	/*//} while(true);*/
 	return 0;
 }

@@ -9,8 +9,10 @@ let _parse = data => {
     try {
         res = JSON.parse(data);
     } catch(e) {
-	console.error("Alert:\tCould not parse quote!")
-	console.warn(data);
+	console.error("Alert:\tCould not parse quote!", e)
+	   console.log("------")
+	console.log("data:\t", data);
+	   console.log("------")
         process.exit(1);
     }
     return res;
@@ -376,6 +378,7 @@ let encode = () => {
 		let id = match(route)
 		let schema = get(id)
 		let index = getIndex(id)
+		console.log("SCHEMA.MAP @ parse.js:\t", schema.map)
 		let basket = collect(route, schema.map)
 		let percent = route.totalPercent
 		basket = group(basket, "uint256", "percent", percent)
@@ -417,9 +420,70 @@ let encode = () => {
 	*/return data;
 }
 
-let load = encode();
+let MRC = parseFloat(process.argv[4])
 
-printData(output, load);
-//console.log(output)
+let grab = key => parseFloat(due.priceRoute[key])
+
+let gas = grab("gasCostUSD")
+
+let bid = grab("srcUSD");
+
+let quote = grab("destUSD");
+
+let applyMRC = q => q * MRC;
+
+let fees = applyMRC(quote) + gas;
+
+let profit = quote - (bid + fees);
+
+let profitability = profit/quote
+
+let profitable = profitability > 0;
+
+let stats = {
+	profit: profit,
+	profitability: profitability,
+	profitable: profitable
+}
+
+let fToken = due.priceRoute.srcToken
+let tToken = due.priceRoute.destToken
+let tailOf = token => [...token].splice(token.length - 3, token.length).join("")
+let hashOf = (f, t) => tailOf(f) + tailOf(t)
+let hash = hashOf(fToken, tToken);
+
+let id = {
+	hash: hash, 
+	block: due.priceRoute.blockNumber
+}
+
+let allData = encode();
+
+let meta = [
+	[
+		"address",
+		"address",
+		"uint256"
+	],
+	[
+		fToken,
+		tToken,
+		due.priceRoute.srcAmount
+	]
+]
+
+let load = {
+	meta: meta,
+	routes: allData
+}
+
+let cargo = {
+	id: id,
+	stats: stats,
+	load: load
+}
+
+printData(output, cargo);
+//console.log("Cargo:\t", cargo);
 //Bun.write("../SOLUTIONS/networks/fantom/paraswap/DATA/QUOTES/loVol/parsed/aed2de.json", load)
 //Bun.write("/2ed2de.json", load)

@@ -1,0 +1,2 @@
+#!/bin/bash
+../again polygon 10 ./test

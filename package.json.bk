@@ -1,0 +1,20 @@
+{
+  "dependencies": {
+    "bent": "^7.3.12",
+    "cheerio": "^1.0.0-rc.12",
+    "child-process-ext": "^2.1.1",
+    "child_process": "^1.0.2",
+    "coingecko-api": "^1.0.10",
+    "create-require": "^1.1.1",
+    "hono": "^2.0.9",
+    "inflight": "^1.0.6",
+    "inherits": "^2.0.4",
+    "jsonic": "^1.0.1",
+    "mathjs": "^10.6.3",
+    "n": "^9.0.0",
+    "once": "^1.4.0",
+    "path-is-absolute": "^2.0.0",
+    "request": "^2.88.2",
+    "shelljs": "^0.8.5"
+  }
+}

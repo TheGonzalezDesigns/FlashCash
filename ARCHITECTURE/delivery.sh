@@ -1,16 +1,14 @@
 #!/bin/bash
 
 exchange=$1
-network=$2
-vol=$3
-relPath=../SOLUTIONS/networks/$2/
+vol=$2
 
-exchange=$relPath/$exchange
-mrc=$(cat "$exchange/DATA/mrc")
-spread=$(cat "$exchange/DATA/spread")
 trailLimit=$(cat "$exchange/DATA/trailLimit")
+dir=$exchange"/DATA/QUOTES/"$vol"Vol"
+port=8888
+path=$port/claim
 
-./preload.o $exchange $network $vol \
+./preload.o $dir $trailLimit $path  \
 #&& sleep .0005 \
 #&& bun run ./filterQuotes.js $exchange $network $vol $mrc $trailLimit
 #fastify api aka ./port.js

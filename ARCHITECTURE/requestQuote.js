@@ -1,4 +1,4 @@
-const { exec } = require("shelljs");
+const execShPromise = require("exec-sh").promise;
 const hash = process.argv[2];
 const contractA = process.argv[3];
 const contractB = process.argv[4];
@@ -8,21 +8,21 @@ const chainID = process.argv[7];
 const xName = process.argv[8];
 let   map = process.argv[9];
 const vol = process.argv[10];
+const network = process.argv[11];
+const mrc = process.argv[12];
+const spread = process.argv[13];
+const trailLimit = process.argv[14];
 const script = `${exchange}/API/QUERY/PAIR/aux`
 const cmnd = `${script} ${xName} ${chainID} ${contractA} ${contractB} ${price} &` 
 
 const objetify = str => JSON.parse(([...str].join("")))
 const getRes = res => objetify([...res].splice(res.search(/{.+}/), res.length).join(""))
-const getCode = res => objetify([...res]
-	.splice(0, res.search(/$/m))
-	.splice(res.search(/(?<=HTTP\/2\s)\d+/), res.search(/$/m))
-	.join("")
-	.replace(/\s/, ''))
-
+const getCode = res => parseInt([...res].splice(7, 10).join(""))
 const access = (data, keys) => {
     keys.forEach(key => data = data[key]);
     return data;
 }
+
 map = objetify(map);
 
 const elucidate = data => {
@@ -46,9 +46,28 @@ const elucidate = data => {
 	console.log(o);
 	return o;
 };
-let exc = (cmd, fn) => {
-    let prcs = exec(cmd);
-    fn(prcs.stderr, prcs.stdout, prcs.stderr);
+
+let exec = async (cmd, fn) => {
+	let prcs;
+	try {
+    		prcs = await execShPromise(cmd, true);
+		//console.log("PRCS:\t", prcs)
+	} catch (e) {
+		console.error(e?.stdout + e?.stderr);
+		//console.error("Request Error:\t", e.stderr);
+		//console.error("Request Error:\t", Object.keys(e));
+		//return e;
+	}
+	let out = {
+		stdout: "",
+		stderr: ""
+	}
+
+	out.stderr = prcs?.stderr !== undefined ? prcs.stderr : "";
+	out.stdout = prcs?.stdout !== undefined ? prcs.stdout : "";
+
+    	return fn(out.stderr, out.stdout, out.stderr);
+	//console.log('out: ', out.stdout, out.stderr);
 }
 
 const pause = () => {
@@ -78,29 +97,58 @@ const print = (hash, data) => {
     })
 }
 
-const parse = (hash, data) => {	
-    const cmnd = `./parse.sh "${hash}" "${JSON.stringify(JSON.stringify(data))}" &`;
-    exec(cmnd)
+const parse = async (hash, data, mrc) => {	
+	const cmnd = `./parse.sh "${hash}" "${JSON.stringify(JSON.stringify(data))}" "${mrc}" &`;
+	await exec(cmnd, (error, stdout, stderr) => {
+		//console.info(`${stdout}${stderr}`);
+	});
 }
 
 const echo = (hash, data) => {	
     const cmnd = `echo "${JSON.stringify(JSON.stringify(data))}" > ./${hash}`;
-    exec(cmnd)
+    exec(cmnd, () => {})
 }
+
+const assemble = async () => {
+	let code;
+    	const cmnd = `./assemble.sh ${xName} ${network} ${vol} ${mrc} ${spread} ${trailLimit}`;
+    	await exec(cmnd, (error, stdout, stderr) => {
+        	//console.info(`\nASSEMBLE OUT:\t${stdout}`);
+        	//console.info(`\nASSEMBLE ERR:\t${stderr}`);
+		code = stdout;
+	})
+	return !code ? true : false;
+}
+
+const delivery = () => {
+	const cmnd = `./delivery.sh ${exchange} ${vol}`;
+		exec(cmnd, (error, stdout, stderr) => {
+		console.info(`${stdout}`);
+	})
+};
 
 const _process = (hash, data) => {
         print(hash, elucidate(data));
-	    parse(hash, data);
-        // console.log(data)
+	Promise.resolve(assemble())
+	.then(
+		async (cont) => {
+			if(!cont) {
+				await parse(hash, data, mrc);
+				delivery();
+			}
+		},
+		(reason) => console.log("Real Error:\t", reason)
+	)
 }
 
 exec(cmnd, (error, stdout, stderr) => {
-    //stdout.length && console.log(stdout)
     const code = getCode(stdout)
     const data = code == 200 ? getRes(stdout) : null;
     if (data) {
         resume();
-	    _process(hash, data);
+	_process(hash, data);
     }
-    else assess(code);
+    else {
+	assess(code);
+    }
 });

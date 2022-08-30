@@ -1,0 +1,83 @@
+Progress: resolved 0, reused 1, downloaded 0, added 0
+Progress: resolved 8, reused 7, downloaded 0, added 0
+Progress: resolved 9, reused 8, downloaded 0, added 0
+ WARN  deprecated request@2.88.2: request has been deprecated, see https://github.com/request/request/issues/3142
+Progress: resolved 17, reused 16, downloaded 0, added 0
+Progress: resolved 17, reused 17, downloaded 0, added 0
+Progress: resolved 41, reused 23, downloaded 0, added 0
+Progress: resolved 47, reused 26, downloaded 0, added 0
+Progress: resolved 47, reused 27, downloaded 0, added 0
+Progress: resolved 69, reused 43, downloaded 0, added 0
+Progress: resolved 75, reused 49, downloaded 0, added 0
+Progress: resolved 81, reused 55, downloaded 0, added 0
+Progress: resolved 99, reused 75, downloaded 0, added 0
+Progress: resolved 108, reused 85, downloaded 0, added 0
+ WARN  deprecated har-validator@5.1.5: this library is no longer supported
+Progress: resolved 133, reused 107, downloaded 0, added 0
+ WARN  deprecated uuid@3.4.0: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
+Progress: resolved 158, reused 141, downloaded 0, added 0
+Progress: resolved 167, reused 146, downloaded 0, added 0
+Progress: resolved 183, reused 157, downloaded 0, added 0
+Progress: resolved 219, reused 183, downloaded 0, added 0
+Progress: resolved 231, reused 194, downloaded 0, added 0
+Progress: resolved 248, reused 210, downloaded 0, added 0
+Progress: resolved 290, reused 239, downloaded 0, added 0
+Progress: resolved 318, reused 266, downloaded 0, added 0
+Progress: resolved 318, reused 267, downloaded 0, added 0
+Progress: resolved 347, reused 290, downloaded 0, added 0
+Progress: resolved 405, reused 321, downloaded 0, added 0
+Progress: resolved 486, reused 358, downloaded 0, added 0
+Progress: resolved 537, reused 395, downloaded 0, added 0
+Progress: resolved 644, reused 431, downloaded 0, added 0
+Packages: +18 -2
+++++++++++++++++++--
+Progress: resolved 644, reused 431, downloaded 0, added 1
+Progress: resolved 644, reused 431, downloaded 0, added 2
+Progress: resolved 644, reused 431, downloaded 0, added 3
+Progress: resolved 644, reused 431, downloaded 0, added 3, done
+
+devDependencies:
+- @nomicfoundation/hardhat-toolbox 1.0.2
++ @nomicfoundation/hardhat-toolbox 1.0.2
+- hardhat 2.10.2
++ hardhat 2.10.2
++ ts-node 10.9.1
+
+ WARN  Issues with peer dependencies found
+.
+├─┬ ts-node
+│ └── ✕ missing peer typescript@>=2.7
+├─┬ @nomicfoundation/hardhat-toolbox
+│ ├── ✕ missing peer typescript@>=4.5.0
+│ ├── ✕ missing peer @ethersproject/providers@^5.4.7
+│ ├── ✕ missing peer @nomicfoundation/hardhat-network-helpers@^1.0.0
+│ ├── ✕ missing peer @nomicfoundation/hardhat-chai-matchers@^1.0.0
+│ ├── ✕ missing peer @nomiclabs/hardhat-ethers@^2.0.0
+│ ├── ✕ missing peer @types/chai@^4.2.0
+│ ├── ✕ missing peer @types/mocha@^9.1.0
+│ ├── ✕ missing peer @typechain/ethers-v5@^10.1.0
+│ ├── ✕ missing peer @typechain/hardhat@^6.1.2
+│ ├── ✕ missing peer chai@^4.2.0
+│ ├── ✕ missing peer ethers@^5.4.7
+│ ├── ✕ missing peer hardhat-gas-reporter@^1.0.8
+│ ├── ✕ missing peer solidity-coverage@^0.7.21
+│ └── ✕ missing peer typechain@^8.1.0
+└─┬ hardhat
+  └── ✕ missing peer typescript@"*"
+Peer dependencies that should be installed:
+  @ethersproject/providers@^5.4.7
+  @nomicfoundation/hardhat-chai-matchers@^1.0.0
+  @nomicfoundation/hardhat-network-helpers@^1.0.0
+  @nomiclabs/hardhat-ethers@^2.0.0
+  @typechain/ethers-v5@^10.1.0
+  @typechain/hardhat@^6.1.2
+  @types/chai@^4.2.0
+  @types/mocha@^9.1.0
+  chai@^4.2.0
+  ethers@^5.4.7
+  hardhat-gas-reporter@^1.0.8
+  solidity-coverage@^0.7.21
+  typechain@^8.1.0
+  typescript@>=4.5.0
+
+ WARN  The integrity of 2586 files was checked. This might have caused installation to take longer.

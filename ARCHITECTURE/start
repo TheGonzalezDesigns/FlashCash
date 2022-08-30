@@ -33,9 +33,8 @@ fi
 until [ $status -eq 0 ]; do
 	../TOOLS/switch.sh $exchange 1
 	sleep .01
-	./continue $exchange 14400 silent ./compose $1 $2 $3
-	./continue $exchange 0 ./deployBinaries.sh $exchange $exchange"/DATA/"$vol"CTVInterlacedBinaries.srls" $vol 
-	./again $exchange .0375 silent ./assemble.sh $1 $network $vol
+	./continue $exchange 14400 silent ./compose.sh $1 $2 $3
+	./continue $exchange 0 ./deployBinaries.sh $exchange $exchange"/DATA/"$vol"CTVInterlacedBinaries.srls" $vol $network 
 	status=$?
 	
 	if [[ $status -ne 0  ]]; then
@@ -52,8 +51,3 @@ if [[ $status -eq 0 && $errStatus -eq 0 ]]; then
 	echo "Get excited bitch, we're about to be rich!"
 	echo -e
 fi
-
-#loop hiden
-#loop shown
-#loop loops the process over and over again with a wait time
-#hiden means the process within has a & flag added

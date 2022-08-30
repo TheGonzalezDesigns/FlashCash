@@ -1,3 +1,9 @@
-#!/bin/bash
+dir=$(pwd)
 
-../TOOLS/again 14400 ./start $1 $2
+cd ../BUREAU
+exchange=$(./exchange)
+network=$(./network)
+
+cd $dir
+
+./start $exchange $network &

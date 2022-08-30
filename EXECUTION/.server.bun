@@ -1,0 +1,102 @@
+import { Hono } from 'hono'
+
+const app = new Hono()
+
+let i = 0;
+let c = 0;
+let silent = true
+let check  = (marker) => !silent && console.log(`\n\r-->>> Check #${c++}: ${marker}`);
+let reset = () => c = 0;
+
+let process = (b, c) => {
+		check("Entered process");
+	let cargo = {
+		baggage: b,
+		collection: c
+	}
+	
+	check("Formed cargo");
+	
+	cargo.collection = [...cargo.collection].filter(load => load.stats.profitable)
+	
+	check("Curated cargo collection");
+	
+	let collection = {};
+	let profits = {};
+		//console.log("Cargo:\t", cargo);	
+	[...cargo.collection].forEach(load => collection[load.id.hash] = load)
+	
+	check("Iterated through collection");
+	profits = [...cargo.collection]
+		.map(load => load?.stats)
+
+	check("Iterated through profits");
+	yell("Profits", profits)
+	
+	let audited = [...cargo.baggage.ledger]
+		.filter(bag => collection[bag.hash].id.block == bag.block).map(bag => collection[bag.hash].load)
+	
+	check("Audit formed");
+	//console.clear();
+	//console.error(`Audit #${i++}:\t`, audited)
+	//console.error(`Cargo #${i++}:\t`, cargo)
+	check("Process end");
+	//Bun.write("./cargo.json", JSON.stringify(cargo))
+	return audited;
+}
+
+let deliver = crates => {
+	check("Beggining delivery");
+	yell("crates", crates)
+}
+
+
+let yell = (name, what) => {
+	    console.log("\n\n\t\t                   ______________________                 ")
+	    console.log("\t\t         ___________________________________________          ")
+	    console.log("\t\t______________________________________________________________")
+	    console.log(`\t_________________________${name.split('').join("_").split('').map(t => t.toUpperCase()).join('_')}__________________________`)
+	    console.log("\t\t______________________________________________________________")
+	    console.log("\t\t",what)
+	    console.log("\t\t______________________________________________________________")
+	    console.log("\t\t         ___________________________________________          ")
+	    console.log("\t\t                   ______________________                 \n\n")
+}
+
+console.info("Server initiated...");
+
+let ld = 0;
+
+setInterval(() => {
+	console.log(`#${ld++}: Server listening...`);
+}, 2000);
+
+const home = app.post('/claim', async (c) => {
+	reset();
+	const baggage = await c.req.parseBody();
+	check("Recieve req body");
+	yell("BAGGAGE", baggage);
+	const status = "Baggage " + (c._status == 200 ? "found" : "lost");
+	check("Establish Status");
+	if (baggage?.collection.length > 0) {
+		check("Entered first conditional: (baggage?.collection.length > 0)");
+		const collection = await Bun.file(baggage.collection).json();
+		check("Retrieved collection");
+		if (Object.keys(collection).length > 0) {
+			check("Entered second conditional: (Object.keys(collection) > 0)");
+			let audited = process(baggage, collection)
+
+			if (Object.keys(audited).length > 0) {
+				deliver(audited);
+			}
+			check("Exited process");
+		}
+	}
+	check("Exited all conditionals;")
+	return c.text(status)
+})
+
+export default {
+	port: 8888,
+	fetch: home.fetch
+}

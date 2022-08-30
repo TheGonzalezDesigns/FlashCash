@@ -25,7 +25,15 @@ const tokens = JSON.parse(file);
 //1 Format tokens to contain only contract andd market data;
 
 const formatTokens = tokens => {
-	return tokens.map(token => {
+	return tokens
+		.filter(token => {
+			let condition = (token.data?.status == undefined || token.data?.status == null)
+			//console.log(`${token.contract} => ${token?.status} => condition is ${condition}`)
+			
+			return condition
+		})
+		.map(token => {
+
 		return {
 			contract: token.contract,
 			marketData: token.data.market_data
@@ -38,18 +46,24 @@ const formatTokens = tokens => {
 const calcVariance = (dailyHigh, dailyLow) => (dailyHigh - dailyLow) / dailyLow
 const calcVolatility = (high, low) => Math.sqrt(252) * Math.sqrt(calcVariance(high, low));
 const getVol = token => {
+	//console.log("Token:\t", token)
 	const marketData = token.marketData;
-	//console.log(`Market data for ${token.contract}`);
-	//console.info(marketData);
-	// We might revist the idea of basing all volatility on another incredibly volatile asset like the dollar, but in theory, a day should not be enough to affect the vol metric significantly.
-	const dailyHighUsd = marketData["high_24h"]["usd"];	
-	const dailyLowUsd = marketData["low_24h"]["usd"];
-	const coinVolatility = calcVolatility(dailyHighUsd, dailyLowUsd);
+	let coinVolatility = null;
+	if (!(marketData == null || marketData == undefined || marketData == [] || marketData == {})) {
+		console.log(`Retrieved Market data for ${token.contract}`);
+		//console.info(marketData);
+		// We might revist the idea of basing all volatility on another incredibly volatile asset like the dollar, but in theory, a day should not be enough to affect the vol metric significantly.
+		const dailyHighUsd = marketData["high_24h"]["usd"];	
+		const dailyLowUsd = marketData["low_24h"]["usd"];
+		coinVolatility = calcVolatility(dailyHighUsd, dailyLowUsd);
+	} else {
+		console.log(`Bounced Market data for ${token.contract}`);
+	}
 	return coinVolatility;
 }
 
 //2 Extract Market Capa data
-const getCap = token => token.marketData.market_cap.usd;
+const getCap = token => token?.marketData?.market_cap?.usd;
 
 let purged = 0;
 let relPurged = 0;
@@ -60,7 +74,7 @@ let totalLoss = 0;
 let relTotalLoss = 0;
 const MIN_CAP = 1000000 //- last command, this means we'll sqeueez the optimizer epix in between architecture and execution. The assesor below will come at a later time. -. you want to include slippage as part of the gas filter such that the profit - slippage is still greater than the gas. when executing filtered and optimized trinaries/pairs, must be sorted such that the most profitable and (block)recent transactions go out first. 
 //const MAX_TOKENS = 840;
-const MAX_TOKENS = 216; //perm(216, 3) = ~<10M max MDA size in C
+const MAX_TOKENS = 2160; //perm(216, 3) = ~<10M max MDA size in C
 
 const getCalcTokens = coins => {
 	relPurged = coins.length

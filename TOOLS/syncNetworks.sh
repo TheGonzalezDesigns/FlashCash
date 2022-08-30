@@ -2,7 +2,7 @@
 
 directory=../SOLUTIONS/networks
 networks=$(dir $directory)
-model="polygon"
+model="fantom"
 template=$directory/$model/*
 
 echo "Now syncing all networks with $model."

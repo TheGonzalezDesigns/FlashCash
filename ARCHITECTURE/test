@@ -7,3 +7,4 @@ killall -r continue
 killall -r deploy
 killall -r bun
 killall -r node
+killall -r preload.o
