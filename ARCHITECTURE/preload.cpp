@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
 	
 	//do {
 		t = clock();
-		command = "curl -H 'Content-Type: application/json' -d '" + assemble(sift(getQuotes(directory), tLimit), directory) + "' -X POST \"http://localhost:" + port + "\"";
+		command = "curl -H 'Content-Type: application/json' -d '" + assemble(sift(getQuotes(directory), tLimit), directory) + "' -X POST http://localhost:" + port + " -L";
 	
 		//cout << command << endl;
 

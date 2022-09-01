@@ -1,0 +1,15 @@
+{
+  "0 debug pnpm:scope": {
+    "selected": 1
+  },
+  "1 error pnpm": {
+    "code": "ERR_PNPM_CANNOT_REMOVE_MISSING_DEPS",
+    "hint": "Available dependencies: @ethersproject/abi, @ethersproject/providers, @nomicfoundation/hardhat-chai-matchers, @nomicfoundation/hardhat-network-helpers, @nomicfoundation/hardhat-toolbox, @nomiclabs/hardhat-etherscan, @typechain/ethers-v5, @typechain/hardhat, @types/chai, @types/node, chai, ethers, hardhat, ts-node, typechain, typescript, bent, cheerio, child-process-ext, coingecko-api, create-require, curl, curling, exec-sh, hono, jsonic, mathjs, n, node-libcurl, request, shelljs",
+    "err": {
+      "name": "pnpm",
+      "message": "Cannot remove 'libcurl': no such dependency found",
+      "code": "ERR_PNPM_CANNOT_REMOVE_MISSING_DEPS",
+      "stack": "pnpm: Cannot remove 'libcurl': no such dependency found\n    at Object.handler (/home/cemartien/.node/corepack/pnpm/7.5.0/dist/pnpm.cjs:128765:15)\n    at async /home/cemartien/.node/corepack/pnpm/7.5.0/dist/pnpm.cjs:192593:21\n    at async run (/home/cemartien/.node/corepack/pnpm/7.5.0/dist/pnpm.cjs:192567:34)\n    at async runPnpm (/home/cemartien/.node/corepack/pnpm/7.5.0/dist/pnpm.cjs:192785:5)\n    at async /home/cemartien/.node/corepack/pnpm/7.5.0/dist/pnpm.cjs:192777:7"
+    }
+  }
+}

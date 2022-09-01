@@ -1,2 +1,10 @@
 #!/bin/bash
-bun run ./server.js 
+origin=$(pwd)
+
+
+cd CONTRACTS/SERVER 
+./run.sh &
+cd $origin
+cd ./TERMINAL
+./run.sh &
+echo "ALL TERMINALS READY"

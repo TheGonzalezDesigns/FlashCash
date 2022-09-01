@@ -1,0 +1,70 @@
+import { send } from "./utils.js";
+
+export const yell = (name, what) => {
+	        let t = "";
+
+	        const r = (...d) => {
+			let y = [...d].map(x => (typeof x) == 'object' ? JSON.stringify(x) : x).join("")
+			t += `${y}\n`;
+			console.log(...d);
+		}
+
+	        r("\n\n\t\t                   ______________________                 ")
+	        r("\t\t         ___________________________________________          ")
+	        r("\t\t______________________________________________________________")
+	        r(`\t_________________________${name.split('').join("_").split('').map(t => t.toUpperCase()).join('_')}__________________________`)
+		r("\t\t______________________________________________________________")
+	        r("\t\t", what)
+	        r("\t\t______________________________________________________________")
+	        r("\t\t         ___________________________________________          ")
+	        r("\t\t                   ______________________                 \n\n")
+	        return t;
+}
+
+export const process = (b, c) => {
+
+	let cargo = {
+		baggage: b,
+		collection: c
+	}
+	//yell("PROCESSING", cargo);
+	cargo.collection = [...cargo.collection].filter(load => load.stats.profitable)
+
+	let collection = {};
+	let profits = {};
+	[...cargo.collection].forEach(load => collection[load.id.hash] = load)
+
+	profits = [...cargo.collection]
+		.map(load => load?.stats)
+
+	yell("Profits", profits)
+
+
+	//yell("ledger", [...cargo.baggage.ledger])
+	
+	//yell("collection", collection)
+	let audited = [...cargo.baggage.ledger]
+		.filter(bag => collection[bag.hash]?.id.block == bag.block)
+		.map(bag => collection[bag.hash]?.load)     
+
+
+	//yell("audited", audited)
+
+	return audited;
+}
+
+export const deliver = async (crates) => {
+	yell("crates", crates)
+	const path = "/contracts"
+	const ops = {
+		method: 'POST',
+		headers: {
+			'Accept': 'application/json',
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(crates)
+	}
+	const res = await send(path, ops)
+	yell("Response", res)
+	return res;
+}

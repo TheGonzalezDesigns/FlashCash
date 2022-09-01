@@ -45,7 +45,7 @@ Chain Details:
   "url": "https: //polygonscan.com",
   "standard": "EIP3091"
 }],
-  "tvl": 2100143700.7975137,
+  "tvl": 2072986341.5098464,
   "chainSlug": "polygon"
 }
 ________________________________________________________________
