@@ -124,6 +124,7 @@ const delivery = () => {
 	const cmnd = `./delivery.sh ${exchange} ${vol}`;
 		exec(cmnd, (error, stdout, stderr) => {
 		console.info(`${stdout}`);
+		console.info(`${stderr}`);
 	})
 };
 

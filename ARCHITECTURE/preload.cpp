@@ -65,7 +65,7 @@ Quotes getQuotes(Directory dir)
 			//cout << "Serial:\t " << serial << endl;
 
 		}
-		//cout << "Loaded refined serials from:\t" << refined << endl;
+		cout << "Loaded refined serials from:\t" << refined << endl;
 		load.close();
 
 	}
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
 		t = clock();
 		command = "curl -H 'Content-Type: application/json' -d '" + assemble(sift(getQuotes(directory), tLimit), directory) + "' -X POST http://localhost:" + port + " -L";
 	
-		//cout << command << endl;
+		cout << command << endl;
 
 		o = system(command.c_str());
 

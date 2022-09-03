@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { compose, yell, send } from './utils.js'
-import { process, deliver } from './validate.js'
+import { audit, deliver } from './validate.js'
 
 const name = "offchain";
 
@@ -18,9 +18,18 @@ _.post('/validate', async (c) => {
 	if(c._status == 200) {
 		if (baggage?.collection.length > 0) {
 			console.log("Baggage", baggage)
-			const collection = await Bun.file(baggage.collection).json();
+			const path = `${process.env.PWD}/../${baggage.collection}`
+			let collection;
+			try {
+				//console.log("baggage.collection:\t", path)
+				//console.log("PWD:\t", process.env.PWD)
+				collection = await Bun.file(path).json();
+				//console.log("collection:\t", collection)
+			} catch (e) {
+				console.error("File error:\t", e);
+			}
 			if (Object.keys(collection).length > 0) {
-				const audited = process(baggage, collection)
+				const audited = audit(baggage, collection)
 				if (Object.keys(audited).length > 0) {
 					return deliver(audited);
 				}

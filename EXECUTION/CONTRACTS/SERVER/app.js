@@ -1,5 +1,4 @@
 'use strict'
-
 const path = require('path')
 const AutoLoad = require('@fastify/autoload')
 const cors = require('@fastify/cors')
@@ -13,6 +12,8 @@ const ops = {
 }
 
 const I = require("./../interface.js");
+
+const wave = () => console.info("_.:BLOCKCHAIN TERMINAL READY:._")
 
 module.exports = async function (fastify, opts) {
   const contract = await I.initialize();
@@ -34,5 +35,6 @@ module.exports = async function (fastify, opts) {
     dir: path.join(__dirname, 'routes'),
     options: Object.assign({}, opts)
   })
-  console.info("_.:BLOCKCHAIN TERMINAL READY:._")
+  wave();
+  setInterval(wave, 3000);
 }

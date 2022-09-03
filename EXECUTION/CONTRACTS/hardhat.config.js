@@ -8,7 +8,7 @@ const quicknode = env("quicknode");
 const account = env("private_gas");
 
 exports = {
-	solidity: "0.8.9",
+	solidity: "0.8.16",
 	networks: {}
 };
 

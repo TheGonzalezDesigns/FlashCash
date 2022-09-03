@@ -10,8 +10,8 @@ const account = env("private_gas");
 
 const setContract = async () => {
 	const provider = await new providers.JsonRpcProvider(quicknode);
-	const wallet = new ethers.Wallet(account, provider);
-	const signer = wallet.provider.getSigner(wallet.address);
+	const wallet = new ethers.Wallet(account);
+	const signer = wallet.connect(provider);
 	const contract = await new Contract(source.address, source.abi, signer);
 	return contract;
 }
