@@ -8,7 +8,7 @@ const call = require("../call.js")
 module.exports = async function (fastify, opts) {
   fastify.post('/encrypt', async function (request, reply) {
 	  const message = request.body;
-	  const parcel = JSON.parse(message.envelope);
+	  const parcel = message.envelope;
 
 	  try {
 	  	const enpaque = repack(parcel);
