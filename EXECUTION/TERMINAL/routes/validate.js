@@ -51,17 +51,71 @@ export const audit = (b, c) => {
 	//yell("collection", collection)
 	let audited = [...cargo.baggage.ledger]
 		.filter(bag => collection[bag.hash]?.id.block == bag.block)
-		.map(bag => collection[bag.hash]?.load)     
+		.map(bag => {
+			return { 
+				hash: bag.hash, 
+				load: collection[bag.hash]?.load 
+			}
+		})     
 	
 	profits = [...cargo.collection]
 		.filter(bag => collection[bag.hash]?.id.block == bag.block)
-		.map(load => load?.stats)
+		.map(load => {
+			return { 
+				hash: load.id.hash, 
+				stats: load?.stats 
+			}
+		})
 
-	profits.length && yell("Profits", profits)
+	let rehash = a => { let o = {}; [...a].forEach(i => {o[i.hash] = i; delete o[i.hash]["hash"]}); return o; }
+
+	let verified = [...audited].map(bag => bag.hash)
 	
-	audited.length && yell("audited", audited)
+	audited = rehash(audited)
 
-	return audited;
+	profits = rehash(profits)
+
+
+	let parcel = [...verified].map(hash => {
+		return {
+			stats: {
+				profit: profits[hash].stats.profit,
+				gas: profits[hash].stats.gas,
+			},
+			envelope: audited[hash].load
+		}
+	})
+	
+	let stats = [...parcel].map(i => i.stats)
+
+	let totalProfit = 0;
+
+	let totalGas = 0;
+
+	stats.forEach( stat => {
+		totalProfit += stat.profit;
+		totalGas += stat.gas;
+	})
+
+	stats = {
+		profit: totalProfit,
+		gas: totalGas
+	}
+
+	let envelope = [...parcel].map(i => i.envelope)
+
+	parcel = {
+		stats: stats,
+		envelope: envelope
+	}
+
+	//profits.length && yell("Profits", profits)
+	
+	//audited.length && yell("audited", audited)
+	
+	//parcel.length && yell("final parcel", parcel)
+
+	return parcel;
 }
 
 export const deliver = async (crates) => {
@@ -75,7 +129,9 @@ export const deliver = async (crates) => {
 		},
 		body: JSON.stringify(crates)
 	}
-	const res = await send(path, ops)
-	yell("Response", res)
+	let res = await send(path, ops)
+	res = JSON.parse(await res.text());
+
+	//yell("Response", res)
 	return res;
 }

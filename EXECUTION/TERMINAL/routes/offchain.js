@@ -31,7 +31,8 @@ _.post('/validate', async (c) => {
 			if (Object.keys(collection).length > 0) {
 				const audited = audit(baggage, collection)
 				if (Object.keys(audited).length > 0) {
-					return deliver(audited);
+					let res = deliver(audited);
+					return c.json(res);
 				}
 				return c.json(audited);
 			}
