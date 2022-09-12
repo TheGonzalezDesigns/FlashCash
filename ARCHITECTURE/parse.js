@@ -443,7 +443,8 @@ let profitable = profitability > 0;
 let stats = {
 	profit: profit,
 	profitability: profitability,
-	profitable: profitable
+	profitable: profitable,
+	gas: gas
 }
 
 let fToken = due.priceRoute.srcToken
