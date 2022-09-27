@@ -21,12 +21,14 @@ fi
 
 # SECONDS=0
 quotes=$exchange"/DATA/QUOTES/$vol""Vol"
-files=$(dir $quotes --hide=dispatch.json --hide=hiVol --hide=loVol --hide=refine* -1)
-quantity=$(dir $quotes --hide=dispatch.json --hide=hiVol --hide=loVol  --hide=refine* -1 | wc -l)
+files=$(dir $quotes --hide=dispatch.json --hide=hiVol --hide=loVol --hide=refine* --hide=raw* --hide=parsed -1)
+quantity=$(echo "$files" | wc -l)
+#quantity=$(dir $quotes --hide=dispatch.json --hide=hiVol --hide=loVol  --hide=refine* -1 | wc -l)
 # duration=$SECONDS
 
 
 #valgrind
+#./cq.o "$files" "$quantity" "$quotes/" $trailLimit &
 ./composeQuotes.o "$files" "$quantity" "$quotes/" $trailLimit &
 wait # will open all files and send them to filterQuotes.js
 # echo "$(($duration / 60)) minutes and $(($duration % 60)) seconds elapsed."

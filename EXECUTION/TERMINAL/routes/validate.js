@@ -1,13 +1,13 @@
 import { send } from "./utils.js";
-import chalkAnimation from 'chalk-animation';
+//import chalkAnimation from 'chalk-animation';
 export const yell = (name, what) => {
 	        let t = "";
 
 	        const r = (...d) => {
 			let y = [...d].map(x => (typeof x) == 'object' ? JSON.stringify(x) : x).join("")
 			t += `${y}\n`;
-			//console.log(...d);
-			chalkAnimation.glitch(...d, 2).start();
+			console.log(...d);
+			//chalkAnimation.glitch(...d, 2).start();
 		}
 	
 		const c = (...d) => console.log(...d);
@@ -41,7 +41,7 @@ export const audit = (b, c) => {
 	const ledger = [...cargo.baggage.ledger];
 	const latest = ledger[0]?.block;
 
-	//yell("latest", latest)
+	yell(`Currently @ ${latest}`, "");
 
 	//yell("Collection Age", [...cargo.collection].map(load => latest - load?.id?.block))
 
@@ -104,6 +104,12 @@ export const audit = (b, c) => {
 
 	let envelope = [...parcel].map(i => i.envelope)
 
+	if (!envelope.length) 
+	{
+		//yell("envelope", envelope)
+		return [];
+	}
+		
 	parcel = {
 		stats: stats,
 		envelope: envelope
@@ -113,7 +119,7 @@ export const audit = (b, c) => {
 	
 	//audited.length && yell("audited", audited)
 	
-	//parcel.length && yell("final parcel", parcel)
+	//yell("Final Parcel", parcel)
 
 	return parcel;
 }

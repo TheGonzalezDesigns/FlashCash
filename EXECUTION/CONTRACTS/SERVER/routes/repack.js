@@ -8,7 +8,14 @@ const call = require("../call.js")
 module.exports = async function (fastify, opts) {
   fastify.post('/repack', async function (request, reply) {
 	  const message = request.body;
-	  const parcel = JSON.parse(message);
+	  let parcel;
+	  try {
+	  	parcel = JSON.parse(message);
+	  } catch (e)
+	  {
+	  }
+	  parcel = undefined === parcel ? message : parcel;
+	  console.log(typeof message);
 
 	  try {
 	  	const enpaque = repack(parcel);

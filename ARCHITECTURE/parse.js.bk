@@ -3,20 +3,20 @@ const fs = require("fs");
 const output = `./${process.argv[2]}`;
 
 let input = `${process.argv[3]}`;
-const printData = (output, data) => fs.writeFileSync(output, JSON.stringify(data))/*.then(res => // console.warn(`Printing parsed data to ${output}\n`, data));*/
+const printData = (output, data) => fs.writeFileSync(output, JSON.stringify(data))/*.then(res => console.warn(`Printing parsed data to ${output}\n`, data));*/
 
 let _parse = data => {
-	let res;
-	try {
-	    res = JSON.parse(data);
-	} catch(e) {
-	// console.error("Alert:\tCould not parse quote!", e)
-	// console.log("------")
-	// console.log("data:\t", data);
-	// console.log("------")
-	    process.exit(1);
-	}
-	return res;
+    let res;
+    try {
+        res = JSON.parse(data);
+    } catch(e) {
+	console.error("Alert:\tCould not parse quote!", e)
+	   console.log("------")
+	console.log("data:\t", data);
+	   console.log("------")
+        process.exit(1);
+    }
+    return res;
 }
 
 const due = _parse(input);
@@ -24,18 +24,18 @@ const due = _parse(input);
 const overflowed = quote => quote["error"] !== undefined;
 if (overflowed(due)) 
 {
-	// console.error(`./parse.js: ${due["error"]}`)
+	console.error(`./parse.js: ${due["error"]}`)
 	process.exit(1);
 }
 const network = due.priceRoute.network
 let routes = due.priceRoute.bestRoute.map(route => route.swaps.map(swaps => swaps.swapExchanges.map(swap => {
-	// console.log("SWAP.DATA: ", swap.data)
+	//console.log("SWAP.DATA: ", swap.data)
 	return {
 		//destAmount: swap.destAmount,
 		//blockPercent: route.percent,
 		//swapPercent: swap.percent,
 		pools: swap.poolAddresses,
-		totalPercent: (route.percent * swap.percent), //200 represents 2%
+		totalPercent: (route.percent * swap.percent) * .01,
 		data: swap.data
 	};
 	//return swap.data
@@ -74,14 +74,14 @@ let diffStats = {
 	destAmountPercDiff: (parseInt(due.priceRoute.destAmount) - totalStats.destAmount)/parseInt(due.priceRoute.destAmount)
 }
 
-// console.clear();
-// console.log(stats);
-// console.error("<<-------------------------------------------------------------------------->>");
-// console.warn(totalStats);
-// console.error("<<-------------------------------------------------------------------------->>");
-// console.warn(diffStats);
-// console.error("<<-------------------------------------------------------------------------->>");
-// console.warn(routes);
+console.clear();
+//console.log(stats);
+//console.error("<<-------------------------------------------------------------------------->>");
+//console.warn(totalStats);
+//console.error("<<-------------------------------------------------------------------------->>");
+//console.warn(diffStats);
+//console.error("<<-------------------------------------------------------------------------->>");
+//console.warn(routes);
 */
 let banged = key => key[0] === '!';
 let debang = key => !banged(key) ? key : key.split("").splice(1).join("")
@@ -130,17 +130,17 @@ let alias = (id, alias) => {
 
 let rename = (id, name, rebrand) => {
 	let _o = {...get(id)};
-	// console.log(`Renaming ${name} to ${rebrand}!`)
-	// console.log("I:Map:\t", _o.map)
+	//console.log(`Renaming ${name} to ${rebrand}!`)
+	//console.log("I:Map:\t", _o.map)
 	_o.map.map((item, index) => {
 		if (item.name === name) {
 			item.name = rebrand
-			// console.log(`Item #${index}:\t`, item.name)
+			//console.log(`Item #${index}:\t`, item.name)
 		}
 		return item
 	})
 	save(_o);
-	// console.log("O:Map:\t", get(id).map)
+	//console.log("O:Map:\t", get(id).map)
 }
 
 let reroute = (id, _alias, name, rebrand) => {
@@ -183,36 +183,36 @@ let traverse = (o, ...keys) => {
 	if (keys.length) {
 		let _o = {...o}
 		//let _a = {...o}
-		// console.log("Input:\t", _o);
-		// console.warn("<<-------------------------------------------------------------------------->>");
+		console.log("Input:\t", _o);
+		console.warn("<<-------------------------------------------------------------------------->>");
 		keys.forEach((key, index) => {
-			// console.log(`Key #${index}:\t${key}`)
-			// console.log("_o:\t", _o);
+			console.log(`Key #${index}:\t${key}`)
+			console.log("_o:\t", _o);
 			if (!banged(key[0])) _o = {..._o}[key]
 			else {
-	// console.warn("<<-------------------------------------------------------------------------->>");
-	key = debang(key);
-	// console.log("Key:\t", key)
-	_o = _o ? [..._o].map(y => y[key]) : _o
-	//_o = {..._o}.map(_y => _y[key])//should handle arrays well test and fix
+				console.warn("<<-------------------------------------------------------------------------->>");
+				key = debang(key);
+				console.log("Key:\t", key)
+				_o = _o ? [..._o].map(y => y[key]) : _o
+				//_o = {..._o}.map(_y => _y[key])//should handle arrays well test and fix
 			}
-			// console.log("_o:\t", _o);
+			//console.log("_o:\t", _o);
 			//_a = {..._o}
-			// console.info("_________________________________________________________________")
-			// console.log("_a:\t", _a);
-			// console.info("\\_________________________________________________________________/")
+			//console.info("_________________________________________________________________")
+			//console.log("_a:\t", _a);
+			//console.info("\\_________________________________________________________________/")
 		})
 		_o = _o !== undefined ? _o : null
-		// console.warn("<<-------------------------------------------------------------------------->>");
-		// console.error("Output:\t", _o);
-		// console.error("<<-------------------------------------------------------------------------->>");
+		console.warn("<<-------------------------------------------------------------------------->>");
+		console.error("Output:\t", _o);
+		console.error("<<-------------------------------------------------------------------------->>");
 		return _o;
 	} else return null
 }
 
 to(250);
 //connect();
-// console.log("at:\t", at)
+//console.log("at:\t", at)
 
 wlist(2, "data", "pools", "!address");
 cMap(2, "uint256[]", "data", "pools", "!address", 1);
@@ -238,7 +238,7 @@ cMap(5, "address[]", "pools"); //identity crisis | should be renamed to pools
 reroute(5, 2, "pools", "pools");
 //cMap(5, "address[]", "data", "swaps", "!poolId"); //identity crisis | should be renamed to pools
 //reroute(5, 2, "poolId", "pools");
-// console.log(get(3))
+//console.log(get(3))
 /**/
 connect();
 
@@ -276,24 +276,25 @@ let fill = list => {
 		temp = [...temp].filter(data => {
 			status = true;
 			if (data.name === item.name) {
-	position = data.order;
-	status = false;
+				position = data.order;
+				status = false;
 			}
 			return status;
 		})
 		item["order"] = position;
 		temp = [...temp, item]
 	})
-	// console.log([...list].map(i=>i.name))
+	console.log([...list].map(i=>i.name))
 	//div();
-	// console.log(temp)
+	//console.log(temp)
 	//div();
 	return temp;
 }
 
-// console.log("schemas:\t", schemas)
+//console.log("schemas:\t", schemas)
 
-let find = (route, ...path) => /*(// console.log(`Path: [${path}]\t`) || true) &&*/ traverse(route, ...path) !== null
+let find = (route, ...path) => (console.log(`Path: [${path}]\t`) || true) && traverse(route, ...path) !== null
+//let find = (route, ...path) => /*(console.log(`Path: [${path}]\t`) || true) &&*/ traverse(route, ...path) !== null
 
 let match = route => {
 	let pMatches = [...schemas[at]].filter(schema => find(route, ...schema.whitelist));
@@ -301,13 +302,13 @@ let match = route => {
 
 	let score = match => {
 		let paths = [...match.map].map(o => o.path)
-		// console.log(paths)
+		console.log(paths)
 		let total = 0;
 		paths.forEach(path => {
-			// console.log("Path:", path)
+			console.log("Path:", path)
 			total += (find(route, ...path) ? 1 : 0)
-			// console.log("Path:", path)
-			// console.error("\n******************************************************************\n")
+			console.log("Path:", path)
+			console.error("\n******************************************************************\n")
 		})
 
 		return {
@@ -328,15 +329,17 @@ let match = route => {
 	let greatest = array => array.sort(ascend)[0];
 
 	pMatches = pMatches.map(match => score(match))
-	// console.log(pMatches);
+	console.log(pMatches);
 	nMatches = nMatches.map(match => increment(score(match))) //Because the blacklist is an additional point of accuracy.
-	// console.log(nMatches);
+	console.log(nMatches);
 
 	let matches = [...pMatches, ...nMatches];
 
 	let id = greatest(matches)?.id
 	
-	// console.log(matches)
+	console.log(matches)
+	
+
 	//return 0;
 	return id;
 }
@@ -345,16 +348,16 @@ let match = route => {
 //let d = 0
 
 let div = () => console.error("<<-------------------------------------------------------------------------->>");
-/*// console.log("#0:\t", get(match(routes[0])))
-// console.log("\n#1:\t", get(match(routes[1])))
-// console.log("\n#2:\t", get(match(routes[2])))
-// console.log("\n#3:\t", get(match(routes[3])))
-// console.error("<<-------------------------------------------------------------------------->>");
-// console.log(traverse(routes[d], schemas[d].map))
-// console.log(traverse(routes[0], ...schemas[0].map[0].path))
-// console.log(routes[0])
-//routes.forEach(route => div() || // console.log(route.data))
-// console.log(getIndex(5))
+/*console.log("#0:\t", get(match(routes[0])))
+console.log("\n#1:\t", get(match(routes[1])))
+console.log("\n#2:\t", get(match(routes[2])))
+console.log("\n#3:\t", get(match(routes[3])))
+console.error("<<-------------------------------------------------------------------------->>");
+//console.log(traverse(routes[d], schemas[d].map))
+//console.log(traverse(routes[0], ...schemas[0].map[0].path))
+//console.log(routes[0])
+//routes.forEach(route => div() || console.log(route.data))
+console.log(getIndex(5))
 /**/
 
 let collect = (route, variables) => {
@@ -388,24 +391,24 @@ let encode = () => {
 		let id = match(route)
 		let schema = get(id)
 		let index = getIndex(id)
-		// console.log("SCHEMA.MAP @ parse.js:\t", schema.map)
+		console.log("SCHEMA.MAP @ parse.js:\t", schema.map)
 		let basket = collect(route, schema.map)
 		let percent = route.totalPercent //Edit percents here
 		percent = Math.round(percent);
 		basket = group(basket, "uint256", "percent", percent)
 		basket = group(basket, "uint256", "index", index)
-		// console.log("Schema:\t", schema);
-		// console.log("Index:\t", index);
-		// console.log("Basket:\t", basket);
-		// console.log("Bundle:\t", bundle);
-		// console.log("Route:\t", route);
-		// console.log("Percent:\t", percent);
+		//console.log("Schema:\t", schema);
+		//console.log("Index:\t", index);
+		//console.log("Basket:\t", basket);
+		//console.log("Bundle:\t", bundle);
+		//console.log("Route:\t", route);
+		//console.log("Percent:\t", percent);
 		basket = fill([...basket])
 		basket = [...basket].sort((a, b) => a.order - b.order)
 		//div()
-		// console.log([...basket].map(item => item.order));
+		//console.log([...basket].map(item => item.order));
 		//div()
-		// console.log(basket)
+		//console.log(basket)
 		return basket;
 	})
 	.map(route => {
@@ -420,14 +423,14 @@ let encode = () => {
 			names = [...names, parsel.name]
 		})
 		let crate = [types, values/*, flow, names*/]
-		// console.log(crate)
+		//console.log(crate)
 		return crate
 	})
 	/*div()
 	div()
 	div()
 	div()
-	// console.log(data)
+	console.log(data)
 	*/return data;
 }
 
@@ -474,28 +477,24 @@ let allData = encode();
 try {
 	allData = encode();
 } catch(e) {
-	// console.error(e);
+	console.error(e);
 	process.exit(1);
 }
 
 let loan = `${Math.round(bid * (10 ** 6))}` //loan amount adjust to tethers decimals, e.g. 2.16 = 2500000 | For fantom only
-
-let router = `0x2047CEEf17f566E9543BF2ba3c6201648C91B076`
 
 let meta = [
 	[
 		"address",
 		"address",
 		"uint256",
-		"uint256",
-		"address"
+		"uint256"
 	],
 	[
 		fToken,
 		tToken,
 		due.priceRoute.srcAmount,
-		loan,
-		router
+		loan
 	]
 ]
 
@@ -511,8 +510,8 @@ let cargo = {
 }
 
 console.log(JSON.stringify(cargo))
-// console.log(`printing to :\t ${output}`)
+//console.log(`printing to :\t ${output}`)
 printData(output, cargo);
-// console.log("Cargo:\t", cargo);
+//console.log("Cargo:\t", cargo);
 //Bun.write("../SOLUTIONS/networks/fantom/paraswap/DATA/QUOTES/loVol/parsed/aed2de.json", load)
 //Bun.write("/2ed2de.json", load)

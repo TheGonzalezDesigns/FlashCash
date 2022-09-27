@@ -9,7 +9,13 @@ const account = env("private_gas");
 
 exports = {
 	solidity: "0.8.16",
-	networks: {}
+	networks: {},
+	settings: {
+		optimizer: {
+			enabled: true,
+			runs: 200
+		}
+	}
 };
 
 const connect = (key, url, account) => exports.networks[key] = {url: url, accounts: [account]};

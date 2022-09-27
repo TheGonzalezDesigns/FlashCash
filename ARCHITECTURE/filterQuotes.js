@@ -39,7 +39,8 @@ let parse = data => {
     try {
         res = JSON.parse(data);
     } catch(e) {
-	console.error("Alert:\tCould not parse unsanitized input!")
+	console.error("Filter Alert:\tCould not parse unsanitized input!")
+	console.error("Fliter Error:", data);
         process.exit(1);
     }
     return res;
@@ -52,7 +53,7 @@ let empty = o => Object.entries(o).length == 0;
 quotes = [...quotes].filter(q => !empty(q));
 
 if (quotes.length < 1) {
-	console.error("Alert:\t No quotes found...")
+	console.error("Filter Alert:\t No quotes found...")
 	process.exit(1)
 }
 let formatData = quotes => {

@@ -2,70 +2,123 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <sstream>
 #include <stdlib.h>
 #include <chrono>
+#include <cstdio>
 
 using namespace std;
 
 typedef string Hash;
-typedef vector<Hash> Hashes;
 
-char *extractQuote(string filename, const string dir)
+string sanitize(string data)
 {
+	string s = "";
+	istringstream stream(data);
 
-    fstream newfile;
-    string tp;
+	stream >> s;
 
-    filename = dir + filename;
+	return s;
+} //unused
 
-    // cout << "File:\t" << filename << endl;
+string extractQuote(string dir, string hash)
+{
+	string filename = dir + hash;
+	
+	ifstream iQuote;
+	//ofstream oQuote;
 
-    newfile.open(filename, ios::in);
-    getline(newfile, tp, '\n');
-    // cout << tp << endl;
-    // cout << "Aww hell yes. Let's get trading!" << endl;
-    newfile.close(); // close the file object.
+	iQuote.open(filename);
+	//oQuote.open(filename);
+	
+	if (iQuote.is_open())
+	{
+		stringstream strStream;
+		
+		strStream << iQuote.rdbuf();
+		iQuote.close();
+		
+		string file_contents = strStream.str();
 
-    // if (newfile.is_open())
-    // {
-
-    //     getline(newfile, tp, '\n');
-    //     // cout << tp << endl;
-    //     // cout << "Aww hell yes. Let's get trading!" << endl;
-    //     newfile.close(); // close the file object.
-    // }
-    // else
-    // {
-    //     cout << "Aww hell nah. This file closed then a mothefucker." << endl;
-    //     exit(EXIT_FAILURE);
-    // }
+		if (file_contents[0] != '-')
+		{
+			//sanitize(file_contents);
+			file_contents += ",";
+			//oQuote << "---";
+			//oQuote.close();
+			return file_contents;
+		}
+	}
+	iQuote.close();
+	//oQuote.close();
+	return "";
 }
+
+void composeQuotes(string catalog, int quantity, string dir)
+{
+	string filename = "dispatch.json";
+	string file = dir + filename;
+	
+	ofstream dispatch;
+	dispatch.open(file);
+	string output = "";
+	
+	if (dispatch.is_open())
+	{
+		stringstream strStream;
+		strStream << dispatch.rdbuf();
+		string file_contents = strStream.str();
+
+		if (!quantity)
+		{
+			cout << "No quotes to compose at:\t"
+			     << dir
+			     << "\n";
+				dispatch << "[]";
+		} else
+		{
+			string quote = "";
+				
+			cout << "\nComposing " 
+		     << quantity
+			     << " quotes to:\t"
+			     << file
+			     << "\n";
+			
+			output += "[";
+			istringstream files(catalog);
+			string hash;
+				while (files >> hash)
+			{
+				//cout << "Extacting: " << hash << endl;
+				quote = extractQuote(dir, hash);
+				if (quote.length() > 1)
+					output += quote;
+			}
+		}
+		output = output.substr(0, output.length()-2); // to remove ,
+		output += "]";
+		dispatch << output;
+	}
+	dispatch.close();
+}
+
 int main(int argc, char *argv[])
 {
     auto start = chrono::high_resolution_clock::now();
+    
+    string catalog = argv[1];
+    int quantity = stoi(argv[2]);
+    string dir = argv[3];
+
+    composeQuotes(catalog, quantity, dir);
+
     auto stop = chrono::high_resolution_clock::now();
-    auto duration = chrono::duration_cast<chrono::microseconds>(stop - start);
-    std::string s = argv[1];
-    std::string delimiter = "\n";
+    auto duration = chrono::duration_cast<chrono::milliseconds>(stop - start).count();
 
-    size_t pos = 0;
-    std::string token;
-    int i = 0;
-    double avg = 0;
-    while ((pos = s.find(delimiter)) != std::string::npos)
-    {
-        start = chrono::high_resolution_clock::now();
-        token = s.substr(0, pos);
-        extractQuote(token, argv[2]);
-        s.erase(0, pos + delimiter.length());
-        stop = chrono::high_resolution_clock::now();
-        duration = chrono::duration_cast<chrono::microseconds>(stop - start);
-        cout << duration.count() / 100 << endl;
-        i++;
-        avg += duration.count();
-    }
+    cout << "__________________________________________________________\n"
+	 << "Composing all available quotes took "
+	 << duration << " milliseconds\n";
 
-    cout << "Took " << (avg / i) / 1000000 << " secs"
-         << " and a total of " << (avg) / 1000000 << " secs" << endl;
     return 0;
 }

@@ -30,12 +30,15 @@ _.post('/validate', async (c) => {
 			}
 			if (Object.keys(collection).length > 0) {
 				const audited = audit(baggage, collection)
+				//console.log("Audit finished");
 				if (Object.keys(audited).length > 0) {
+					//console.log("Beggining delivery");
 					let res = deliver(audited);
+					//console.log("Delivery finished");
 					return c.json(res);
-				}
+				} else console.error("Audit failed:", audited)
 				return c.json(audited);
-			}
+			} else console.error("Invalid collection:", collection)
 		}
 		return c.text(baggage)
 	}

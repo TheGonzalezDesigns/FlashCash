@@ -72,7 +72,7 @@ let relCapped = 0;
 let initQuantity = 0;
 let totalLoss = 0;
 let relTotalLoss = 0;
-const MIN_CAP = 1000000 //- last command, this means we'll sqeueez the optimizer epix in between architecture and execution. The assesor below will come at a later time. -. you want to include slippage as part of the gas filter such that the profit - slippage is still greater than the gas. when executing filtered and optimized trinaries/pairs, must be sorted such that the most profitable and (block)recent transactions go out first. 
+const MIN_CAP = 10000000 //- last command, this means we'll sqeueez the optimizer epix in between architecture and execution. The assesor below will come at a later time. -. you want to include slippage as part of the gas filter such that the profit - slippage is still greater than the gas. when executing filtered and optimized trinaries/pairs, must be sorted such that the most profitable and (block)recent transactions go out first. 
 //const MAX_TOKENS = 840;
 const MAX_TOKENS = 2160; //perm(216, 3) = ~<10M max MDA size in C
 

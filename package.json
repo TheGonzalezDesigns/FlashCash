@@ -4,6 +4,7 @@
     "chalk-animation": "^2.0.2",
     "cheerio": "^1.0.0-rc.12",
     "child-process-ext": "^2.1.1",
+    "child_process": "^1.0.2",
     "coingecko-api": "^1.0.10",
     "create-require": "^1.1.1",
     "curl": "^0.1.4",

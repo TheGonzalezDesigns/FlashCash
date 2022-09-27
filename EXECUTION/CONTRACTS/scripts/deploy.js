@@ -11,6 +11,18 @@ let params = []
 
 const _ = param => params.push(param)
 
+const link = async (name, ...params) =>
+{
+	console.log(`Linking '${name}'`);
+	const Contract = await hre.ethers.getContractFactory(name);
+  	const contract = await Contract.deploy(...params);
+	const address = contract.address;
+	console.log(`Contract '${name}' linked @ address: ${contract.address}`);
+
+ 	await contract.deployed();
+	return {name: name, address, address};
+}
+
 async function main() {
 	const [deployer] = await hre.ethers.getSigners();
 	console.log(`Deploying contracts with the account: ${deployer.address}`);
@@ -22,11 +34,16 @@ async function main() {
 	
 	_({value: value})
 
-	const Contract = await hre.ethers.getContractFactory("Main");
-  	const contract = await Contract.deploy(...params);
+	const libraries = {
+		"contracts/Main.sol:Swapper": "0xBb4093699316e2731D091D384F5F6d2e1A825698"
+	}
+	const biblio = {"libraries": libraries};
+	console.info("libraries", biblio);
+	const Contract = await hre.ethers.getContractFactory("Main", biblio);
+	const contract = await Contract.deploy(...params);
 	console.log(`Contract address: ${contract.address}`);
 
- 	await contract.deployed();
+	await contract.deployed();
 	
 	const metadata = {
 		address: contract.address,

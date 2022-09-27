@@ -53,7 +53,7 @@ let exec = async (cmd, fn) => {
     		prcs = await execShPromise(cmd, true);
 		//console.log("PRCS:\t", prcs)
 	} catch (e) {
-		console.error(e?.stdout + e?.stderr);
+		console.error(/*e?.stdout + */e?.stderr);
 		//console.error("Request Error:\t", e.stderr);
 		//console.error("Request Error:\t", Object.keys(e));
 		//return e;
@@ -123,7 +123,7 @@ const assemble = async () => {
 const delivery = () => {
 	const cmnd = `./delivery.sh ${exchange} ${vol}`;
 		exec(cmnd, (error, stdout, stderr) => {
-		console.info(`${stdout}`);
+		//console.info(`${stdout}`);
 		console.info(`${stderr}`);
 	})
 };

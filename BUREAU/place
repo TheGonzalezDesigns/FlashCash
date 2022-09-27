@@ -4,10 +4,12 @@ place=$1
 var=$2
 val=$3
 path=$place/$var
+dump=../DUMP/$var
 
 if [[ -z $val ]]; then
-	cat $path
+	val=$(cat $path)
 else
 	echo $val > $path
-	echo "$val"
+	echo $val > $dump
 fi
+echo $val

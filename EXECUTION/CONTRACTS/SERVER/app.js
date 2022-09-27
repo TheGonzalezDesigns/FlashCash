@@ -36,5 +36,5 @@ module.exports = async function (fastify, opts) {
     options: Object.assign({}, opts)
   })
   wave();
-  setInterval(wave, 3000);
+  setInterval(wave, 10000);
 }
