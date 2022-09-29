@@ -1,11 +1,11 @@
 #!/bin/bash
 
 ./header
-cd ./ARCHITECTURE
-./operate &
-cd ..
 cd ./EXECUTION
 ./operate
+cd ..
+cd ./ARCHITECTURE
+sleep 60 && ./operate &
 cd ..
 #cd ./OPTIMIZATION
 #./start $1 $2

@@ -9,6 +9,7 @@
     "create-require": "^1.1.1",
     "curl": "^0.1.4",
     "curling": "^1.1.0",
+    "eth-revert-reason": "^1.0.3",
     "exec-sh": "^0.4.0",
     "hono": "^2.0.9",
     "jsonic": "^1.0.1",

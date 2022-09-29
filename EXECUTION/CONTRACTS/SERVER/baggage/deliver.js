@@ -45,8 +45,9 @@ const deliver = async (profit, gas, fn, ...data) => {
 			x && addAllowance();
 			x || state.failed++;
 			x || decAllowance();
+			console.error("Entered Success:", x.hash)
 		}, error => {
-			//console.error("Entered Failure:", Object.keys(error))
+			console.error("Entered Failure:", error)
 			state.failed++
 			decAllowance();
 		});
@@ -98,7 +99,7 @@ const deliver = async (profit, gas, fn, ...data) => {
 	
 			next();
 			
-			await sleep(1.5); //Soooo this is my work computer's limit may be able to remove this on an RTX
+			await sleep(50); //Soooo this is my work computer's limit may be able to remove this on an RTX
 
 		} while (state.profitable);
 

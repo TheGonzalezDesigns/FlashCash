@@ -2,14 +2,55 @@
 pragma solidity >=0.5.0 <0.9.0;
 pragma abicoder v2;
 interface IERC20 {
-	function totalSupply() external view returns (uint256);
 	function balanceOf(address account) external view returns (uint256);
 	function transfer(address recipient, uint256 amount) external returns (bool);
 	function allowance(address owner, address spender) external view returns (uint256);
 	function approve(address spender, uint256 amount) external returns (bool);
 	function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
-	event Transfer(address indexed from, address indexed to, uint256 value);
-	event Approval(address indexed owner, address indexed spender, uint256 value);
+}
+library console {
+	function toString(uint256 value) internal pure returns (string memory) {
+		if (value == 0) {
+			return "0";
+		}
+		uint256 temp = value;
+		uint256 digits;
+		while (temp != 0) {
+			digits++;
+			temp /= 10;
+		}
+		bytes memory buffer = new bytes(digits);
+		while (value != 0) {
+			digits -= 1;
+			buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
+			value /= 10;
+		}
+		return string(buffer);
+	}
+	function log(string calldata a, uint b, string calldata c, uint d, string calldata e, uint f) internal pure returns (string memory log_3)
+	{
+		log_3 = string(abi.encodePacked("Alert: ", a, toString(b), c, toString(d), e, toString(f)));
+	}
+	function log(string calldata a, uint b, string calldata c, uint d) internal pure returns (string memory log_2)
+	{
+		log_2 = string(abi.encodePacked("Alert: ", a, toString(b), c, toString(d)));
+	}
+	function log(string calldata a, uint b) internal pure returns (string memory log_1)
+	{
+		log_1 = string(abi.encodePacked("Alert: ", a, toString(b)));
+	}
+	function warn(bool condition, string calldata a, uint b, string calldata c, uint d, string calldata e, uint f) public pure
+	{
+		require(condition, console.log(a, b, c, d, e, f));
+	}
+	function warn(bool condition, string calldata a, uint b, string calldata c, uint d) public pure
+	{
+		require(condition, console.log(a, b, c, d));
+	}
+	function warn(bool condition, string calldata a, uint b) public pure
+	{
+		require(condition, console.log(a, b));
+	}
 }
 interface IBlackMagicRouter {
 	function swapOnUniswapV2Fork(
@@ -39,29 +80,6 @@ interface IUniswapV2Pair {
     function token1() external pure returns (address);
 }
 library SafeMath {
-	function tryAdd(uint256 a, uint256 b) internal pure returns (bool, uint256) {
-		uint256 c = a + b;
-		if (c < a) return (false, 0);
-		return (true, c);
-	}
-	function trySub(uint256 a, uint256 b) internal pure returns (bool, uint256) {
-		if (b > a) return (false, 0);
-		return (true, a - b);
-	}
-	function tryMul(uint256 a, uint256 b) internal pure returns (bool, uint256) {
-		if (a == 0) return (true, 0);
-		uint256 c = a * b;
-		if (c / a != b) return (false, 0);
-		return (true, c);
-	}
-	function tryDiv(uint256 a, uint256 b) internal pure returns (bool, uint256) {
-		if (b == 0) return (false, 0);
-		return (true, a / b);
-	}
-	function tryMod(uint256 a, uint256 b) internal pure returns (bool, uint256) {
-		if (b == 0) return (false, 0);
-		return (true, a % b);
-	}
 	function add(uint256 a, uint256 b) internal pure returns (uint256) {
 		uint256 c = a + b;
 		require(c >= a, "SafeMath: addition overflow");
@@ -76,26 +94,6 @@ library SafeMath {
 		uint256 c = a * b;
 		require(c / a == b, "SafeMath: multiplication overflow");
 		return c;
-	}
-	function div(uint256 a, uint256 b) internal pure returns (uint256) {
-		require(b > 0, "SafeMath: division by zero");
-		return a / b;
-	}
-	function mod(uint256 a, uint256 b) internal pure returns (uint256) {
-		require(b > 0, "SafeMath: modulo by zero");
-		return a % b;
-	}
-	function sub(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
-		require(b <= a, errorMessage);
-		return a - b;
-	}
-	function div(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
-		require(b > 0, errorMessage);
-		return a / b;
-	}
-	function mod(uint256 a, uint256 b, string memory errorMessage) internal pure returns (uint256) {
-		require(b > 0, errorMessage);
-		return a % b;
 	}
 }
 library NewUniswapV2Lib {
@@ -123,16 +121,6 @@ library NewUniswapV2Lib {
 	}
 }
 library TransferHelper {
-	function safeTransferFrom(
-		address token,
-		address from,
-		address to,
-		uint256 value
-	) internal {
-		(bool success, bytes memory data) =
-			token.call(abi.encodeWithSelector(IERC20.transferFrom.selector, from, to, value));
-		require(success && (data.length == 0 || abi.decode(data, (bool))), 'STF');
-	}
 	function safeTransfer(
 		address token,
 		address to,
@@ -141,21 +129,9 @@ library TransferHelper {
 		(bool success, bytes memory data) = token.call(abi.encodeWithSelector(IERC20.transfer.selector, to, value));
 		require(success && (data.length == 0 || abi.decode(data, (bool))), 'ST');
 	}
-	function safeApprove(
-		address token,
-		address to,
-		uint256 value
-	) internal {
-		(bool success, bytes memory data) = token.call(abi.encodeWithSelector(IERC20.approve.selector, to, value));
-		require(success && (data.length == 0 || abi.decode(data, (bool))), 'SA');
-	}
 }
 contract BlackMagicRouter {
 	using SafeMath for uint256;
-	struct UniswapV2Data {
-		address weth;
-		uint256[] pools;
-	}
     function getExactAmountOut(uint256 R_In, uint256 R_Out, uint256 MT)
         public
         pure 
@@ -198,6 +174,7 @@ contract BlackMagicRouter {
 		uint256 pairs = pools.length;
 		require(pairs != 0, "At least one pool required");
         balance = IERC20(tokenIn).balanceOf(address(this));
+        console.warn(balance > 0, "Token In balance: ", balance);
 
         TransferHelper.safeTransfer(tokenIn, address(uint160(pools[0])), amountIn);
 			   
@@ -222,6 +199,7 @@ contract BlackMagicRouter {
 			);
 		}
         balance = IERC20(tokenOut).balanceOf(address(this));
+        console.warn(balance > 0, "Token Out balance: ", balance);
         TransferHelper.safeTransfer(tokenOut, origin, balance);
 		balance = IERC20(tokenIn).balanceOf(address(this));
 		if (balance > 0) TransferHelper.safeTransfer(tokenIn, origin, balance);
@@ -245,7 +223,6 @@ interface IUniswap {
 		uint deadline
 	) external;
 	function WETH() external pure returns (address);
-	function factory() external view returns (address);
 }
 library Swapper {
 	IUniswap constant uniswap = IUniswap(router);
@@ -326,15 +303,6 @@ library Address {
     function isContract(address account) internal view returns (bool) {
         return account.code.length > 0;
     }
-    function sendValue(address payable recipient, uint256 amount) internal {
-        require(address(this).balance >= amount, "Address: insufficient balance");
-
-        (bool success, ) = recipient.call{value: amount}("");
-        require(success, "Address: unable to send value, recipient may have reverted");
-    }
-    function functionCall(address target, bytes memory data) internal returns (bytes memory) {
-        return functionCall(target, data, "Address: low-level call failed");
-    }
     function functionCall(
         address target,
         bytes memory data,
@@ -359,32 +327,6 @@ library Address {
         require(isContract(target), "Address: call to non-contract");
 
         (bool success, bytes memory returndata) = target.call{value: value}(data);
-        return verifyCallResult(success, returndata, errorMessage);
-    }
-    function functionStaticCall(address target, bytes memory data) internal view returns (bytes memory) {
-        return functionStaticCall(target, data, "Address: low-level static call failed");
-    }
-    function functionStaticCall(
-        address target,
-        bytes memory data,
-        string memory errorMessage
-    ) internal view returns (bytes memory) {
-        require(isContract(target), "Address: static call to non-contract");
-
-        (bool success, bytes memory returndata) = target.staticcall(data);
-        return verifyCallResult(success, returndata, errorMessage);
-    }
-    function functionDelegateCall(address target, bytes memory data) internal returns (bytes memory) {
-        return functionDelegateCall(target, data, "Address: low-level delegate call failed");
-    }
-    function functionDelegateCall(
-        address target,
-        bytes memory data,
-        string memory errorMessage
-    ) internal returns (bytes memory) {
-        require(isContract(target), "Address: delegate call to non-contract");
-
-        (bool success, bytes memory returndata) = target.delegatecall(data);
         return verifyCallResult(success, returndata, errorMessage);
     }
     function verifyCallResult(
@@ -443,92 +385,13 @@ library SafeERC20 {
         _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, newAllowance));
     }
 }
-interface IERC20PermitLegacy {
-    function permit(
-        address holder,
-        address spender,
-        uint256 nonce,
-        uint256 expiry,
-        bool allowed,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) external;
-}
-interface IERC20Permit {
-    function permit(
-        address owner,
-        address spender,
-        uint256 value,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) external;
-}
 library Utils {
-    using SafeMath for uint256;
-    using SafeERC20 for IERC20;
-    address private constant ETH_ADDRESS = address(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE);
-    uint256 private constant MAX_UINT = type(uint256).max;
-    struct Adapter {
-        address payable adapter;
-        uint256 percent;
-        uint256 networkFee; 
-        Route[] route;
-    }
     struct Route {
         uint256 index; 
         address targetExchange; 
         uint256 percent;
         bytes payload;
         uint256 networkFee; 
-    }
-    function approve(
-        address addressToApprove,
-        address token,
-        uint256 amount
-    ) internal {
-        if (token != ETH_ADDRESS) {
-            IERC20 _token = IERC20(token);
-            uint256 allowance = _token.allowance(address(this), addressToApprove);
-            if (allowance < amount) {
-                _token.safeApprove(addressToApprove, 0);
-                _token.safeIncreaseAllowance(addressToApprove, MAX_UINT);
-            }
-        }
-    }
-    function transferTokens(
-        address token,
-        address payable destination,
-        uint256 amount
-    ) internal {
-        if (amount > 0) {
-            if (token == ETH_ADDRESS) {
-                (bool result, ) = destination.call{ value: amount, gas: 10000 }("");
-                require(result, "Failed to transfer Ether");
-            } else {
-                IERC20(token).safeTransfer(destination, amount);
-            }
-        }
-    }
-    function tokenBalance(address token, address account) internal view returns (uint256) {
-        if (token == ETH_ADDRESS) {
-            return account.balance;
-        } else {
-            return IERC20(token).balanceOf(account);
-        }
-    }
-    function permit(address token, bytes memory permit) internal {
-        if (permit.length == 32 * 7) {
-            (bool success, ) = token.call(abi.encodePacked(IERC20Permit.permit.selector, permit));
-            require(success, "Permit failed");
-        }
-        if (permit.length == 32 * 8) {
-            (bool success, ) = token.call(abi.encodePacked(IERC20PermitLegacy.permit.selector, permit));
-            require(success, "Permit failed");
-        }
-
     }
 }
 interface IFantomAdapter {
@@ -554,13 +417,9 @@ contract onFantom {
         Utils.Route[] memory route
     ) public {
         uint balance = IERC20(fromToken).balanceOf(address(this));
+        // console.warn(balance >= fromAmount, "safeSwap: Request: ", fromAmount, " | Balance: ", balance);
         IERC20(fromToken).safeTransfer(router, balance);
         fantomAdapter.swap(fromToken, toToken, fromAmount, 0, route);
-    }
-    function getRouter() 
-        public pure returns(address) 
-    {
-        return router;
     }
 }
 contract Unwrap {
@@ -778,15 +637,6 @@ contract Logistics is Unwrap {
         bytes memory payload = encode(allData);
         route = lay(allData.index, allData.targetExchange, allData.percent, payload);
     }
-    function unload(bytes[] memory payload) 
-        internal pure returns (AllData[] memory cargo)
-    {
-        cargo = new AllData[](payload.length);
-        for (uint i = 0; i < payload.length; i++)
-        {
-            cargo[i] = decode(payload[i]);
-        } 
-    }
     function pack(AllData[] memory cargo)
         internal pure returns (Utils.Route[] memory path)
     {
@@ -900,7 +750,7 @@ contract DeepBlue {
         } else index = 0;
     }
     function creek(uint256 pool)
-        public
+        private
         pure
         returns (address t0, address t1)
     {
@@ -908,7 +758,7 @@ contract DeepBlue {
         t1 = IUniswapV2Pair(address(uint160(pool))).token1();
     }
     function basin(address In, address Out, uint256 pool)
-        public
+        private
         pure
         returns (bool Is)
     {
@@ -917,7 +767,7 @@ contract DeepBlue {
         Is = ((t0 == In) || (t0 == Out)) && ((t1 == In) || (t1 == Out));
     }
     function riverbank(address In, address Out)
-        public
+        private
         returns (bool wet)
     {
         address prev = In;
@@ -983,6 +833,9 @@ contract Flashloan is Trader, onFantom, Registry {
         uint amountOwing = amount.add(premium);
         executeTrade(Registry.getVessel(signature), Registry.getRoutes(signature), Registry.getPools(signature), Registry.getIndex(signature));
         
+        uint balance = IERC20(Trader.getFiat()).balanceOf(address(this));
+        console.warn(balance >= amountOwing, "Flashloan failed at %", (((amountOwing * 1000 - balance * 1000)/amountOwing)/10), ".", ((amountOwing * 1000 - balance * 1000)/amountOwing) - ((((amountOwing * 1000 - balance * 1000)/amountOwing)/10) * 10));
+        
         flag = IERC20(asset).approve(address(POOL), amountOwing);
     }
 
@@ -999,13 +852,17 @@ contract Flashloan is Trader, onFantom, Registry {
         _flashLoanSimple(asset, amount);
     }
     function executeTrade(Logistics.Vessel memory vessel, Utils.Route[] memory routes, uint256[] memory pools, uint256 index)
-        public
+        private
     { //merge
         uint balance = IERC20(Trader.getFiat()).balanceOf(address(this));
+        console.warn(balance >= vessel.loanAmount, "Insufficient entry fiat balance:", balance, " | Should be: ", vessel.loanAmount, " | Index: ", index);
         if (address(vessel.fromToken) != address(Trader.getFiat())) crypto(address(vessel.fromToken));
         balance = IERC20(vessel.fromToken).balanceOf(address(this));
+        // console.warn(balance > 0, "Insufficient crypto balance:", balance, "", 0 ,"", 0);
+        // require(balance > 0, "Insufficient crypto balance:");
         verifyBalance(vessel.fromToken, vessel.fromAmount);
         balance = IERC20(vessel.fromToken).balanceOf(address(this));
+        // console.warn(balance >= vessel.fromAmount, "balance < vessel.fromAmount | Request: ", vessel.fromAmount, " | Balance: ", balance, "", 0);
         IERC20(vessel.fromToken).transfer(vessel.router, vessel.fromAmount);
 
         if (index == 2) {
@@ -1016,6 +873,7 @@ contract Flashloan is Trader, onFantom, Registry {
 
         if (IERC20(vessel.fromToken).balanceOf(address(this)) > 0 && address(vessel.fromToken) != address(Trader.getFiat())) fiat(vessel.fromToken); 
         balance = IERC20(vessel.toToken).balanceOf(address(this));
+        console.warn(balance > 0, "Insufficient fiat balance from toToken:", balance);
         fiat(vessel.toToken);
     }
 }
@@ -1028,7 +886,7 @@ contract Main is Flashloan, DeepBlue {
         Trader.liquidate();
     }
     function distribute(Logistics.Batch[] memory batches)
-        public
+        private
     {
         uint quantity = batches.length;
         for(uint i = 0; i < quantity; i++)
@@ -1037,7 +895,7 @@ contract Main is Flashloan, DeepBlue {
         }
     }
     function load(Logistics.Batch memory batch)
-        public
+        private
     {
         Logistics.Vessel memory vessel = Logistics.convertToVessel(batch);
         Utils.Route[] memory routes = Logistics.pack(batch.transactions);
@@ -1051,7 +909,7 @@ contract Main is Flashloan, DeepBlue {
         trade(vessel, signature);
     }
     function trade(Logistics.Vessel memory vessel, bytes32 signature)
-        public
+        private
     {  
         uint entryAmount = Trader.applyMRC(vessel.loanAmount); 
         Flashloan.run(Trader.getFiat(), entryAmount, signature);

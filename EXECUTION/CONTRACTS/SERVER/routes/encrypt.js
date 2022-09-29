@@ -22,16 +22,31 @@ module.exports = async function (fastify, opts) {
 	  	const gas = stats.gas
 		//Promise.resolve(getFiat()).then(fiat => console.log('Fiat:\t', fiat))
 		//Promise.resolve(send(enpaque)).then(res => {console.log('Sent:\t', res)}, err => {console.error('Sent Failed:\t')});
-		//const flash = async () => await send(enpaque);
-	  	const report = await deliver(profit, gas, send, enpaque);
+		const options = {
+			gasPrice: 3066995604, 
+			gasLimit: 3000000,
+		}
+		const flash = async () => {
+			const tx = await send(enpaque, options);
+			try {
+				const receipt = await tx.wait();
+				console.log("Transaction Receipt: ", receipt);
+				return receipt;
+			} catch(e) {
+				//throw Error(`Transaction Failed because: ${e?.reason !== undefined ? e.reason : e}`);
+				throw Error(`Transaction Failed because: ${e}`);
+			}
+		}
+		const report = await Promise.resolve(flash()).then(res => {console.log('Sent:\t', res)}, err => {console.error('Sent Failed:\t', err)});
+	  	//const report = await deliver(profit, gas, flash);
 		
-		console.log("-----------------------------------------------------------")
+		//console.log("-----------------------------------------------------------")
 		console.log("------------------DELIVERY--WAS---SUCCESFUL----------------")
-		console.log("-----------------------------------------------------------")
+		//console.log("-----------------------------------------------------------")
 		console.log("-", report);
-		console.log("-----------------------------------------------------------")
+		//console.log("-----------------------------------------------------------")
 		console.log("------------------DELIVERY--WAS---SUCCESFUL----------------")
-		console.log("-----------------------------------------------------------")
+		//console.log("-----------------------------------------------------------")
 		/*
 		console.log("-", JSON.stringify(enpaque));
 		console.log("-----------------------------------------------------------")
@@ -47,17 +62,17 @@ module.exports = async function (fastify, opts) {
 	  catch (e) 
 	  {
 		
-		console.error("***********************************************************")
+		//console.error("***********************************************************")
+		//console.error("****************DELIVERY**HAS***FAILED*********************")
+		//console.error("***********************************************************")
+		//console.error("*", JSON.stringify(parcel));
+		//console.error("***********************************************************")
 		console.error("****************DELIVERY**HAS***FAILED*********************")
-		console.error("***********************************************************")
-		console.error("*", JSON.stringify(parcel));
-		console.error("***********************************************************")
-		console.error("****************DELIVERY**HAS***FAILED*********************")
-		console.error("***********************************************************")
+		//console.error("***********************************************************")
 		console.error("*", e);
-		console.error("***********************************************************")
+		//console.error("***********************************************************")
 		console.error("****************DELIVERY**HAS***FAILED*********************")
-		console.error("***********************************************************")
+		//console.error("***********************************************************")
 		
 		return {status:500, error: e}
 	  }

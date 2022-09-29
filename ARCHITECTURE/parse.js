@@ -480,7 +480,7 @@ try {
 
 let loan = `${Math.round(bid * (10 ** 6))}` //loan amount adjust to tethers decimals, e.g. 2.16 = 2500000 | For fantom only
 
-let router = `0x2047CEEf17f566E9543BF2ba3c6201648C91B076`
+let router = `0x2d40Da7232e5EDCBBfD75261518129255828DD36`
 
 let meta = [
 	[

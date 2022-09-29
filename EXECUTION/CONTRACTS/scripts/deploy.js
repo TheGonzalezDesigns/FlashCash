@@ -35,7 +35,8 @@ async function main() {
 	_({value: value})
 
 	const libraries = {
-		"contracts/Main.sol:Swapper": "0xBb4093699316e2731D091D384F5F6d2e1A825698"
+		"contracts/Main.sol:Swapper": "0xBb4093699316e2731D091D384F5F6d2e1A825698",
+		"contracts/Main.sol:console": "0xE824e736C3B079F4cc5bACb8424121DC196607c2"
 	}
 	const biblio = {"libraries": libraries};
 	console.info("libraries", biblio);
