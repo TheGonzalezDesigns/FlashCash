@@ -1,3 +1,3 @@
 #!/bin/bash
 
-bun ./server.js
+node --no-warnings ./server.js

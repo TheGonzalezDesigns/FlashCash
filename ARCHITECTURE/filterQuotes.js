@@ -140,7 +140,7 @@ let qualified = [...quotes].filter(quote => {
 
 	return quality;
 });
-
+qualified = quotes;
 let quantity = qualified.length;
 
 //console.log("\nQUALIFIED:\t", qualified);

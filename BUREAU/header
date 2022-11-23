@@ -1,9 +1,7 @@
 #!/bin/bash
 
 clear
-echo Flash Cash Arbitrage Bot
-echo -e
-echo Created by [BLC-MGC-MNY]
+../header
 echo -e
 echo ____________________________________________
 echo -e

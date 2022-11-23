@@ -2,10 +2,10 @@
 
 ./header
 cd ./EXECUTION
-./operate
+./operate &
 cd ..
 cd ./ARCHITECTURE
-sleep 60 && ./operate &
+sleep 80 && ./operate &
 cd ..
 #cd ./OPTIMIZATION
 #./start $1 $2

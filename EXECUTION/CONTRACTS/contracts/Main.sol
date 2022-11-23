@@ -1,917 +1,2266 @@
-//SPDX-License-Identifier: MIT
+/*
+    ¥=========================================================================================================€
+    $| ███╗██████╗  ██╗    ██╗  ██╗      ███╗   ███╗ ██████╗ ██╗  ██╗     ███╗   ███╗███╗   ██╗██╗   ██╗███╗ |$
+    
+    $| ██║  ██████╔╝██║     █████╔╝█████╗██╔████╔██║██║  ███╗█████╔╝█████╗██╔████╔██║██╔██╗ ██║ ╚████╔╝  ██║ |$
+    $| ██║  ██╔══██╗██║     ██╔═██╗╚════╝██║╚██╔╝██║██║   ██║██╔═██╗╚════╝██║╚██╔╝██║██║╚██╗██║  ╚██╔╝   ██║ |$
+    
+    $| ╚══╝╚═════╝ ╚══════╝╚═╝  ╚═╝     ╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═╝      ╚═╝     ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚══╝ |$
+    $| ███╗██████╗  ██╗    ██╗  ██╗      ███╗   ███╗ ██████╗ ██╗  ██╗     ███╗   ███╗███╗   ██╗██╗   ██╗███╗ |$
+    $| ██╔╝ ██╔══██╗██║     ██║ ██╔╝     ████╗ ████║██╔════╝ ██║ ██╔╝     ████╗ ████║████╗  ██║╚██╗ ██╔╝╚██║ |$
+    $| ██║  ██████╔╝██║     █████╔╝█████╗██╔████╔██║██║  ███╗█████╔╝█████╗██╔████╔██║██╔██╗ ██║ ╚████╔╝  ██║ |$
+    $| ██║  ██╔══██╗██║     ██╔═██╗╚════╝██║╚██╔╝██║██║   ██║██╔═██╗╚════╝██║╚██╔╝██║██║╚██╗██║  ╚██╔╝   ██║ |$
+    $| ███╗██████╔╝███████╗██║  ██╗     ██║ ╚═╝ ██║╚██████╔╝██║  ██╗      ██║ ╚═╝ ██║██║ ╚████║   ██║   ███║ |$
+    $| ╚══╝╚═════╝ ╚══════╝╚═╝  ╚═╝     ╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═╝      ╚═╝     ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚══╝ |$
+    $| ███╗██████╗  ██╗    ██╗  ██╗      ███╗   ███╗ ██████╗ ██╗  ██╗     ███╗   ███╗███╗   ██╗██╗   ██╗███╗ |$
+    
+    $| ██║  ██████╔╝██║     █████╔╝█████╗██╔████╔██║██║  ███╗█████╔╝█████╗██╔████╔██║██╔██╗ ██║ ╚████╔╝  ██║ |$
+
+    $| ███╗██████╔╝███████╗██║  ██╗     ██║ ╚═╝ ██║╚██████╔╝██║  ██╗      ██║ ╚═╝ ██║██║ ╚████║   ██║   ███║ |$
+    $| ╚══╝╚═════╝ ╚══════╝╚═╝  ╚═╝     ╚═╝     ╚═╝ ╚═════╝ ╚═╝  ╚═╝      ╚═╝     ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚══╝ |$
+    €=========================================================================================================¥
+    This code was produced by Black Magic Money.
+*/
+//SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.5.0 <0.9.0;
-pragma abicoder v2;
-interface IERC20 {
-	function balanceOf(address account) external view returns (uint256);
-	function transfer(address recipient, uint256 amount) external returns (bool);
-	function allowance(address owner, address spender) external view returns (uint256);
-	function approve(address spender, uint256 amount) external returns (bool);
-	function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
-}
-library console {
-	function toString(uint256 value) internal pure returns (string memory) {
-		if (value == 0) {
-			return "0";
-		}
-		uint256 temp = value;
-		uint256 digits;
-		while (temp != 0) {
-			digits++;
-			temp /= 10;
-		}
-		bytes memory buffer = new bytes(digits);
-		while (value != 0) {
-			digits -= 1;
-			buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
-			value /= 10;
-		}
-		return string(buffer);
-	}
-	function log(string calldata a, uint b, string calldata c, uint d, string calldata e, uint f) internal pure returns (string memory log_3)
-	{
-		log_3 = string(abi.encodePacked("Alert: ", a, toString(b), c, toString(d), e, toString(f)));
-	}
-	function log(string calldata a, uint b, string calldata c, uint d) internal pure returns (string memory log_2)
-	{
-		log_2 = string(abi.encodePacked("Alert: ", a, toString(b), c, toString(d)));
-	}
-	function log(string calldata a, uint b) internal pure returns (string memory log_1)
-	{
-		log_1 = string(abi.encodePacked("Alert: ", a, toString(b)));
-	}
-	function warn(bool condition, string calldata a, uint b, string calldata c, uint d, string calldata e, uint f) public pure
-	{
-		require(condition, console.log(a, b, c, d, e, f));
-	}
-	function warn(bool condition, string calldata a, uint b, string calldata c, uint d) public pure
-	{
-		require(condition, console.log(a, b, c, d));
-	}
-	function warn(bool condition, string calldata a, uint b) public pure
-	{
-		require(condition, console.log(a, b));
-	}
-}
-interface IBlackMagicRouter {
-	function swapOnUniswapV2Fork(
-		address fromToken,
-		address toToken,
-        uint256 amountIn,
-        uint256[] memory pools,
-        address origin
-	) external;
-}
-interface IUniswapV2Pair {
-	function getReserves()
-		external
-		view
-		returns (
-			uint112 reserve0,
-			uint112 reserve1,
-			uint32 blockTimestampLast
-		);
-	function swap(
-		uint256 amount0Out,
-		uint256 amount1Out,
-		address to,
-		bytes calldata data
-	) external;
-    function token0() external pure returns (address);
-    function token1() external pure returns (address);
-}
+
 library SafeMath {
-	function add(uint256 a, uint256 b) internal pure returns (uint256) {
-		uint256 c = a + b;
-		require(c >= a, "SafeMath: addition overflow");
-		return c;
-	}
-	function sub(uint256 a, uint256 b) internal pure returns (uint256) {
-		require(b <= a, "SafeMath: subtraction overflow");
-		return a - b;
-	}
-	function mul(uint256 a, uint256 b) internal pure returns (uint256) {
-		if (a == 0) return 0;
-		uint256 c = a * b;
-		require(c / a == b, "SafeMath: multiplication overflow");
-		return c;
-	}
+    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+        uint256 c = a + b;
+        require(c >= a, "SafeMath: addition overflow");
+        return c;
+    }
+
+    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+        require(b <= a, "SafeMath: subtraction overflow");
+        return a - b;
+    }
+
+    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+        if (a == 0) return 0;
+        uint256 c = a * b;
+        require(c / a == b, "SafeMath: multiplication overflow");
+        return c;
+    }
 }
-library NewUniswapV2Lib {
-	using SafeMath for uint256;
-	function getReservesByPair(address pair, bool direction)
-		internal
-		view
-		returns (uint256 reserveIn, uint256 reserveOut)
-	{
-		(uint256 reserve0, uint256 reserve1, ) = IUniswapV2Pair(pair).getReserves();
-		(reserveIn, reserveOut) = direction ? (reserve0, reserve1) : (reserve1, reserve0);
-	}
-	function getAmountOut(
-		uint256 amountIn,
-		address pair,
-		bool direction,
-		uint256 fee
-	) internal view returns (uint256 amountOut) {
-		require(amountIn > 0, "UniswapV2Lib: INSUFFICIENT_INPUT_AMOUNT");
-		(uint256 reserveIn, uint256 reserveOut) = getReservesByPair(pair, direction);
-		uint256 amountInWithFee = amountIn.mul(fee);
-		uint256 numerator = amountInWithFee.mul(reserveOut);
-		uint256 denominator = reserveIn.mul(10000).add(amountInWithFee);
-		amountOut = uint256(numerator / denominator);
-	}
-}
-library TransferHelper {
-	function safeTransfer(
-		address token,
-		address to,
-		uint256 value
-	) internal {
-		(bool success, bytes memory data) = token.call(abi.encodeWithSelector(IERC20.transfer.selector, to, value));
-		require(success && (data.length == 0 || abi.decode(data, (bool))), 'ST');
-	}
-}
-contract BlackMagicRouter {
-	using SafeMath for uint256;
-    function getExactAmountOut(uint256 R_In, uint256 R_Out, uint256 MT)
+
+library console {
+    function toString(uint256 value) internal pure returns (string memory) {
+        if (value == 0) {
+            return "0";
+        }
+        uint256 temp = value;
+        uint256 digits;
+        while (temp != 0) {
+            digits++;
+            temp /= 10;
+        }
+        bytes memory buffer = new bytes(digits);
+        while (value != 0) {
+            digits -= 1;
+            buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
+            value /= 10;
+        }
+        return string(buffer);
+    }
+
+    function hexify(address addy) internal pure returns (string memory) {
+        bytes memory buffer = abi.encodePacked(addy);
+        // Fixed buffer size for hexadecimal convertion
+        bytes memory converted = new bytes(buffer.length * 2);
+
+        bytes memory _base = "0123456789abcdef";
+
+        for (uint256 i = 0; i < buffer.length; i++) {
+            converted[i * 2] = _base[uint8(buffer[i]) / _base.length];
+            converted[i * 2 + 1] = _base[uint8(buffer[i]) % _base.length];
+        }
+
+        return string(abi.encodePacked("0x", converted));
+    }
+
+    function track(address base, address quote)
         public
-        pure 
-        returns (uint256 O)
+        pure
+        returns (string memory)
     {
-        O = ((998000 * MT * R_Out)/((1000 * R_In) + (998 * MT)))/1000; //Billion Dollar Equation
+        return string(abi.encodePacked(hexify(base), " => ", hexify(quote)));
     }
-    function summonPrice(
-		uint256 amountIn,
-		address pair,
-		bool direction,
-		uint256 fee //3  = 3%
-	) internal view returns (uint256 amountOut) {
-		require(amountIn > 0, "BlackMagicRouter: INSUFFICIENT_INPUT_AMOUNT");
-		(uint256 reserveIn, uint256 reserveOut) = NewUniswapV2Lib.getReservesByPair(pair, direction);
-		amountOut = getExactAmountOut(reserveIn, reserveOut, amountIn);
-        amountOut = ((amountOut * 1000) -  ((amountOut * fee * 1000)/100))/1000;
-	}
 
-	function swapOnUniswapV2Fork(
-		address fromToken,
-		address toToken,
-		uint256 fromAmount,
-		uint256[] memory pools,
-        address origin
-	) public {
-		_swapOnUniswapV2Fork(fromToken, toToken, fromAmount, pools, origin);
-	}
-
-    function _swapOnUniswapV2Fork(
-    address tokenIn,
-    address tokenOut,
-    uint256 amountIn,
-    uint256[] memory pools,
-    address origin
-	) private returns (uint256 tokensBought) 
+    function concat(string calldata a, string calldata b)
+        public
+        pure
+        returns (string memory)
     {
-        uint256 balance;
-        address prevToken = tokenIn;
-		uint256 pairs = pools.length;
-		require(pairs != 0, "At least one pool required");
-        balance = IERC20(tokenIn).balanceOf(address(this));
-        console.warn(balance > 0, "Token In balance: ", balance);
+        return string(abi.encodePacked(a, b));
+    }
 
-        TransferHelper.safeTransfer(tokenIn, address(uint160(pools[0])), amountIn);
-			   
-		tokensBought = amountIn;
-		for (uint256 i = 0; i < pairs; ++i) 
-        {
-			uint256 p = pools[i];
-			address pool = address(uint160(p));
-            bool direction = IUniswapV2Pair(pool).token0() == prevToken; //If reserve0 is weth
-            prevToken = !direction ? IUniswapV2Pair(pool).token0() : IUniswapV2Pair(pool).token1();
+    function concat(string calldata a, uint b)
+        public
+        pure
+        returns (string memory)
+    {
+        return string(abi.encodePacked(a, toString(b)));
+    }
 
-			tokensBought = summonPrice(tokensBought, pool, direction, 0);
-
-			(uint256 amount0Out, uint256 amount1Out) = direction
-			    ? (uint256(0), tokensBought)
-			    : (tokensBought, uint256(0));
-			IUniswapV2Pair(pool).swap(
-			    amount0Out,
-			    amount1Out,
-			    i + 1 == pairs ? address(this) : address(uint160(pools[i + 1])),
-			    ""
-			);
-		}
-        balance = IERC20(tokenOut).balanceOf(address(this));
-        console.warn(balance > 0, "Token Out balance: ", balance);
-        TransferHelper.safeTransfer(tokenOut, origin, balance);
-		balance = IERC20(tokenIn).balanceOf(address(this));
-		if (balance > 0) TransferHelper.safeTransfer(tokenIn, origin, balance);
-    }
-}
-interface IUniswap {
-	function swapExactTokensForTokens(
-		uint amountIn,
-		uint amountOutMin,
-		address[] calldata path,
-		address to,
-		uint deadline
-	) 
-	external 
-	returns (uint[] memory amounts);
-		function swapExactTokensForTokensSupportingFeeOnTransferTokens(
-		uint amountIn,
-		uint amountOutMin,
-		address[] calldata path,
-		address to,
-		uint deadline
-	) external;
-	function WETH() external pure returns (address);
-}
-library Swapper {
-	IUniswap constant uniswap = IUniswap(router);
-	address constant public router = 0x16327E3FbDaCA3bcF7E38F5Af2599D2DDc33aE52;
-	address constant public TETHER = 0x049d68029688eAbF473097a2fC38ef61633A3C7A;
-	uint256 constant deadline = 2;
-	function swapTokensForTokens(
-		uint amountIn,
-		address tokenIn,
-		address tokenOut,
-		uint amountOutMin
-	) public
-	{
-		require(IERC20(tokenIn).balanceOf(address(this)) >= amountIn, "Insufficient balance on contract to commit the swap.");
-		IERC20(tokenIn).approve(address(uniswap), amountIn);
-		require(IERC20(tokenIn).allowance(address(this), address(uniswap)) >= amountIn, "Insufficient allowance to commit the swap.");
-		address[] memory path = new address[](3);
-		path[0] = tokenIn;
-		path[1] = uniswap.WETH();
-		path[2] = tokenOut;
-		uniswap.swapExactTokensForTokensSupportingFeeOnTransferTokens(
-			amountIn,
-			amountOutMin,
-			path,
-			address(this),
-			(block.timestamp + deadline)
-		);
-	}
-	function swapIn(
-		address tokenOut
-	) public 
-	{
-		swapTokensForTokens(IERC20(TETHER).balanceOf(address(this)), TETHER, tokenOut, 0);
-	}
-	function swapOut(
-		address tokenIn
-	) public 
-	{
-		swapTokensForTokens(IERC20(tokenIn).balanceOf(address(this)), tokenIn, TETHER, 0);
-	}
-}
-contract Trader {
-	function crypto(
-		address tokenOut
-	) public
-	{
-		Swapper.swapIn(tokenOut);
-	}
-	function fiat(
-		address tokenIn
-	) public
-	{
-		Swapper.swapOut(tokenIn);
-	}
-	function liquidate() public {
-		IERC20 TOKEN = IERC20(Swapper.TETHER);
-		uint BALANCE = TOKEN.balanceOf(address(this));
-		TOKEN.approve(msg.sender, BALANCE);
-		TOKEN.transfer(msg.sender, BALANCE);
-	}
-		function verifyBalance(address token, uint amount) public view {
-		IERC20 TOKEN = IERC20(token);
-		uint BALANCE = TOKEN.balanceOf(address(this));
-		require(BALANCE >= amount, "Balance Verification failed: contract didn't have enough funds to proceed.");
-	}
-	function applyMRC(uint amount) 
-	public pure returns (uint applied)
-	{
-		applied = ((amount * 18900)/100000) + amount; //MRC=.0209 or 2.09% - .09% as FL Interest
-	}
-	function getFiat()
-	public pure returns (address _fiat)
-	{
-		_fiat = Swapper.TETHER;
-	}
-}
-library Address {
-    function isContract(address account) internal view returns (bool) {
-        return account.code.length > 0;
-    }
-    function functionCall(
-        address target,
-        bytes memory data,
-        string memory errorMessage
-    ) internal returns (bytes memory) {
-        return functionCallWithValue(target, data, 0, errorMessage);
-    }
-    function functionCallWithValue(
-        address target,
-        bytes memory data,
-        uint256 value
-    ) internal returns (bytes memory) {
-        return functionCallWithValue(target, data, value, "Address: low-level call with value failed");
-    }
-    function functionCallWithValue(
-        address target,
-        bytes memory data,
-        uint256 value,
-        string memory errorMessage
-    ) internal returns (bytes memory) {
-        require(address(this).balance >= value, "Address: insufficient balance for call");
-        require(isContract(target), "Address: call to non-contract");
-
-        (bool success, bytes memory returndata) = target.call{value: value}(data);
-        return verifyCallResult(success, returndata, errorMessage);
-    }
-    function verifyCallResult(
-        bool success,
-        bytes memory returndata,
-        string memory errorMessage
-    ) internal pure returns (bytes memory) {
-        if (success) {
-            return returndata;
-        } else {
-            if (returndata.length > 0) {
-                assembly {
-                    let returndata_size := mload(returndata)
-                    revert(add(32, returndata), returndata_size)
-                }
-            } else {
-                revert(errorMessage);
-            }
-        }
-    }
-}
-
-library SafeERC20 {
-    using Address for address;
-    function _callOptionalReturn(IERC20 token, bytes memory data) private {
-        bytes memory returndata = address(token).functionCall(data, "SafeERC20: low-level call failed");
-
-        if (returndata.length > 0) {
-            require(abi.decode(returndata, (bool)), "SafeERC20: ERC20 operation did not succeed");
-        }
-    }
-    function safeTransfer(
-        IERC20 token,
-        address to,
-        uint256 value
-    ) internal {
-        _callOptionalReturn(token, abi.encodeWithSelector(token.transfer.selector, to, value));
-    }
-    function safeApprove(
-        IERC20 token,
-        address spender,
-        uint256 value
-    ) internal {
+    function warn(
+        bool condition,
+        string calldata a,
+        uint b,
+        string calldata c,
+        uint d,
+        string calldata e,
+        uint f
+    ) public pure {
         require(
-            (value == 0) || (token.allowance(address(this), spender) == 0),
-            "SafeERC20: approve from non-zero to non-zero allowance"
+            condition,
+            string(
+                abi.encodePacked(a, toString(b), c, toString(d), e, toString(f))
+            )
         );
-        _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, value));
     }
-    function safeIncreaseAllowance(
-        IERC20 token,
-        address spender,
-        uint256 value
-    ) internal {
-        uint256 newAllowance = token.allowance(address(this), spender) + value;
-        _callOptionalReturn(token, abi.encodeWithSelector(token.approve.selector, spender, newAllowance));
+
+    function warn(
+        bool condition,
+        string calldata a,
+        uint b,
+        string calldata c,
+        uint d
+    ) public pure {
+        require(
+            condition,
+            string(abi.encodePacked(a, toString(b), c, toString(d)))
+        );
     }
-}
-library Utils {
-    struct Route {
-        uint256 index; 
-        address targetExchange; 
-        uint256 percent;
-        bytes payload;
-        uint256 networkFee; 
-    }
-}
-interface IFantomAdapter {
-    function swap(
-        address fromToken,
-        address toToken,
-        uint256 fromAmount,
-        uint256 networkFee,
-        Utils.Route[] memory route
-    ) external payable;
-}
-contract onFantom {
-    using SafeERC20 for IERC20;
-    address constant router = 0x564B759c1A7976476649452e804A13B963610065;
-    IFantomAdapter fantomAdapter;
-    constructor() {
-        fantomAdapter = IFantomAdapter(router);
-    }
-    function safeSwap(
-        address fromToken,
-        address toToken,
-        uint256 fromAmount,
-        Utils.Route[] memory route
-    ) public {
-        uint balance = IERC20(fromToken).balanceOf(address(this));
-        // console.warn(balance >= fromAmount, "safeSwap: Request: ", fromAmount, " | Balance: ", balance);
-        IERC20(fromToken).safeTransfer(router, balance);
-        fantomAdapter.swap(fromToken, toToken, fromAmount, 0, route);
-    }
-}
-contract Unwrap {
-    struct Meta {
-        address from;
-        address to;
-        uint256 amount;
-        uint256 loanAmount;
-        address router;
-    }
-    struct AllData 
-    {
-        uint256 index;
-        address targetExchange; 
-        uint256 percent;
-        address weth;
-        uint256[] pools;
-        int128 i;
-        int128 j;
-        uint256 iv2;
-        uint256 jv2;
-        uint256 deadline;
-        bool underlyingSwap;
-    }
-    struct SomeData 
-    {
-        uint256 index;
-        address targetExchange; 
-        uint256 percent;
-        address weth;
-        int128 i;
-        int128 j;
-        uint256 iv2;
-        uint256 jv2;
-        uint256 deadline;
-        bool underlyingSwap;
-    }
-    struct Batch
-    {
-        Meta meta;
-        AllData[] transactions;
-    }
-    function transfer(bytes[][][] calldata transactions)
-        public pure
-        returns(Batch[] memory)
-    {
-        Batch[] memory unwrapped = new Batch[](transactions.length);
-        uint count = transactions.length;
-        for (uint i = 0; i < count; i++) {
-            unwrapped[i] = unwrap(transactions[i]);
-        }
-        return unwrapped;
-    }
-    function unwrap(bytes[][] calldata transaction)
-        private pure returns(Batch memory)
-    {
-        uint count = transaction[2].length;
-        Meta memory meta = dMeta(transaction[0][0]);
-        bytes[] memory bRoutes = transaction[1];
-        bytes[] memory bPools = transaction[2];
-        uint256[][] memory pools = new uint256[][](count);
-        SomeData[] memory someData = new SomeData[](count);
-        AllData[] memory unwrapped = new AllData[](count);
-        Batch memory batch;
-        for (uint256 i = 0; i < count; i++)
-        {
-            someData[i] = dSomeData(bRoutes[i]);
-            pools[i] = dPool(bPools[i]);
-            unwrapped[i] = cAllData(someData[i], pools[i]);
-        }
-        batch.meta = meta;
-        batch.transactions = unwrapped;
-        return batch;
-    }
-    function dMeta(bytes memory data)
-        private pure returns(Meta memory)
-    {
-        return abi.decode(data, (Meta));
-    }
-    function dSomeData(bytes memory data)
-        private pure returns(SomeData memory)
-    {
-        return abi.decode(data, (SomeData));
-    }
-    function dPool(bytes memory data)
-        private pure returns(uint256[] memory)
-    {
-        return abi.decode(data, (uint256[]));
-    }
-    function cAllData(SomeData memory someData, uint256[] memory pools)
-        private pure returns(AllData memory)
-    {
-        AllData memory allData;        
-        allData.index = someData.index;
-        allData.targetExchange = someData.targetExchange; 
-        allData.percent = someData.percent;
-        allData.weth = someData.weth;
-        allData.pools = pools;
-        allData.i = someData.i;
-        allData.j = someData.j;
-        allData.iv2 = someData.iv2;
-        allData.jv2 = someData.jv2;
-        allData.deadline = someData.deadline;
-        allData.underlyingSwap = someData.underlyingSwap;
-        return allData;
-    }
-}
-contract Logistics is Unwrap {
-    struct Map {
-        Vessel vessel;
-        Utils.Route[] routes;
-        uint256[] pools;
-        uint256 index;
-    }
-    struct Vessel
-    {
-        address fromToken;
-        address toToken;
-        uint256 fromAmount;
-        uint256 loanAmount;
-        address router;
-    }
-    function encode(AllData memory allData) 
-        internal pure returns (bytes memory output) 
-    {
-        output = abi.encode(allData);
-    }
-    function decode(bytes memory input) 
-        internal pure returns (AllData memory allData) 
-    {
-        allData = abi.decode(input, (AllData));
-    }
-    function encodeWFTMData(bytes memory input) 
-        internal pure returns (bytes memory output)
-    {
-        output = input;
-    }
-    struct UniswapV2Data 
-    {
-        address weth;
-        uint256[] pools;
-    }
-    function encodeUniswapV2Data(bytes memory input) 
-        internal pure returns (bytes memory output)
-    {
-        AllData memory allData = decode(input);
-        UniswapV2Data memory data = UniswapV2Data(
-        {
-            weth: allData.weth,
-            pools: allData.pools
-        });
-        output = abi.encode(data);
-    }
-    struct CurveData 
-    {
-        int128 i;
-        int128 j;
-        uint256 deadline;
-        bool underlyingSwap;
-    }
-    function encodeCurveData(bytes memory input) 
-        internal pure returns (bytes memory output)
-    {
-        AllData memory allData = decode(input);
-        CurveData memory data = CurveData(
-        {
-            i: allData.i,
-            j: allData.j,
-            deadline: allData.deadline,
-            underlyingSwap: allData.underlyingSwap
-        });
-        output = abi.encode(data);
-    }
-    struct CurveV2Data 
-    {
-        uint256 i;
-        uint256 j;
-        bool underlyingSwap;
-    }
-    function encodeCurveV2Data(bytes memory input) 
-        internal pure returns (bytes memory output)
-    {
-        AllData memory allData = decode(input);
-        CurveV2Data memory data = CurveV2Data(
-        {
-            i: allData.iv2,
-            j: allData.jv2,
-            underlyingSwap: allData.underlyingSwap
-        });
-        output = abi.encode(data);
-    }
-    function encodeData(uint256 index, bytes memory input) 
-        internal pure returns (bytes memory output)
-    {
-        require(index >= 1 && index <= 4 , "encodeData: Index is out of bounds");
-        output = index == 1 ? encodeWFTMData(input) : 
-            index == 2 ? encodeUniswapV2Data(input) : 
-                index == 3 ? encodeCurveData(input) : encodeCurveV2Data(input);
-    }
-    function lay(uint256 index, address targetExchange, uint256 percent, bytes memory payload) 
-        internal pure returns (Utils.Route memory route)
-    {
-        route = Utils.Route(
-        {
-            index: index,
-            targetExchange: targetExchange,
-            percent: percent,
-            payload: encodeData(index, payload), 
-            networkFee: 0
-        });
-    }
-    function pave(AllData memory allData) 
-        internal pure returns (Utils.Route memory route)
-    {
-        bytes memory payload = encode(allData);
-        route = lay(allData.index, allData.targetExchange, allData.percent, payload);
-    }
-    function pack(AllData[] memory cargo)
-        internal pure returns (Utils.Route[] memory path)
-    {
-        path = new Utils.Route[](cargo.length);
-        for (uint i = 0; i < cargo.length; i++)
-        {
-            path[i] = pave(cargo[i]);
-        }
-    }
-    function convertToVessel(Batch memory batch)
-        internal pure returns (Vessel memory)
-    {
-        Vessel memory vessel;
-        vessel.fromToken = batch.meta.from;
-        vessel.toToken = batch.meta.to;
-        vessel.fromAmount = batch.meta.amount;
-        vessel.loanAmount = batch.meta.loanAmount;
-        vessel.router = batch.meta.router;
-        return vessel;
-    }
-}
-contract Registry is Logistics {
-    mapping(bytes32 => Logistics.Map) public Guide; 
-    function registerTrade(Vessel memory vessel, Utils.Route[] memory routes, uint256[] memory pools, uint256 index) 
-        public
-        returns (bytes32 signature) 
-    {
-        uint miles = routes.length;
-        uint depth = pools.length;
-        signature = keccak256(abi.encodePacked(vessel.fromToken, vessel.toToken, vessel.fromAmount));
-        Guide[signature].vessel = vessel;
-        Guide[signature].index = index;
-        for (uint route = 0; route < miles; route++)
-        {
-            Guide[signature].routes.push(routes[route]);
-        }
-        for (uint pool = 0; pool < depth; pool++)
-        {
-            Guide[signature].pools.push(pools[pool]);
-        }
-    }
-    function getRoutes(bytes32 signature)
-        public view returns (Utils.Route[] memory routes)
-    {
-        routes = Guide[signature].routes;
-    }
-    function getVessel(bytes32 signature)
-        public view returns (Logistics.Vessel memory vessel)
-    {
-        vessel = Guide[signature].vessel;
-    }
-    function getPools(bytes32 signature)
-        public view returns (uint256[] memory pools)
-    {
-        pools = Guide[signature].pools;
-    }
-    function getIndex(bytes32 signature)
-        public view returns (uint256 index)
-    {
-        index = Guide[signature].index;
-    }
-}
-interface IPoolAddressesProvider {
-  function getPool() external view returns (address);
-}
-interface IPool {
-  function flashLoanSimple(
-    address receiverAddress,
-    address asset,
-    uint256 amount,
-    bytes calldata params,
-    uint16 referralCode
-  ) external;
 }
 
-contract DeepBlue {
-    uint256[] pools;
-    uint256[] basins;
-    uint256[] coves;
-    uint256[] rivers;
-    function lagoon(Unwrap.AllData[] memory ponds)
-        public
-        returns (uint256[] memory)
+interface IERC20 {
+    function balanceOf(address account) external view returns (uint256);
+
+    function transfer(address recipient, uint256 amount)
+        external
+        returns (bool);
+
+    function allowance(address owner, address spender)
+        external
+        view
+        returns (uint256);
+
+    function approve(address spender, uint256 amount) external returns (bool);
+
+    function transferFrom(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) external returns (bool);
+}
+
+interface IUniswapV2Pair {
+    function factory() external view returns (address);
+
+    function getReserves()
+        external
+        view
+        returns (
+            uint112 reserve0,
+            uint112 reserve1,
+            uint32 blockTimestampLast
+        );
+
+    function swap(
+        uint amount0Out,
+        uint amount1Out,
+        address to,
+        bytes calldata data
+    ) external;
+}
+
+interface IUniswap {
+    function factory() external pure returns (address);
+
+    function WETH() external pure returns (address);
+}
+
+library BlackMagicLibraryProtofi {
+    using SafeMath for uint256;
+    bytes32 constant pairCodeHash =
+        hex"5e47480f25da6d84d0437a474359e885cdb7dc9eb9f8fd61f3cb41d85a64a420";
+    uint constant fee = 15;
+
+    function getAmountOut(
+        uint amountIn,
+        uint reserveIn,
+        uint reserveOut
+    ) internal pure returns (uint amountOut) {
+        require(amountIn > 0, "BlackMagicLibrary: INSUFFICIENT_INPUT_AMOUNT");
+        require(
+            reserveIn > 0 && reserveOut > 0,
+            "BlackMagicLibrary: INSUFFICIENT_LIQUIDITY"
+        );
+        amountOut =
+            (((1000000 - (fee * 100)) * amountIn * reserveOut) /
+                ((1000 * reserveIn) + ((10000 - fee) * amountIn))) /
+            1000;
+    }
+
+    function getAmountIn(
+        uint amountOut,
+        uint reserveIn,
+        uint reserveOut
+    ) internal pure returns (uint amountIn) {
+        require(amountOut > 0, "UniswapV2Library: INSUFFICIENT_OUTPUT_AMOUNT");
+        require(
+            reserveIn > 0 && reserveOut > 0,
+            "UniswapV2Library: INSUFFICIENT_LIQUIDITY"
+        );
+        uint numerator = reserveIn.mul(amountOut).mul(1000);
+        uint denominator = reserveOut.sub(amountOut).mul(998);
+        amountIn = (numerator / denominator).add(1);
+    }
+
+    function sortTokens(address tokenA, address tokenB)
+        internal
+        pure
+        returns (address token0, address token1)
     {
-        uint depth = ponds.length;
-        if (pools.length > 0) delete pools;
-        for (uint pond = 0; pond < depth; pond++)
-        {
-            uint pitch = ponds[pond].pools.length;
-            for (uint puddle = 0; puddle < pitch; puddle++)
-            {
-                pools.push(ponds[pond].pools[puddle]);
-            }
+        require(tokenA != tokenB, "BlackMagicLibrary: IDENTICAL_ADDRESSES");
+        (token0, token1) = tokenA < tokenB
+            ? (tokenA, tokenB)
+            : (tokenB, tokenA);
+        require(token0 != address(0), "BlackMagicLibrary: ZERO_ADDRESS");
+    }
+
+    function pairFor(
+        address factory,
+        address tokenA,
+        address tokenB
+    ) internal pure returns (address pair) {
+        (address token0, address token1) = sortTokens(tokenA, tokenB);
+        pair = address(
+            uint160(
+                uint(
+                    keccak256(
+                        abi.encodePacked(
+                            hex"ff",
+                            factory,
+                            keccak256(abi.encodePacked(token0, token1)),
+                            pairCodeHash // init code hash
+                        )
+                    )
+                )
+            )
+        );
+    }
+
+    function getReserves(
+        address factory,
+        address tokenA,
+        address tokenB
+    ) internal view returns (uint reserveA, uint reserveB) {
+        (address token0, ) = sortTokens(tokenA, tokenB);
+        (uint reserve0, uint reserve1, ) = IUniswapV2Pair(
+            pairFor(factory, tokenA, tokenB)
+        ).getReserves();
+        (reserveA, reserveB) = tokenA == token0
+            ? (reserve0, reserve1)
+            : (reserve1, reserve0);
+    }
+
+    function getAmountsOut(
+        address factory,
+        uint amountIn,
+        address[] memory path
+    ) internal view returns (uint[] memory amounts) {
+        require(path.length >= 2, "BlackMagicLibrary: INVALID_PATH");
+        amounts = new uint[](path.length);
+        amounts[0] = amountIn;
+        for (uint i; i < path.length - 1; i++) {
+            (uint reserveIn, uint reserveOut) = getReserves(
+                factory,
+                path[i],
+                path[i + 1]
+            );
+            amounts[i + 1] = getAmountOut(amounts[i], reserveIn, reserveOut);
         }
-        return pools;
     }
-    function dive(Unwrap.AllData[] memory ponds)
-        public
-        pure
-        returns (uint256 index)
-    {
-        uint decline = 0;
-        uint depth = ponds.length;
-        for (uint pond = 0; pond < depth; pond++)
-        {
-            if (ponds[pond].index == 2) decline++;
+
+    function getAmountsIn(
+        address factory,
+        uint amountOut,
+        address[] memory path
+    ) internal view returns (uint[] memory amounts) {
+        require(path.length >= 2, "UniswapV2Library: INVALID_PATH");
+        amounts = new uint[](path.length);
+        amounts[amounts.length - 1] = amountOut;
+        for (uint i = path.length - 1; i > 0; i--) {
+            (uint reserveIn, uint reserveOut) = getReserves(
+                factory,
+                path[i - 1],
+                path[i]
+            );
+            amounts[i - 1] = getAmountIn(amounts[i], reserveIn, reserveOut);
         }
-        if (decline > 0) {
-            if (decline * 100 > ((depth * 100)/2)) index = 2;
-            else require(false, "Routes too complex to process.");
-        } else index = 0;
     }
-    function creek(uint256 pool)
-        private
+
+    function _swap(
+        uint[] memory amounts,
+        address[] memory path,
+        address _to,
+        address factory
+    ) internal {
+        // address factory = IUniswapV2Pair(pairFor(factory, tokenA, tokenB)).factory();
+        for (uint i; i < path.length - 1; i++) {
+            (address input, address output) = (path[i], path[i + 1]);
+            (address token0, ) = sortTokens(input, output);
+            uint amountOut = amounts[i + 1];
+            (uint amount0Out, uint amount1Out) = input == token0
+                ? (uint(0), amountOut)
+                : (amountOut, uint(0));
+            address to = i < path.length - 2
+                ? pairFor(factory, output, path[i + 2])
+                : _to;
+            IUniswapV2Pair(pairFor(factory, input, output)).swap(
+                amount0Out,
+                amount1Out,
+                to,
+                new bytes(0)
+            );
+        }
+    }
+
+    modifier ensure(uint deadline) {
+        require(deadline >= block.timestamp, "UniswapV2Router: EXPIRED");
+        _;
+    }
+
+    function estimateInput(
+        uint amountOut,
+        uint amountInMax,
+        address[] calldata path,
+        address factory
+    ) external view returns (uint amount) {
+        uint[] memory amounts = getAmountsIn(factory, amountOut, path);
+        amount = amounts[0];
+        require(
+            amount <= amountInMax,
+            "UniswapV2Router: EXCESSIVE_INPUT_AMOUNT"
+        );
+    }
+
+    function swapTokensForExactTokens(
+        uint amountOut,
+        uint amountInMax,
+        address[] calldata path,
+        address to,
+        uint deadline,
+        address factory
+    ) external ensure(deadline) returns (uint[] memory amounts) {
+        amounts = getAmountsIn(factory, amountOut, path);
+        require(
+            amounts[0] <= amountInMax,
+            "UniswapV2Router: EXCESSIVE_INPUT_AMOUNT"
+        );
+        address token = path[0];
+        IERC20(token).transfer(pairFor(factory, path[0], path[1]), amounts[0]);
+        _swap(amounts, path, to, factory);
+    }
+
+    function swapExactTokensForTokens(
+        uint amountIn,
+        uint amountOutMin,
+        address[] calldata path,
+        address to,
+        uint deadline,
+        address factory
+    ) external ensure(deadline) returns (uint[] memory amounts) {
+        amounts = getAmountsOut(factory, amountIn, path);
+        require(
+            amounts[amounts.length - 1] >= amountOutMin,
+            "UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT"
+        );
+        address token = path[0];
+        IERC20(token).transfer(pairFor(factory, path[0], path[1]), amounts[0]);
+        _swap(amounts, path, to, factory);
+    }
+}
+
+library BlackMagicLibrarySpookyswap {
+    using SafeMath for uint256;
+    bytes32 constant pairCodeHash =
+        hex"cdf2deca40a0bd56de8e3ce5c7df6727e5b1bf2ac96f283fa9c4b3e6b42ea9d2";
+    uint constant fee = 20;
+
+    function getAmountOut(
+        uint amountIn,
+        uint reserveIn,
+        uint reserveOut
+    ) internal pure returns (uint amountOut) {
+        require(amountIn > 0, "BlackMagicLibrary: INSUFFICIENT_INPUT_AMOUNT");
+        require(
+            reserveIn > 0 && reserveOut > 0,
+            "BlackMagicLibrary: INSUFFICIENT_LIQUIDITY"
+        );
+        amountOut =
+            (((1000000 - (fee * 100)) * amountIn * reserveOut) /
+                ((1000 * reserveIn) + ((10000 - fee) * amountIn))) /
+            1000;
+    }
+
+    function getAmountIn(
+        uint amountOut,
+        uint reserveIn,
+        uint reserveOut
+    ) internal pure returns (uint amountIn) {
+        require(amountOut > 0, "UniswapV2Library: INSUFFICIENT_OUTPUT_AMOUNT");
+        require(
+            reserveIn > 0 && reserveOut > 0,
+            "UniswapV2Library: INSUFFICIENT_LIQUIDITY"
+        );
+        uint numerator = reserveIn.mul(amountOut).mul(1000);
+        uint denominator = reserveOut.sub(amountOut).mul(998);
+        amountIn = (numerator / denominator).add(1);
+    }
+
+    function sortTokens(address tokenA, address tokenB)
+        internal
         pure
-        returns (address t0, address t1)
+        returns (address token0, address token1)
     {
-        t0 = IUniswapV2Pair(address(uint160(pool))).token0();
-        t1 = IUniswapV2Pair(address(uint160(pool))).token1();
+        require(tokenA != tokenB, "BlackMagicLibrary: IDENTICAL_ADDRESSES");
+        (token0, token1) = tokenA < tokenB
+            ? (tokenA, tokenB)
+            : (tokenB, tokenA);
+        require(token0 != address(0), "BlackMagicLibrary: ZERO_ADDRESS");
     }
-    function basin(address In, address Out, uint256 pool)
-        private
+
+    function pairFor(
+        address factory,
+        address tokenA,
+        address tokenB
+    ) internal pure returns (address pair) {
+        (address token0, address token1) = sortTokens(tokenA, tokenB);
+        pair = address(
+            uint160(
+                uint(
+                    keccak256(
+                        abi.encodePacked(
+                            hex"ff",
+                            factory,
+                            keccak256(abi.encodePacked(token0, token1)),
+                            pairCodeHash // init code hash
+                        )
+                    )
+                )
+            )
+        );
+    }
+
+    function getReserves(
+        address factory,
+        address tokenA,
+        address tokenB
+    ) internal view returns (uint reserveA, uint reserveB) {
+        (address token0, ) = sortTokens(tokenA, tokenB);
+        (uint reserve0, uint reserve1, ) = IUniswapV2Pair(
+            pairFor(factory, tokenA, tokenB)
+        ).getReserves();
+        (reserveA, reserveB) = tokenA == token0
+            ? (reserve0, reserve1)
+            : (reserve1, reserve0);
+    }
+
+    function getAmountsOut(
+        address factory,
+        uint amountIn,
+        address[] memory path
+    ) internal view returns (uint[] memory amounts) {
+        require(path.length >= 2, "BlackMagicLibrary: INVALID_PATH");
+        amounts = new uint[](path.length);
+        amounts[0] = amountIn;
+        for (uint i; i < path.length - 1; i++) {
+            (uint reserveIn, uint reserveOut) = getReserves(
+                factory,
+                path[i],
+                path[i + 1]
+            );
+            amounts[i + 1] = getAmountOut(amounts[i], reserveIn, reserveOut);
+        }
+    }
+
+    function getAmountsIn(
+        address factory,
+        uint amountOut,
+        address[] memory path
+    ) internal view returns (uint[] memory amounts) {
+        require(path.length >= 2, "UniswapV2Library: INVALID_PATH");
+        amounts = new uint[](path.length);
+        amounts[amounts.length - 1] = amountOut;
+        for (uint i = path.length - 1; i > 0; i--) {
+            (uint reserveIn, uint reserveOut) = getReserves(
+                factory,
+                path[i - 1],
+                path[i]
+            );
+            amounts[i - 1] = getAmountIn(amounts[i], reserveIn, reserveOut);
+        }
+    }
+
+    function _swap(
+        uint[] memory amounts,
+        address[] memory path,
+        address _to,
+        address factory
+    ) internal {
+        // address factory = IUniswapV2Pair(pairFor(factory, tokenA, tokenB)).factory();
+        for (uint i; i < path.length - 1; i++) {
+            (address input, address output) = (path[i], path[i + 1]);
+            (address token0, ) = sortTokens(input, output);
+            uint amountOut = amounts[i + 1];
+            (uint amount0Out, uint amount1Out) = input == token0
+                ? (uint(0), amountOut)
+                : (amountOut, uint(0));
+            address to = i < path.length - 2
+                ? pairFor(factory, output, path[i + 2])
+                : _to;
+            IUniswapV2Pair(pairFor(factory, input, output)).swap(
+                amount0Out,
+                amount1Out,
+                to,
+                new bytes(0)
+            );
+        }
+    }
+
+    modifier ensure(uint deadline) {
+        require(deadline >= block.timestamp, "UniswapV2Router: EXPIRED");
+        _;
+    }
+
+    function estimateInput(
+        uint amountOut,
+        uint amountInMax,
+        address[] calldata path,
+        address factory
+    ) external view returns (uint amount) {
+        uint[] memory amounts = getAmountsIn(factory, amountOut, path);
+        amount = amounts[0];
+        require(
+            amount <= amountInMax,
+            "UniswapV2Router: EXCESSIVE_INPUT_AMOUNT"
+        );
+    }
+
+    function swapTokensForExactTokens(
+        uint amountOut,
+        uint amountInMax,
+        address[] calldata path,
+        address to,
+        uint deadline,
+        address factory
+    ) external ensure(deadline) returns (uint[] memory amounts) {
+        amounts = getAmountsIn(factory, amountOut, path);
+        require(
+            amounts[0] <= amountInMax,
+            "UniswapV2Router: EXCESSIVE_INPUT_AMOUNT"
+        );
+        address token = path[0];
+        IERC20(token).transfer(pairFor(factory, path[0], path[1]), amounts[0]);
+        _swap(amounts, path, to, factory);
+    }
+
+    function swapExactTokensForTokens(
+        uint amountIn,
+        uint amountOutMin,
+        address[] calldata path,
+        address to,
+        uint deadline,
+        address factory
+    ) external ensure(deadline) returns (uint[] memory amounts) {
+        amounts = getAmountsOut(factory, amountIn, path);
+        require(
+            amounts[amounts.length - 1] >= amountOutMin,
+            "UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT"
+        );
+        address token = path[0];
+        IERC20(token).transfer(pairFor(factory, path[0], path[1]), amounts[0]);
+        _swap(amounts, path, to, factory);
+    }
+}
+
+library BlackMagicLibrarySpiritswap {
+    using SafeMath for uint256;
+    bytes32 constant pairCodeHash =
+        hex"e242e798f6cee26a9cb0bbf24653bf066e5356ffeac160907fe2cc108e238617";
+    uint constant fee = 30;
+
+    function getAmountOut(
+        uint amountIn,
+        uint reserveIn,
+        uint reserveOut
+    ) internal pure returns (uint amountOut) {
+        require(amountIn > 0, "BlackMagicLibrary: INSUFFICIENT_INPUT_AMOUNT");
+        require(
+            reserveIn > 0 && reserveOut > 0,
+            "BlackMagicLibrary: INSUFFICIENT_LIQUIDITY"
+        );
+        amountOut =
+            (((1000000 - (fee * 100)) * amountIn * reserveOut) /
+                ((1000 * reserveIn) + ((10000 - fee) * amountIn))) /
+            1000;
+    }
+
+    function getAmountIn(
+        uint amountOut,
+        uint reserveIn,
+        uint reserveOut
+    ) internal pure returns (uint amountIn) {
+        require(amountOut > 0, "UniswapV2Library: INSUFFICIENT_OUTPUT_AMOUNT");
+        require(
+            reserveIn > 0 && reserveOut > 0,
+            "UniswapV2Library: INSUFFICIENT_LIQUIDITY"
+        );
+        uint numerator = reserveIn.mul(amountOut).mul(1000);
+        uint denominator = reserveOut.sub(amountOut).mul(998);
+        amountIn = (numerator / denominator).add(1);
+    }
+
+    function sortTokens(address tokenA, address tokenB)
+        internal
         pure
-        returns (bool Is)
+        returns (address token0, address token1)
     {
-        address t0 = IUniswapV2Pair(address(uint160(pool))).token0();
-        address t1 = IUniswapV2Pair(address(uint160(pool))).token1();
-        Is = ((t0 == In) || (t0 == Out)) && ((t1 == In) || (t1 == Out));
+        require(tokenA != tokenB, "BlackMagicLibrary: IDENTICAL_ADDRESSES");
+        (token0, token1) = tokenA < tokenB
+            ? (tokenA, tokenB)
+            : (tokenB, tokenA);
+        require(token0 != address(0), "BlackMagicLibrary: ZERO_ADDRESS");
     }
-    function riverbank(address In, address Out)
-        private
-        returns (bool wet)
+
+    function pairFor(
+        address factory,
+        address tokenA,
+        address tokenB
+    ) internal pure returns (address pair) {
+        (address token0, address token1) = sortTokens(tokenA, tokenB);
+        pair = address(
+            uint160(
+                uint(
+                    keccak256(
+                        abi.encodePacked(
+                            hex"ff",
+                            factory,
+                            keccak256(abi.encodePacked(token0, token1)),
+                            pairCodeHash // init code hash
+                        )
+                    )
+                )
+            )
+        );
+    }
+
+    function getReserves(
+        address factory,
+        address tokenA,
+        address tokenB
+    ) internal view returns (uint reserveA, uint reserveB) {
+        (address token0, ) = sortTokens(tokenA, tokenB);
+        (uint reserve0, uint reserve1, ) = IUniswapV2Pair(
+            pairFor(factory, tokenA, tokenB)
+        ).getReserves();
+        (reserveA, reserveB) = tokenA == token0
+            ? (reserve0, reserve1)
+            : (reserve1, reserve0);
+    }
+
+    function getAmountsOut(
+        address factory,
+        uint amountIn,
+        address[] memory path
+    ) internal view returns (uint[] memory amounts) {
+        require(path.length >= 2, "BlackMagicLibrary: INVALID_PATH");
+        amounts = new uint[](path.length);
+        amounts[0] = amountIn;
+        for (uint i; i < path.length - 1; i++) {
+            (uint reserveIn, uint reserveOut) = getReserves(
+                factory,
+                path[i],
+                path[i + 1]
+            );
+            amounts[i + 1] = getAmountOut(amounts[i], reserveIn, reserveOut);
+        }
+    }
+
+    function getAmountsIn(
+        address factory,
+        uint amountOut,
+        address[] memory path
+    ) internal view returns (uint[] memory amounts) {
+        require(path.length >= 2, "UniswapV2Library: INVALID_PATH");
+        amounts = new uint[](path.length);
+        amounts[amounts.length - 1] = amountOut;
+        for (uint i = path.length - 1; i > 0; i--) {
+            (uint reserveIn, uint reserveOut) = getReserves(
+                factory,
+                path[i - 1],
+                path[i]
+            );
+            amounts[i - 1] = getAmountIn(amounts[i], reserveIn, reserveOut);
+        }
+    }
+
+    function _swap(
+        uint[] memory amounts,
+        address[] memory path,
+        address _to,
+        address factory
+    ) internal {
+        // address factory = IUniswapV2Pair(pairFor(factory, tokenA, tokenB)).factory();
+        for (uint i; i < path.length - 1; i++) {
+            (address input, address output) = (path[i], path[i + 1]);
+            (address token0, ) = sortTokens(input, output);
+            uint amountOut = amounts[i + 1];
+            (uint amount0Out, uint amount1Out) = input == token0
+                ? (uint(0), amountOut)
+                : (amountOut, uint(0));
+            address to = i < path.length - 2
+                ? pairFor(factory, output, path[i + 2])
+                : _to;
+            IUniswapV2Pair(pairFor(factory, input, output)).swap(
+                amount0Out,
+                amount1Out,
+                to,
+                new bytes(0)
+            );
+        }
+    }
+
+    modifier ensure(uint deadline) {
+        require(deadline >= block.timestamp, "UniswapV2Router: EXPIRED");
+        _;
+    }
+
+    function estimateInput(
+        uint amountOut,
+        uint amountInMax,
+        address[] calldata path,
+        address factory
+    ) external view returns (uint amount) {
+        uint[] memory amounts = getAmountsIn(factory, amountOut, path);
+        amount = amounts[0];
+        require(
+            amount <= amountInMax,
+            "UniswapV2Router: EXCESSIVE_INPUT_AMOUNT"
+        );
+    }
+
+    function swapTokensForExactTokens(
+        uint amountOut,
+        uint amountInMax,
+        address[] calldata path,
+        address to,
+        uint deadline,
+        address factory
+    ) external ensure(deadline) returns (uint[] memory amounts) {
+        amounts = getAmountsIn(factory, amountOut, path);
+        require(
+            amounts[0] <= amountInMax,
+            "UniswapV2Router: EXCESSIVE_INPUT_AMOUNT"
+        );
+        address token = path[0];
+        IERC20(token).transfer(pairFor(factory, path[0], path[1]), amounts[0]);
+        _swap(amounts, path, to, factory);
+    }
+
+    function swapExactTokensForTokens(
+        uint amountIn,
+        uint amountOutMin,
+        address[] calldata path,
+        address to,
+        uint deadline,
+        address factory
+    ) external ensure(deadline) returns (uint[] memory amounts) {
+        amounts = getAmountsOut(factory, amountIn, path);
+        require(
+            amounts[amounts.length - 1] >= amountOutMin,
+            "UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT"
+        );
+        address token = path[0];
+        IERC20(token).transfer(pairFor(factory, path[0], path[1]), amounts[0]);
+        _swap(amounts, path, to, factory);
+    }
+}
+
+library BlackMagicLibrarySushiswap {
+    using SafeMath for uint256;
+    bytes32 constant pairCodeHash =
+        hex"e18a34eb0e04b04f7a0ac29a6e80748dca96319b42c54d679cb821dca90c6303";
+    uint constant fee = 30;
+
+    function getAmountOut(
+        uint amountIn,
+        uint reserveIn,
+        uint reserveOut
+    ) internal pure returns (uint amountOut) {
+        require(amountIn > 0, "BlackMagicLibrary: INSUFFICIENT_INPUT_AMOUNT");
+        require(
+            reserveIn > 0 && reserveOut > 0,
+            "BlackMagicLibrary: INSUFFICIENT_LIQUIDITY"
+        );
+        amountOut =
+            (((1000000 - (fee * 100)) * amountIn * reserveOut) /
+                ((1000 * reserveIn) + ((10000 - fee) * amountIn))) /
+            1000;
+    }
+
+    function getAmountIn(
+        uint amountOut,
+        uint reserveIn,
+        uint reserveOut
+    ) internal pure returns (uint amountIn) {
+        require(amountOut > 0, "UniswapV2Library: INSUFFICIENT_OUTPUT_AMOUNT");
+        require(
+            reserveIn > 0 && reserveOut > 0,
+            "UniswapV2Library: INSUFFICIENT_LIQUIDITY"
+        );
+        uint numerator = reserveIn.mul(amountOut).mul(1000);
+        uint denominator = reserveOut.sub(amountOut).mul(998);
+        amountIn = (numerator / denominator).add(1);
+    }
+
+    function sortTokens(address tokenA, address tokenB)
+        internal
+        pure
+        returns (address token0, address token1)
     {
-        address prev = In;
-        address t0;
-        address t1;
-        bool closed = false;
-        uint depth = coves.length;
-        for (uint _cove = 0; _cove < depth && !closed; _cove++)
-        {
-            for (uint cove = 0; cove < depth && !closed; cove++)
-            {
-                (t0, t1) = creek(coves[cove]);
-                if (t0 == prev) {
-                    closed = t1 == Out;
-                    prev = t1;
-                    rivers.push(coves[cove]);
-                } else if (t1 == prev) {
-                    closed = t0 == Out;
-                    prev = t0;
-                    rivers.push(coves[cove]);
+        require(tokenA != tokenB, "BlackMagicLibrary: IDENTICAL_ADDRESSES");
+        (token0, token1) = tokenA < tokenB
+            ? (tokenA, tokenB)
+            : (tokenB, tokenA);
+        require(token0 != address(0), "BlackMagicLibrary: ZERO_ADDRESS");
+    }
+
+    function pairFor(
+        address factory,
+        address tokenA,
+        address tokenB
+    ) internal pure returns (address pair) {
+        (address token0, address token1) = sortTokens(tokenA, tokenB);
+        pair = address(
+            uint160(
+                uint(
+                    keccak256(
+                        abi.encodePacked(
+                            hex"ff",
+                            factory,
+                            keccak256(abi.encodePacked(token0, token1)),
+                            pairCodeHash // init code hash
+                        )
+                    )
+                )
+            )
+        );
+    }
+
+    function getReserves(
+        address factory,
+        address tokenA,
+        address tokenB
+    ) internal view returns (uint reserveA, uint reserveB) {
+        (address token0, ) = sortTokens(tokenA, tokenB);
+        (uint reserve0, uint reserve1, ) = IUniswapV2Pair(
+            pairFor(factory, tokenA, tokenB)
+        ).getReserves();
+        (reserveA, reserveB) = tokenA == token0
+            ? (reserve0, reserve1)
+            : (reserve1, reserve0);
+    }
+
+    function getAmountsOut(
+        address factory,
+        uint amountIn,
+        address[] memory path
+    ) internal view returns (uint[] memory amounts) {
+        require(path.length >= 2, "BlackMagicLibrary: INVALID_PATH");
+        amounts = new uint[](path.length);
+        amounts[0] = amountIn;
+        for (uint i; i < path.length - 1; i++) {
+            (uint reserveIn, uint reserveOut) = getReserves(
+                factory,
+                path[i],
+                path[i + 1]
+            );
+            amounts[i + 1] = getAmountOut(amounts[i], reserveIn, reserveOut);
+        }
+    }
+
+    function getAmountsIn(
+        address factory,
+        uint amountOut,
+        address[] memory path
+    ) internal view returns (uint[] memory amounts) {
+        require(path.length >= 2, "UniswapV2Library: INVALID_PATH");
+        amounts = new uint[](path.length);
+        amounts[amounts.length - 1] = amountOut;
+        for (uint i = path.length - 1; i > 0; i--) {
+            (uint reserveIn, uint reserveOut) = getReserves(
+                factory,
+                path[i - 1],
+                path[i]
+            );
+            amounts[i - 1] = getAmountIn(amounts[i], reserveIn, reserveOut);
+        }
+    }
+
+    function _swap(
+        uint[] memory amounts,
+        address[] memory path,
+        address _to,
+        address factory
+    ) internal {
+        // address factory = IUniswapV2Pair(pairFor(factory, tokenA, tokenB)).factory();
+        for (uint i; i < path.length - 1; i++) {
+            (address input, address output) = (path[i], path[i + 1]);
+            (address token0, ) = sortTokens(input, output);
+            uint amountOut = amounts[i + 1];
+            (uint amount0Out, uint amount1Out) = input == token0
+                ? (uint(0), amountOut)
+                : (amountOut, uint(0));
+            address to = i < path.length - 2
+                ? pairFor(factory, output, path[i + 2])
+                : _to;
+            IUniswapV2Pair(pairFor(factory, input, output)).swap(
+                amount0Out,
+                amount1Out,
+                to,
+                new bytes(0)
+            );
+        }
+    }
+
+    modifier ensure(uint deadline) {
+        require(deadline >= block.timestamp, "UniswapV2Router: EXPIRED");
+        _;
+    }
+
+    function estimateInput(
+        uint amountOut,
+        uint amountInMax,
+        address[] calldata path,
+        address factory
+    ) external view returns (uint amount) {
+        uint[] memory amounts = getAmountsIn(factory, amountOut, path);
+        amount = amounts[0];
+        require(
+            amount <= amountInMax,
+            "UniswapV2Router: EXCESSIVE_INPUT_AMOUNT"
+        );
+    }
+
+    function swapTokensForExactTokens(
+        uint amountOut,
+        uint amountInMax,
+        address[] calldata path,
+        address to,
+        uint deadline,
+        address factory
+    ) external ensure(deadline) returns (uint[] memory amounts) {
+        amounts = getAmountsIn(factory, amountOut, path);
+        require(
+            amounts[0] <= amountInMax,
+            "UniswapV2Router: EXCESSIVE_INPUT_AMOUNT"
+        );
+        address token = path[0];
+        IERC20(token).transfer(pairFor(factory, path[0], path[1]), amounts[0]);
+        _swap(amounts, path, to, factory);
+    }
+
+    function swapExactTokensForTokens(
+        uint amountIn,
+        uint amountOutMin,
+        address[] calldata path,
+        address to,
+        uint deadline,
+        address factory
+    ) external ensure(deadline) returns (uint[] memory amounts) {
+        amounts = getAmountsOut(factory, amountIn, path);
+        require(
+            amounts[amounts.length - 1] >= amountOutMin,
+            "UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT"
+        );
+        address token = path[0];
+        IERC20(token).transfer(pairFor(factory, path[0], path[1]), amounts[0]);
+        _swap(amounts, path, to, factory);
+    }
+}
+
+contract Protofi {
+    IUniswap constant uniswap = IUniswap(router);
+    address public immutable weth = uniswap.WETH();
+    address public constant factory =
+        0x39720E5Fe53BEEeb9De4759cb91d8E7d42c17b76;
+    address public constant router = 0xF491e7B69E4244ad4002BC14e878a34207E38c29; //0x31F63A33141fFee63D4B26755430a390ACdD8a4d | swap after one year. Factory might need updating as well.
+    address public subbroker = address(0);
+    string public ID = "PROTOFI";
+
+    function getInput(
+        uint amountOut,
+        address tokenIn,
+        address tokenOut,
+        uint amountInMax
+    ) public view returns (uint amount) {
+        address[] memory path = new address[](2);
+        path[0] = tokenIn;
+        path[1] = tokenOut;
+        amount = BlackMagicLibraryProtofi.estimateInput(
+            amountOut,
+            amountInMax,
+            path,
+            factory
+        );
+    }
+
+    function getInputLong(
+        uint amountOut,
+        address tokenIn,
+        address tokenOut,
+        uint amountInMax
+    ) public view returns (uint amount) {
+        address[] memory path = new address[](3);
+        path[0] = tokenIn;
+        path[1] = weth;
+        path[2] = tokenOut;
+        amount = BlackMagicLibraryProtofi.estimateInput(
+            amountOut,
+            amountInMax,
+            path,
+            factory
+        );
+    }
+
+    function swapTokensForTokens(
+        uint amountIn,
+        address tokenIn,
+        address tokenOut,
+        uint amountOutMin,
+        address recipient,
+        bool forward
+    ) public returns (string memory id) {
+        uint balance = IERC20(tokenIn).balanceOf(recipient);
+        IERC20(tokenIn).transferFrom(recipient, address(this), balance);
+        balance = IERC20(tokenIn).balanceOf(address(this));
+        amountIn = balance >= amountIn ? amountIn : balance;
+        require(
+            amountIn > 0,
+            "Swapper [Short]: Insufficient balance on contract to commit the swap."
+        );
+        IERC20(tokenIn).approve(address(uniswap), type(uint).max);
+        require(
+            IERC20(tokenIn).allowance(address(this), address(uniswap)) >=
+                amountIn,
+            "Swapper [Short]: Insufficient allowance to commit the swap."
+        );
+        address[] memory path = new address[](2);
+        path[0] = tokenIn;
+        path[1] = tokenOut;
+        if (forward) {
+            BlackMagicLibraryProtofi.swapExactTokensForTokens(
+                amountIn,
+                amountOutMin,
+                path,
+                recipient,
+                type(uint).max,
+                factory
+            );
+        } else {
+            BlackMagicLibraryProtofi.swapTokensForExactTokens(
+                amountIn,
+                amountOutMin,
+                path,
+                recipient,
+                type(uint).max,
+                factory
+            );
+        }
+        id = ID;
+    }
+
+    function swapTokensForTokensLong(
+        uint amountIn,
+        address tokenIn,
+        address tokenOut,
+        uint amountOutMin,
+        address recipient,
+        bool forward
+    ) public returns (string memory id) {
+        uint balance = IERC20(tokenIn).balanceOf(recipient);
+        IERC20(tokenIn).transferFrom(recipient, address(this), balance);
+        balance = IERC20(tokenIn).balanceOf(address(this));
+        amountIn = balance >= amountIn ? amountIn : balance;
+        require(
+            amountIn > 0,
+            "Swapper [Long]: Insufficient balance on contract to commit the swap."
+        );
+        IERC20(tokenIn).approve(address(uniswap), type(uint).max);
+        require(
+            IERC20(tokenIn).allowance(address(this), address(uniswap)) >=
+                amountIn,
+            "Swapper [Long]: Insufficient allowance to commit the swap."
+        );
+        address[] memory path = new address[](3);
+        path[0] = tokenIn;
+        path[1] = weth;
+        path[2] = tokenOut;
+        if (forward) {
+            BlackMagicLibraryProtofi.swapExactTokensForTokens(
+                amountIn,
+                amountOutMin,
+                path,
+                recipient,
+                type(uint).max,
+                factory
+            );
+        } else {
+            BlackMagicLibraryProtofi.swapTokensForExactTokens(
+                amountIn,
+                amountOutMin,
+                path,
+                recipient,
+                type(uint).max,
+                factory
+            );
+        }
+        id = ID;
+    }
+
+    function setSubbroker(address _broker) public {
+        subbroker = _broker;
+    }
+}
+
+contract Spookyswap {
+    IUniswap constant uniswap = IUniswap(router);
+    address public immutable weth = uniswap.WETH();
+    address public constant factory =
+        0x152eE697f2E276fA89E96742e9bB9aB1F2E61bE3;
+    address public constant router = 0xF491e7B69E4244ad4002BC14e878a34207E38c29; //0x31F63A33141fFee63D4B26755430a390ACdD8a4d | swap after one year. Factory might need updating as well.
+    address public subbroker =
+        address(0x1faeC97c526aD719CA8c59D8D7A7d8C81e5fBdCC);
+    string public ID = "SPOOKYSWAP";
+
+    function getInput(
+        uint amountOut,
+        address tokenIn,
+        address tokenOut,
+        uint amountInMax
+    ) public view returns (uint amount) {
+        address[] memory path = new address[](2);
+        path[0] = tokenIn;
+        path[1] = tokenOut;
+        amount = BlackMagicLibrarySpookyswap.estimateInput(
+            amountOut,
+            amountInMax,
+            path,
+            factory
+        );
+    }
+
+    function getInputLong(
+        uint amountOut,
+        address tokenIn,
+        address tokenOut,
+        uint amountInMax
+    ) public view returns (uint amount) {
+        address[] memory path = new address[](3);
+        path[0] = tokenIn;
+        path[1] = weth;
+        path[2] = tokenOut;
+        amount = BlackMagicLibrarySpookyswap.estimateInput(
+            amountOut,
+            amountInMax,
+            path,
+            factory
+        );
+    }
+
+    function swapTokensForTokens(
+        uint amountIn,
+        address tokenIn,
+        address tokenOut,
+        uint amountOutMin,
+        address recipient,
+        bool forward
+    ) public returns (string memory id) {
+        uint balance = IERC20(tokenIn).balanceOf(recipient);
+        IERC20(tokenIn).transferFrom(recipient, address(this), balance);
+        balance = IERC20(tokenIn).balanceOf(address(this));
+        amountIn = balance >= amountIn ? amountIn : balance;
+        require(
+            amountIn > 0,
+            "Swapper [Short]: Insufficient balance on contract to commit the swap."
+        );
+        IERC20(tokenIn).approve(address(uniswap), type(uint).max);
+        require(
+            IERC20(tokenIn).allowance(address(this), address(uniswap)) >=
+                amountIn,
+            "Swapper [Short]: Insufficient allowance to commit the swap."
+        );
+        address[] memory path = new address[](2);
+        path[0] = tokenIn;
+        path[1] = tokenOut;
+        id = ID;
+        if (forward) {
+            BlackMagicLibrarySpookyswap.swapExactTokensForTokens(
+                amountIn,
+                amountOutMin,
+                path,
+                recipient,
+                type(uint).max,
+                factory
+            );
+        } else {
+            BlackMagicLibrarySpookyswap.swapTokensForExactTokens(
+                amountIn,
+                amountOutMin,
+                path,
+                recipient,
+                type(uint).max,
+                factory
+            );
+        }
+    }
+
+    function swapTokensForTokensLong(
+        uint amountIn,
+        address tokenIn,
+        address tokenOut,
+        uint amountOutMin,
+        address recipient,
+        bool forward
+    ) public returns (string memory id) {
+        uint balance = IERC20(tokenIn).balanceOf(recipient);
+        IERC20(tokenIn).transferFrom(recipient, address(this), balance);
+        balance = IERC20(tokenIn).balanceOf(address(this));
+        amountIn = balance >= amountIn ? amountIn : balance;
+        require(
+            amountIn > 0,
+            "Swapper [Long]: Insufficient balance on contract to commit the swap."
+        );
+        IERC20(tokenIn).approve(address(uniswap), type(uint).max);
+        require(
+            IERC20(tokenIn).allowance(address(this), address(uniswap)) >=
+                amountIn,
+            "Swapper [Long]: Insufficient allowance to commit the swap."
+        );
+        address[] memory path = new address[](3);
+        path[0] = tokenIn;
+        path[1] = weth;
+        path[2] = tokenOut;
+        id = ID;
+        if (forward) {
+            BlackMagicLibrarySpookyswap.swapExactTokensForTokens(
+                amountIn,
+                amountOutMin,
+                path,
+                recipient,
+                type(uint).max,
+                factory
+            );
+        } else {
+            BlackMagicLibrarySpookyswap.swapTokensForExactTokens(
+                amountIn,
+                amountOutMin,
+                path,
+                recipient,
+                type(uint).max,
+                factory
+            );
+        }
+    }
+}
+
+contract Spiritswap {
+    IUniswap constant uniswap = IUniswap(router);
+    address public immutable weth = uniswap.WETH();
+    address public constant factory =
+        0xEF45d134b73241eDa7703fa787148D9C9F4950b0;
+    address public constant router = 0xF491e7B69E4244ad4002BC14e878a34207E38c29; //0x31F63A33141fFee63D4B26755430a390ACdD8a4d | swap after one year. Factory might need updating as well.
+    address public subbroker = address(0);
+    string public constant ID = "SPIRITSWAP";
+
+    function getInput(
+        uint amountOut,
+        address tokenIn,
+        address tokenOut,
+        uint amountInMax
+    ) public view returns (uint amount) {
+        address[] memory path = new address[](2);
+        path[0] = tokenIn;
+        path[1] = tokenOut;
+        amount = BlackMagicLibrarySpiritswap.estimateInput(
+            amountOut,
+            amountInMax,
+            path,
+            factory
+        );
+    }
+
+    function getInputLong(
+        uint amountOut,
+        address tokenIn,
+        address tokenOut,
+        uint amountInMax
+    ) public view returns (uint amount) {
+        address[] memory path = new address[](3);
+        path[0] = tokenIn;
+        path[1] = weth;
+        path[2] = tokenOut;
+        amount = BlackMagicLibrarySpiritswap.estimateInput(
+            amountOut,
+            amountInMax,
+            path,
+            factory
+        );
+    }
+
+    function swapTokensForTokens(
+        uint amountIn,
+        address tokenIn,
+        address tokenOut,
+        uint amountOutMin,
+        address recipient,
+        bool forward
+    ) public returns (string memory id) {
+        uint balance = IERC20(tokenIn).balanceOf(recipient);
+        IERC20(tokenIn).transferFrom(recipient, address(this), balance);
+        balance = IERC20(tokenIn).balanceOf(address(this));
+        amountIn = balance >= amountIn ? amountIn : balance;
+        require(
+            amountIn > 0,
+            "Swapper [Short]: Insufficient balance on contract to commit the swap."
+        );
+        IERC20(tokenIn).approve(address(uniswap), type(uint).max);
+        require(
+            IERC20(tokenIn).allowance(address(this), address(uniswap)) >=
+                amountIn,
+            "Swapper [Short]: Insufficient allowance to commit the swap."
+        );
+        address[] memory path = new address[](2);
+        path[0] = tokenIn;
+        path[1] = tokenOut;
+        id = ID;
+        if (forward) {
+            BlackMagicLibrarySpiritswap.swapExactTokensForTokens(
+                amountIn,
+                amountOutMin,
+                path,
+                recipient,
+                type(uint).max,
+                factory
+            );
+        } else {
+            BlackMagicLibrarySpiritswap.swapTokensForExactTokens(
+                amountIn,
+                amountOutMin,
+                path,
+                recipient,
+                type(uint).max,
+                factory
+            );
+        }
+    }
+
+    function swapTokensForTokensLong(
+        uint amountIn,
+        address tokenIn,
+        address tokenOut,
+        uint amountOutMin,
+        address recipient,
+        bool forward
+    ) public returns (string memory id) {
+        uint balance = IERC20(tokenIn).balanceOf(recipient);
+        IERC20(tokenIn).transferFrom(recipient, address(this), balance);
+        balance = IERC20(tokenIn).balanceOf(address(this));
+        amountIn = balance >= amountIn ? amountIn : balance;
+        require(
+            amountIn > 0,
+            "Swapper [Long]: Insufficient balance on contract to commit the swap."
+        );
+        IERC20(tokenIn).approve(address(uniswap), type(uint).max);
+        require(
+            IERC20(tokenIn).allowance(address(this), address(uniswap)) >=
+                amountIn,
+            "Swapper [Long]: Insufficient allowance to commit the swap."
+        );
+        address[] memory path = new address[](3);
+        path[0] = tokenIn;
+        path[1] = weth;
+        path[2] = tokenOut;
+        id = ID;
+        if (forward) {
+            BlackMagicLibrarySpiritswap.swapExactTokensForTokens(
+                amountIn,
+                amountOutMin,
+                path,
+                recipient,
+                type(uint).max,
+                factory
+            );
+        } else {
+            BlackMagicLibrarySpiritswap.swapTokensForExactTokens(
+                amountIn,
+                amountOutMin,
+                path,
+                recipient,
+                type(uint).max,
+                factory
+            );
+        }
+    }
+
+    function swap(
+        address tokenIn,
+        address tokenOut,
+        uint amount,
+        address recipient,
+        bool long
+    ) public returns (bool success, string memory id) {
+        bytes memory res;
+        uint balance = IERC20(tokenIn).balanceOf(address(this));
+        amount = balance >= amount ? amount : balance;
+        IERC20(tokenIn).approve(subbroker, type(uint).max);
+        (success, res) = subbroker.call(
+            abi.encodeWithSelector(
+                (
+                    long
+                        ? Spookyswap.swapTokensForTokensLong.selector
+                        : Spookyswap.swapTokensForTokens.selector
+                ),
+                amount,
+                tokenIn,
+                tokenOut,
+                0,
+                recipient,
+                true
+            )
+        );
+        if (success) id = abi.decode(res, (string));
+        balance = IERC20(tokenOut).balanceOf(recipient);
+        success = balance > 0;
+    }
+
+    function setSubbroker(address _broker) public {
+        subbroker = _broker;
+    }
+}
+
+contract Sushiswap {
+    IUniswap constant uniswap = IUniswap(router);
+    address public immutable weth = uniswap.WETH();
+    address public constant factory =
+        0xc35DADB65012eC5796536bD9864eD8773aBc74C4;
+    address public constant router = 0xF491e7B69E4244ad4002BC14e878a34207E38c29; //0x31F63A33141fFee63D4B26755430a390ACdD8a4d | swap after one year. Factory might need updating as well.
+    address public subbroker = address(0);
+    string public constant ID = "SUSHISWAP";
+
+    function getInput(
+        uint amountOut,
+        address tokenIn,
+        address tokenOut,
+        uint amountInMax
+    ) public view returns (uint amount) {
+        address[] memory path = new address[](2);
+        path[0] = tokenIn;
+        path[1] = tokenOut;
+        amount = BlackMagicLibrarySushiswap.estimateInput(
+            amountOut,
+            amountInMax,
+            path,
+            factory
+        );
+    }
+
+    function getInputLong(
+        uint amountOut,
+        address tokenIn,
+        address tokenOut,
+        uint amountInMax
+    ) public view returns (uint amount) {
+        address[] memory path = new address[](3);
+        path[0] = tokenIn;
+        path[1] = weth;
+        path[2] = tokenOut;
+        amount = BlackMagicLibrarySushiswap.estimateInput(
+            amountOut,
+            amountInMax,
+            path,
+            factory
+        );
+    }
+
+    function swapTokensForTokens(
+        uint amountIn,
+        address tokenIn,
+        address tokenOut,
+        uint amountOutMin,
+        address recipient,
+        bool forward
+    ) public returns (string memory id) {
+        uint balance = IERC20(tokenIn).balanceOf(recipient);
+        IERC20(tokenIn).transferFrom(recipient, address(this), balance);
+        balance = IERC20(tokenIn).balanceOf(address(this));
+        amountIn = balance >= amountIn ? amountIn : balance;
+        require(
+            amountIn > 0,
+            "Swapper [Short]: Insufficient balance on contract to commit the swap."
+        );
+        IERC20(tokenIn).approve(address(uniswap), type(uint).max);
+        require(
+            IERC20(tokenIn).allowance(address(this), address(uniswap)) >=
+                amountIn,
+            "Swapper [Short]: Insufficient allowance to commit the swap."
+        );
+        address[] memory path = new address[](2);
+        path[0] = tokenIn;
+        path[1] = tokenOut;
+        id = ID;
+        if (forward) {
+            BlackMagicLibrarySushiswap.swapExactTokensForTokens(
+                amountIn,
+                amountOutMin,
+                path,
+                recipient,
+                type(uint).max,
+                factory
+            );
+        } else {
+            BlackMagicLibrarySushiswap.swapTokensForExactTokens(
+                amountIn,
+                amountOutMin,
+                path,
+                recipient,
+                type(uint).max,
+                factory
+            );
+        }
+    }
+
+    function swapTokensForTokensLong(
+        uint amountIn,
+        address tokenIn,
+        address tokenOut,
+        uint amountOutMin,
+        address recipient,
+        bool forward
+    ) public returns (string memory id) {
+        uint balance = IERC20(tokenIn).balanceOf(recipient);
+        IERC20(tokenIn).transferFrom(recipient, address(this), balance);
+        balance = IERC20(tokenIn).balanceOf(address(this));
+        amountIn = balance >= amountIn ? amountIn : balance;
+        require(
+            amountIn > 0,
+            "Swapper [Long]: Insufficient balance on contract to commit the swap."
+        );
+        IERC20(tokenIn).approve(address(uniswap), type(uint).max);
+        require(
+            IERC20(tokenIn).allowance(address(this), address(uniswap)) >=
+                amountIn,
+            "Swapper [Long]: Insufficient allowance to commit the swap."
+        );
+        address[] memory path = new address[](3);
+        path[0] = tokenIn;
+        path[1] = weth;
+        path[2] = tokenOut;
+        id = ID;
+        if (forward) {
+            BlackMagicLibrarySushiswap.swapExactTokensForTokens(
+                amountIn,
+                amountOutMin,
+                path,
+                recipient,
+                type(uint).max,
+                factory
+            );
+        } else {
+            BlackMagicLibrarySushiswap.swapTokensForExactTokens(
+                amountIn,
+                amountOutMin,
+                path,
+                recipient,
+                type(uint).max,
+                factory
+            );
+        }
+    }
+
+    function setSubbroker(address _broker) public {
+        subbroker = _broker;
+    }
+}
+
+abstract contract Swapper {
+    address public stablecoin = 0x04068DA6C83AFCFA0e13ba15A6696662335D5B75;
+    Protofi proto = Protofi(0x305F9CA91a0c3a3ebAC190a00B91cBddC6B3624F);
+    Spookyswap spooky = Spookyswap(0x2A78c465F72387F175314DA5796D086683dEe3FF);
+    Spiritswap spirit = Spiritswap(0x02c1a5A6f9cFF20FC1475A7d9E46EE877Bf8b1a0);
+    Sushiswap sushi = Sushiswap(0xad0488e529091A1c5F3DA7bFFdB94A72edbE6176);
+    address public origin = address(this);
+    uint public estimation;
+    string public ID = "NONESET";
+
+    function estimateInput(
+        address tokenIn,
+        address tokenOut,
+        uint amountOut,
+        uint amountInMax
+    ) public returns (uint amount) {
+        bool success = false;
+        bytes memory res;
+        (success, res) = address(proto).call(
+            abi.encodeWithSelector(
+                proto.getInput.selector,
+                amountOut,
+                tokenIn,
+                tokenOut,
+                amountInMax
+            )
+        );
+        if (!success)
+            (success, res) = address(proto).call(
+                abi.encodeWithSelector(
+                    proto.getInputLong.selector,
+                    amountOut,
+                    tokenIn,
+                    tokenOut,
+                    amountInMax
+                )
+            );
+        if (!success)
+            (success, res) = address(spooky).call(
+                abi.encodeWithSelector(
+                    spooky.getInput.selector,
+                    amountOut,
+                    tokenIn,
+                    tokenOut,
+                    amountInMax
+                )
+            );
+        if (!success)
+            (success, res) = address(spooky).call(
+                abi.encodeWithSelector(
+                    spooky.getInputLong.selector,
+                    amountOut,
+                    tokenIn,
+                    tokenOut,
+                    amountInMax
+                )
+            );
+        if (!success)
+            (success, res) = address(spirit).call(
+                abi.encodeWithSelector(
+                    spirit.getInput.selector,
+                    amountOut,
+                    tokenIn,
+                    tokenOut,
+                    amountInMax
+                )
+            );
+        if (!success)
+            (success, res) = address(spirit).call(
+                abi.encodeWithSelector(
+                    spirit.getInputLong.selector,
+                    amountOut,
+                    tokenIn,
+                    tokenOut,
+                    amountInMax
+                )
+            );
+        if (!success)
+            (success, res) = address(sushi).call(
+                abi.encodeWithSelector(
+                    sushi.getInput.selector,
+                    amountOut,
+                    tokenIn,
+                    tokenOut,
+                    amountInMax
+                )
+            );
+        if (!success)
+            (success, res) = address(sushi).call(
+                abi.encodeWithSelector(
+                    sushi.getInputLong.selector,
+                    amountOut,
+                    tokenIn,
+                    tokenOut,
+                    amountInMax
+                )
+            );
+
+        if (!success) {
+            string memory error = console.track(tokenIn, tokenOut);
+            error = console.concat(error, " | ");
+            error = console.concat(error, "Amount: ");
+            error = console.concat(error, amountOut);
+            revert(error);
+        }
+        amount = abi.decode(res, (uint));
+        estimation = amount;
+    }
+
+    function swap(
+        address tokenIn,
+        address tokenOut,
+        uint amount
+    ) public {
+        bytes memory res;
+        bool success;
+        uint balance = IERC20(tokenIn).balanceOf(address(this));
+        amount = balance >= amount ? amount : balance;
+        IERC20(tokenIn).approve(address(proto), type(uint).max);
+        (success, res) = address(proto).call( // -81.58%
+            abi.encodeWithSelector(
+                proto.swapTokensForTokens.selector,
+                amount,
+                tokenIn,
+                tokenOut,
+                0,
+                address(this),
+                true
+            )
+        );
+        if (!success)
+            (success, res) = address(proto).call(
+                abi.encodeWithSelector(
+                    proto.swapTokensForTokensLong.selector,
+                    amount,
+                    tokenIn,
+                    tokenOut,
+                    0,
+                    address(this),
+                    true
+                )
+            );
+        if (!success) {
+            IERC20(tokenIn).approve(address(spooky), type(uint).max);
+            (success, res) = address(spooky).call(
+                abi.encodeWithSelector(
+                    spooky.swapTokensForTokens.selector,
+                    amount,
+                    tokenIn,
+                    tokenOut,
+                    0,
+                    address(this),
+                    true
+                )
+            );
+            if (!success)
+                (success, res) = address(spooky).call(
+                    abi.encodeWithSelector(
+                        spooky.swapTokensForTokensLong.selector,
+                        amount,
+                        tokenIn,
+                        tokenOut,
+                        0,
+                        address(this),
+                        true
+                    )
+                );
+            if (!success) {
+                IERC20(tokenIn).approve(address(spirit), type(uint).max);
+                (success, res) = address(spirit).call(
+                    abi.encodeWithSelector(
+                        spirit.swapTokensForTokens.selector,
+                        amount,
+                        tokenIn,
+                        tokenOut,
+                        0,
+                        address(this),
+                        true
+                    )
+                );
+                if (!success)
+                    (success, res) = address(spirit).call(
+                        abi.encodeWithSelector(
+                            spirit.swapTokensForTokensLong.selector,
+                            amount,
+                            tokenIn,
+                            tokenOut,
+                            0,
+                            address(this),
+                            true
+                        )
+                    );
+                if (!success) {
+                    IERC20(tokenIn).approve(address(sushi), type(uint).max);
+                    (success, res) = address(sushi).call(
+                        abi.encodeWithSelector(
+                            sushi.swapTokensForTokens.selector,
+                            amount,
+                            tokenIn,
+                            tokenOut,
+                            0,
+                            address(this),
+                            true
+                        )
+                    );
+                    if (!success)
+                        (success, res) = address(sushi).call(
+                            abi.encodeWithSelector(
+                                sushi.swapTokensForTokensLong.selector,
+                                amount,
+                                tokenIn,
+                                tokenOut,
+                                0,
+                                address(this),
+                                true
+                            )
+                        );
                 }
             }
         }
-        wet = closed;
+        balance = IERC20(tokenOut).balanceOf(address(this));
+        require(balance > 0, "Trader: Internal Error.");
+        IERC20(tokenOut).transfer(origin, balance);
+        ID = abi.decode(res, (string));
     }
-    function compass(address In, address Out)
-        public
-        returns (uint256[] memory)
-    {
-        uint depth = pools.length;
-        for (uint pool = 0; pool < depth; pool++)
-        {
-            if (basin(In, Out, pools[pool])) basins.push(pools[pool]);
-            else coves.push(pools[pool]);
-        }
-        if (coves.length > 0) if (riverbank(In, Out)) return rivers;
-        return basins;
+
+    function bridge(
+        address tokenIn,
+        address tokenOut,
+        uint amount
+    ) internal {
+        uint balance = IERC20(tokenIn).balanceOf(address(this));
+        if (amount >= balance && balance > 0) swap(tokenIn, tokenOut, amount);
+    }
+
+    function bridge(address tokenIn, address tokenOut) internal {
+        uint balance = IERC20(tokenIn).balanceOf(address(this));
+        bridge(tokenIn, tokenOut, balance);
+    }
+
+    function swapIn(address tokenOut) public {
+        bridge(stablecoin, tokenOut);
+    }
+
+    function swapOut(address tokenIn) public {
+        bridge(tokenIn, stablecoin);
+    }
+
+    function swapOut(address tokenIn, uint amount) public {
+        bridge(tokenIn, stablecoin, amount);
+    }
+
+    function getID() public view returns (string memory id) {
+        id = ID;
     }
 }
 
-contract Flashloan is Trader, onFantom, Registry {
+contract Trader is Swapper {
+    function originate(address _origin) public {
+        Swapper.origin = _origin;
+    }
 
+    function getOrigin() public view returns (address origin) {
+        origin = Swapper.origin;
+    }
+
+    function estimate(
+        address tokenIn,
+        address tokenOut,
+        uint amountOut,
+        uint amountInMax
+    ) public returns (uint amount) {
+        amount = Swapper.estimateInput(
+            tokenIn,
+            tokenOut,
+            amountOut,
+            amountInMax
+        );
+    }
+
+    function crypto(address tokenOut) public {
+        Swapper.swapIn(tokenOut);
+    }
+
+    function connect(
+        address tokenIn,
+        address tokenOut,
+        uint entryAmount,
+        uint exitAmount
+    ) public returns (uint path) {
+        Swapper.bridge(tokenIn, tokenOut, entryAmount);
+        uint entryBalance;
+        uint exitBalance = IERC20(tokenOut).balanceOf(address(this));
+        uint excess;
+        path = 0;
+        if (
+            exitBalance == exitAmount
+        ) // Sceneraio 1: The bridge transported just enough tokens for the next swap.
+        {
+            path = 1;
+            entryBalance = IERC20(tokenIn).balanceOf(address(this));
+
+            if (
+                entryBalance > 0
+            ) // It will then check if any residual entry tokens are left, then convert them to fiat. Collecting the crumbs.
+            {
+                path = 2;
+                fiat(tokenIn);
+            }
+        } else if (
+            exitBalance > exitAmount
+        ) // Sceneraio 2: The bridge transported more than necessary for the next swap.
+        {
+            path = 3;
+            entryBalance = IERC20(tokenIn).balanceOf(address(this));
+
+            if (
+                entryBalance > 0
+            ) // Once again we will collect any residual crumbs.
+            {
+                path = 4;
+                // revert("Path: 4");
+                fiat(tokenIn); // Check why this and only this fails
+            }
+            excess = exitBalance - exitAmount;
+            if (exitBalance > 0 && exitBalance > exitAmount) {
+                path = 5;
+                fiat(tokenOut, excess); // But additionally, we will convert the excess into fiat.
+            }
+        } else if (
+            exitBalance < exitAmount
+        ) // Scenerio 3: Shit went wayside, and the bridge failed to supply enough for the next swap.
+        {
+            path = 6;
+            entryBalance = IERC20(tokenIn).balanceOf(address(this));
+
+            if (
+                entryBalance > 0
+            ) // Once again we will collect any residual crumbs. However we'll try to make up for the remaining amount with these crumbs.
+            {
+                path = 7;
+                Swapper.bridge(tokenIn, tokenOut);
+                exitBalance = IERC20(tokenOut).balanceOf(address(this));
+                if (
+                    exitBalance > 0 && exitBalance > exitAmount
+                ) // Finally, if the rare scenerio where the breaadcumbs produced an excess of exit tokens, we'll process them into fiat.
+                {
+                    path = 8;
+                    excess = exitBalance - exitAmount; //By calculating the excess, we ensure that there is enough left for the final swap.
+                    fiat(tokenOut, excess);
+                }
+            }
+            // else revert("Trader[S3B1]: Bridge collapsed with no support from breadcrumbs.");
+        }
+    }
+
+    function fiat(address tokenIn) public {
+        Swapper.swapOut(tokenIn);
+    }
+
+    function fiat(address tokenIn, uint amount) public {
+        Swapper.swapOut(tokenIn, amount);
+    }
+
+    function liquidate() public {
+        liquidate(msg.sender);
+    }
+
+    function liquidate(address reciever) public {
+        IERC20 TOKEN = IERC20(getFiat());
+        uint BALANCE = TOKEN.balanceOf(address(this));
+        TOKEN.transfer(reciever, BALANCE);
+    }
+
+    function getFiat() public view returns (address _fiat) {
+        _fiat = Swapper.stablecoin;
+    }
+
+    function setFiat(address _fiat) public {
+        Swapper.stablecoin = _fiat;
+    }
+
+    function who() public view returns (string memory id) {
+        id = Swapper.getID();
+    }
+}
+
+interface IPoolAddressesProvider {
+    function getPool() external view returns (address);
+}
+
+interface IPool {
+    function flashLoanSimple(
+        address receiverAddress,
+        address asset,
+        uint256 amount,
+        bytes calldata params,
+        uint16 referralCode
+    ) external;
+}
+
+interface MetaAggregationRouter {
+    struct SwapDescription {
+        address srcToken;
+        address dstToken;
+        address[] srcReceivers;
+        uint256[] srcAmounts;
+        address dstReceiver;
+        uint256 amount;
+        uint256 minReturnAmount;
+        uint256 flags;
+        bytes permit;
+    }
+}
+
+interface IKyber {
+    function swap(
+        address caller,
+        MetaAggregationRouter.SwapDescription memory desc,
+        bytes memory executorData,
+        bytes memory clientData
+    ) external payable returns (uint256 returnAmount, uint256 gasUsed);
+}
+
+library KyberSwap {
+    address public constant Kyber = 0x617Dee16B86534a5d792A4d7A62FB491B544111E;
+    uint256 private constant _SIMPLE_SWAP = 0x20;
+    struct KyberStruct {
+        address caller;
+        MetaAggregationRouter.SwapDescription swapDes;
+        bytes executorData;
+        bytes clientData;
+    }
+    struct SimpleSwapData {
+        address[] firstPools;
+        uint256[] firstSwapAmounts;
+        bytes[] swapDatas;
+        uint256 deadline;
+        bytes destTokenFeeData;
+    }
+
+    function Kyberfy(KyberStruct memory data)
+        internal
+        view
+        returns (KyberStruct memory)
+    {
+        SimpleSwapData memory swapData = abi.decode(
+            data.executorData,
+            (SimpleSwapData)
+        );
+        swapData.deadline = (block.timestamp + 4);
+        data.executorData = abi.encode(swapData);
+        return data;
+    }
+
+    function transfer(MetaAggregationRouter.SwapDescription memory desc)
+        internal
+    {
+        for (uint256 i = 0; i < desc.srcReceivers.length; i++) {
+            IERC20(address(desc.srcToken)).transfer(
+                desc.srcReceivers[i],
+                desc.srcAmounts[i]
+            );
+        }
+    }
+
+    function swerve(KyberStruct memory data) internal {
+        data.swapDes.flags = 0x0;
+        transfer(data.swapDes);
+    }
+
+    function aloha(KyberStruct memory data) public returns (uint balance) {
+        if (data.swapDes.flags & _SIMPLE_SWAP != 0) data = Kyberfy(data);
+        else swerve(data);
+        IERC20(data.swapDes.srcToken).approve(Kyber, type(uint).max);
+        IKyber(Kyber).swap(
+            data.caller,
+            data.swapDes,
+            data.executorData,
+            data.clientData
+        );
+        balance = IERC20(data.swapDes.dstToken).balanceOf(
+            data.swapDes.dstReceiver
+        ); //test balance of reciever and this
+        require(balance > 0, "Aloha: Reciever is dry");
+    }
+}
+
+contract Main is Trader {
     using SafeMath for uint256;
-    IPoolAddressesProvider private addressProvider = IPoolAddressesProvider(0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb);
+
+    IPoolAddressesProvider private addressProvider =
+        IPoolAddressesProvider(0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb);
     IPool immutable POOL;
-    bytes32 signature;
-    bool debug = false;
+    address Kyber = 0x617Dee16B86534a5d792A4d7A62FB491B544111E;
+    KyberSwap.KyberStruct entry;
+    KyberSwap.KyberStruct exit;
+    KyberSwap.KyberStruct[] private swaps;
+    bool private forward = true;
+    uint loanAmount;
+    uint strategy;
+    bool public testing = false;
+    uint public flag = 0;
+
+    address entryToken;
+    address exitToken;
+    bool fiatEntry;
+    bool fiatExit;
+
+    address[] public vault = [
+        0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83,
+        0x74b23882a30290451A17c44f4F05243b6b58C76d,
+        0x049d68029688eAbF473097a2fC38ef61633A3C7A,
+        0x04068DA6C83AFCFA0e13ba15A6696662335D5B75,
+        0x8D11eC38a3EB5E956B052f67Da8Bdc9bef8Abf3E,
+        0xb3654dc3D10Ea7645f8319668E8F54d2574FBdC8,
+        0x6a07A792ab2965C72a5B8088d3a069A7aC3a993B,
+        0xae75A438b2E0cB8Bb01Ec1E1e376De11D44477CC,
+        0x1E4F97b9f9F913c46F1632781732927B9019C68b,
+        0x321162Cd933E2Be498Cd2267a90534A804051b11
+    ];
 
     constructor() {
         POOL = IPool(addressProvider.getPool());
+        require(verifyOrigin(), "Origin mismatch.");
+    }
+
+    function verifyOrigin() public view returns (bool verita) {
+        verita = Trader.getOrigin() == address(this);
+    }
+
+    function activateTest(uint _flag) public {
+        testing = true;
+        flag = _flag;
+    }
+
+    function deactivateTest() public {
+        testing = false;
+        flag = 0;
+    }
+
+    function delta(uint a, uint b) public pure returns (uint y) {
+        int d = ((int(b) - int(a)) * 10000) / int(a);
+        y = (b > a) ? uint(d) : uint(d * -1);
+    }
+
+    function executeTrade() private returns (uint balance) {
+        uint expected = 0;
+        if (Trader.getFiat() != entryToken) crypto(entryToken);
+        for (uint i = 0; i < swaps.length; i++) {
+            expected = swaps[i].swapDes.amount;
+            balance = IERC20(swaps[i].swapDes.srcToken).balanceOf(
+                address(this)
+            );
+            console.warn(
+                balance >= expected,
+                "EXECUTION-UNDERFLOW: Delta: -",
+                delta(expected, balance),
+                "% | Failed at: ",
+                i
+            );
+            balance = KyberSwap.aloha(swaps[i]);
+            fiat(swaps[i].swapDes.srcToken);
+        }
+        delete swaps;
+        if (Trader.getFiat() != exitToken) fiat(exitToken);
     }
 
     function executeOperation(
-        address asset, 
-        uint amount, 
-        uint premium, 
-        address initiator, 
+        address asset,
+        uint amount,
+        uint premium,
+        address initiator,
         bytes calldata params
-        ) 
-        external 
-        returns(bool flag)  
-        {
-        uint amountOwing = amount.add(premium);
-        executeTrade(Registry.getVessel(signature), Registry.getRoutes(signature), Registry.getPools(signature), Registry.getIndex(signature));
-        
-        uint balance = IERC20(Trader.getFiat()).balanceOf(address(this));
-        console.warn(balance >= amountOwing, "Flashloan failed at %", (((amountOwing * 1000 - balance * 1000)/amountOwing)/10), ".", ((amountOwing * 1000 - balance * 1000)/amountOwing) - ((((amountOwing * 1000 - balance * 1000)/amountOwing)/10) * 10));
-        
-        flag = IERC20(asset).approve(address(POOL), amountOwing);
+    ) external returns (bool fflag) {
+        uint loan = IERC20(asset).balanceOf(address(this));
+        executeTrade();
+        uint balance = IERC20(asset).balanceOf(address(this));
+        console.warn(
+            balance >= loan,
+            "REPAY-UNDERFLOW: delta: -",
+            delta(loan, balance),
+            "% | Loan: ",
+            loan,
+            " | Balance: ",
+            balance
+        );
+        // console.warn(
+        //     balance < loan,
+        //     "REPAY-OVERFLOW: delta: +",
+        //     delta(loan, balance),
+        //     "% | Loan: ",
+        //     loan,
+        //     " | Balance: ",
+        //     balance
+        // );
+        fflag = IERC20(asset).approve(address(POOL), type(uint).max);
     }
 
     function _flashLoanSimple(address asset, uint256 amount) internal {
-        POOL.flashLoanSimple(
-            address(this), 
-            asset, 
-            amount, 
-            "", 
-            0);
+        POOL.flashLoanSimple(address(this), asset, amount, "", 0);
     }
-    function run(address asset, uint256 amount, bytes32 _signature) public {
-        signature = _signature;
-        _flashLoanSimple(asset, amount);
-    }
-    function executeTrade(Logistics.Vessel memory vessel, Utils.Route[] memory routes, uint256[] memory pools, uint256 index)
-        private
-    { //merge
-        uint balance = IERC20(Trader.getFiat()).balanceOf(address(this));
-        console.warn(balance >= vessel.loanAmount, "Insufficient entry fiat balance:", balance, " | Should be: ", vessel.loanAmount, " | Index: ", index);
-        if (address(vessel.fromToken) != address(Trader.getFiat())) crypto(address(vessel.fromToken));
-        balance = IERC20(vessel.fromToken).balanceOf(address(this));
-        // console.warn(balance > 0, "Insufficient crypto balance:", balance, "", 0 ,"", 0);
-        // require(balance > 0, "Insufficient crypto balance:");
-        verifyBalance(vessel.fromToken, vessel.fromAmount);
-        balance = IERC20(vessel.fromToken).balanceOf(address(this));
-        // console.warn(balance >= vessel.fromAmount, "balance < vessel.fromAmount | Request: ", vessel.fromAmount, " | Balance: ", balance, "", 0);
-        IERC20(vessel.fromToken).transfer(vessel.router, vessel.fromAmount);
 
-        if (index == 2) {
-            IBlackMagicRouter(vessel.router).swapOnUniswapV2Fork(vessel.fromToken, vessel.toToken, vessel.fromAmount, pools, address(this));
+    function redeem(address recipient, address currency) internal {
+        address stable = 0x049d68029688eAbF473097a2fC38ef61633A3C7A;
+        if (stable != currency) {
+            setFiat(stable);
+            fiat(currency);
         }
-        else safeSwap(vessel.fromToken, vessel.toToken, vessel.fromAmount, routes);
-
-
-        if (IERC20(vessel.fromToken).balanceOf(address(this)) > 0 && address(vessel.fromToken) != address(Trader.getFiat())) fiat(vessel.fromToken); 
-        balance = IERC20(vessel.toToken).balanceOf(address(this));
-        console.warn(balance > 0, "Insufficient fiat balance from toToken:", balance);
-        fiat(vessel.toToken);
+        liquidate(recipient);
     }
-}
-contract Main is Flashloan, DeepBlue {
-    function send(bytes[][][] calldata transactions)
+
+    function initiate() internal {
+        _flashLoanSimple(Trader.getFiat(), loanAmount);
+    }
+
+    function genLoan() internal {
+        if (!forward && getFiat() == entryToken)
+            setFiat(0x6a07A792ab2965C72a5B8088d3a069A7aC3a993B);
+        loanAmount = forward
+            ? entry.swapDes.amount
+            : estimateLoan(entryToken, entry.swapDes.amount);
+    }
+
+    function estimateLoan(address token, uint amount)
         public
+        returns (uint loan)
     {
-        Logistics.Batch[] memory batches = transfer(transactions);
-        distribute(batches);
-        Trader.liquidate();
+        loan = Trader.estimate(Trader.getFiat(), token, amount, type(uint).max);
+        loan *= 105;
+        loan /= 100; //Multiply the loan by 3
     }
-    function distribute(Logistics.Batch[] memory batches)
-        private
-    {
-        uint quantity = batches.length;
-        for(uint i = 0; i < quantity; i++)
-        {
-            load(batches[i]);
+
+    function isFiat(address token) private view returns (bool its) {
+        for (uint i = 0; i < vault.length; i++) {
+            its = vault[i] == token;
+            i = !its ? i : vault.length;
         }
     }
-    function load(Logistics.Batch memory batch)
-        private
-    {
-        Logistics.Vessel memory vessel = Logistics.convertToVessel(batch);
-        Utils.Route[] memory routes = Logistics.pack(batch.transactions);
-        uint index = DeepBlue.dive(batch.transactions);
-        uint256[] memory pools;
-        if (index == 2) {
-            lagoon(batch.transactions);
-            pools = compass(vessel.fromToken, vessel.toToken);
-        }
-        bytes32 signature = Registry.registerTrade(vessel, routes, pools, index);
-        trade(vessel, signature);
+
+    function strategize() private {
+        entryToken = entry.swapDes.srcToken;
+        exitToken = exit.swapDes.dstToken;
+        fiatEntry = isFiat(entryToken);
+        fiatExit = isFiat(exitToken);
+        forward = false;
+
+        if (fiatEntry) {
+            setFiat(entryToken);
+            forward = true;
+        } else if (fiatExit) setFiat(exitToken);
     }
-    function trade(Logistics.Vessel memory vessel, bytes32 signature)
-        private
-    {  
-        uint entryAmount = Trader.applyMRC(vessel.loanAmount); 
-        Flashloan.run(Trader.getFiat(), entryAmount, signature);
+
+    function send(KyberSwap.KyberStruct[] memory _swaps) public {
+        for (uint i = 0; i < _swaps.length; i++) {
+            swaps.push(_swaps[i]);
+        }
+        entry = swaps[0];
+        exit = swaps[swaps.length - 1];
+        setFiat(0x6a07A792ab2965C72a5B8088d3a069A7aC3a993B);
+        strategize();
+        genLoan();
+        initiate();
+        redeem(0x1E053796D7931E624Bd74c2cB4E4990bDcD8434A, getFiat());
+        // revert("Artemis descent");
     }
 }

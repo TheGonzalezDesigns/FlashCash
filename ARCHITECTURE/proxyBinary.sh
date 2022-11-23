@@ -13,4 +13,4 @@ spread=$(cat $exchange'/DATA/spread')
 trailLimit=$(cat $exchange'/DATA/trailLimit')
 elucidate=$(cat "$exchange/../../../exchanges/API/QUERY/PAIR/DATA/$xName/elucidate.json")
 
-node ./requestQuote.js $hash $contract_A $contract_B $price $exchange $chainID $xName "$elucidate" $vol $network $mrc $spread $trailLimit \
+node --no-warnings ./requestQuote.js $hash $contract_A $contract_B $price $exchange $chainID $xName "$elucidate" $vol $network $mrc $spread $trailLimit &

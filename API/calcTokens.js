@@ -17,7 +17,8 @@ const outputFiles = {
 	highRel: `${exchange}/DATA/hiCTVTokens.json`,
 	lowRel: `${exchange}/DATA/loCTVTokens.json`,
 	report: `${exchange}/DATA/report.txt`,
-	assesor: `${exchange}/DATA/assesor.txt`
+	assesor: `${exchange}/DATA/assesor.txt`,
+	conversions: `${exchange}/DATA/conversions.json`
 };
 const file = fs.readFileSync(sourceFile, "utf8");
 const tokens = JSON.parse(file);
@@ -33,25 +34,36 @@ const formatTokens = tokens => {
 			return condition
 		})
 		.map(token => {
-
 		return {
 			contract: token.contract,
-			marketData: token.data.market_data
+			marketData: token.data.market_data,
+			decimals: token.data.detail_platforms
 		}	
 	});
 }
+
+let conversions = {}
+const register = (contract, conversion) => conversions[contract.toLowerCase()] = conversion;
 
 //2 Extract Low Volatility Coins
 
 const calcVariance = (dailyHigh, dailyLow) => (dailyHigh - dailyLow) / dailyLow
 const calcVolatility = (high, low) => Math.sqrt(252) * Math.sqrt(calcVariance(high, low));
 const getVol = token => {
-	//console.log("Token:\t", token)
 	const marketData = token.marketData;
+	const decimals = token.decimals;
 	let coinVolatility = null;
 	if (!(marketData == null || marketData == undefined || marketData == [] || marketData == {})) {
-		console.log(`Retrieved Market data for ${token.contract}`);
-		//console.info(marketData);
+		//console.log(`Retrieved Market data for ${token.contract}`);
+		const price = marketData.current_price.usd;
+		const decimal = decimals?.[network]?.decimal_place
+		const padding = 10**decimal
+		const conversion = Math.round(1/price * padding)
+		register(token.contract, conversion);
+		//console.info("Priced  @ $", price);
+		//console.info("Decimal: ", decimal);
+		//console.info("Padding: ", padding);
+		//console.info("Priced  @ $1 per", conversion);
 		// We might revist the idea of basing all volatility on another incredibly volatile asset like the dollar, but in theory, a day should not be enough to affect the vol metric significantly.
 		const dailyHighUsd = marketData["high_24h"]["usd"];	
 		const dailyLowUsd = marketData["low_24h"]["usd"];
@@ -72,9 +84,9 @@ let relCapped = 0;
 let initQuantity = 0;
 let totalLoss = 0;
 let relTotalLoss = 0;
-const MIN_CAP = 10000000 //- last command, this means we'll sqeueez the optimizer epix in between architecture and execution. The assesor below will come at a later time. -. you want to include slippage as part of the gas filter such that the profit - slippage is still greater than the gas. when executing filtered and optimized trinaries/pairs, must be sorted such that the most profitable and (block)recent transactions go out first. 
+const MIN_CAP = 000 //- last command, this means we'll sqeueez the optimizer epix in between architecture and execution. The assesor below will come at a later time. -. you want to include slippage as part of the gas filter such that the profit - slippage is still greater than the gas. when executing filtered and optimized trinaries/pairs, must be sorted such that the most profitable and (block)recent transactions go out first. 
 //const MAX_TOKENS = 840;
-const MAX_TOKENS = 2160; //perm(216, 3) = ~<10M max MDA size in C
+const MAX_TOKENS = 216000; //perm(216, 3) = ~<10M max MDA size in C
 
 const getCalcTokens = coins => {
 	relPurged = coins.length
@@ -188,7 +200,6 @@ const getCalcTokens = coins => {
 };
 
 // Send coin list to file
-
 const calcTokens = getCalcTokens(formatTokens(tokens));
 
 const hiVolTokens = calcTokens.highVol;
@@ -247,6 +258,7 @@ report(variants(lowVolTokens.relData, "min"), true);
 report('________________________________________________________________')
 
 printReport(outputFiles.report, reportData);
+printReport(outputFiles.conversions, JSON.stringify(conversions));
 
 // if (lowVolTokens.primed.trinaries < 800000 || hiVolTokens.primed.quadratics < 30000) {
 

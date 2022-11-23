@@ -1,0 +1,12 @@
+#!/bin/bash
+
+exchange=$(./exchange)
+network=$(./network)
+
+solution="./SOLUTIONS/networks/"
+solution+=$network
+solution+="/"
+solution+=$exchange
+solution+="/"
+
+echo "$solution"

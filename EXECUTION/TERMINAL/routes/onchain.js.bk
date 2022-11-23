@@ -1,0 +1,318 @@
+const { Hono } = require('hono')
+const { compose } = require('./utils.js')
+
+const name = "onchain";
+
+let route = [];
+
+route[name] = new Hono();
+
+let _ = route[name];
+
+let state = {
+	time: 0,
+}
+
+_.get("/", c => c.text(`_.:${name.toUpperCase()} READY:._`))
+
+_.get("/ping", c => c.redirect("http://localhost:3000/ping"))
+
+_.get("/contracts", c => c.redirect("http://localhost:3000/contracts"))
+
+_.post("/test", async (c) => {
+	
+	const baggage = await c.req.parseBody();
+	
+	let getRandom = () => {
+		let min = 1;
+		let max = 60000;
+		return Math.floor(Math.random() * (max - min + 1) + min); 
+	}
+
+	let validate = () => getRandom() < state.time--;
+
+	let res = validate() && state.time ? 1 : 0;
+
+	console.log(res ? "SUCESS" : "FALIURE")
+	console.log(baggage);
+
+	return c.text(res)
+})
+
+_.post("/test/restart/:time", c => {
+
+	const time = c.req.param('time')
+
+	state.time = parseInt(time) * 1000;
+
+	return c.text(`Timer set to ${state.time}`)
+
+})
+
+_.post("/test/tick", c => {
+	state.time--;
+	return c.text(state.time)
+})
+
+_.get("/test/time", c => {
+	return c.text(state.time)
+})
+
+_.get("/kyberswap/:chainId/:from/:to/:price/:account/:slippage/:deadline", async c => {
+	const p = param => c.req.param(param);
+	const n = id => chains[id].name;
+	const f = id =>  chains[id].fiat;
+	const b = n => BigInt(Number(n + "")).toString()
+	const chains = {
+		  '1': {
+			  name: 'ethereum',
+			  fiat: '0xdac17f958d2ee523a2206206994597c13d831ec7'
+		  },
+		  '25': {
+			  name: 'cronos',
+			  fiat: '0x66e428c3f67a68878562e79a0234c1f83c208770'
+		  },
+		  '56': {
+			  name: 'bsc',
+			  fiat: '0x55d398326f99059ff775485246999027b3197955'
+		  },
+		  '106': {
+			  name: 'velas',
+			  fiat: '0xb44a9b6905af7c801311e8f4e76932ee959c663c'
+		  },
+		  '137': {
+			  name: 'polygon',
+			  fiat: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f'
+		  },
+		  '199': {
+			  name: 'bttc',
+			  fiat: null
+		  },
+		  '250': {
+			  name: 'fantom',
+			  fiat: [
+				  '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83', //WFTM
+				  '0x74b23882a30290451A17c44f4F05243b6b58C76d', //WETH
+				  '0x049d68029688eabf473097a2fc38ef61633a3c7a', //USDT
+				  '0x04068DA6C83AFCFA0e13ba15A6696662335D5B75', //USDC
+				  '0x8D11eC38a3EB5E956B052f67Da8Bdc9bef8Abf3E', //DAI
+				  '0xb3654dc3D10Ea7645f8319668E8F54d2574FBdC8', //Chainlink
+				  '0x6a07A792ab2965C72a5B8088d3a069A7aC3a993B', //AAVE
+				  '0xae75A438b2E0cB8Bb01Ec1E1e376De11D44477CC', //Sushi
+				  '0x1E4F97b9f9F913c46F1632781732927B9019C68b', //CRV
+				  '0x321162Cd933E2Be498Cd2267a90534A804051b11', //BTC
+			  ]
+		  },
+		  '42161': {
+			  name: 'arbitrum',
+			  fiat: '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9'
+		  },
+		  '42262': {
+			  name: 'oasis',
+			  fiat: null
+		  },
+		  '43114': {
+			  name: 'avalanche',
+			  fiat: '0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7'
+		  },
+		  '1313161554': {
+			  name: 'aurora',
+			  fiat: '0x4988a896b1227218e4a686fde5eabdcabd91571f'
+		  }
+	}
+
+	//const entryAmount = (p('entryAmount'));
+	//const exitAmount = (p('exitAmount'));
+
+	// console.log("entryAmount: ", entryAmount);
+	// console.log("exitAmount: ", exitAmount);
+	// console.log("b(entryAmount): ", b(entryAmount));
+	// console.log("b(exitAmount): ", b(exitAmount));
+
+	let data = {
+		'chainId': p('chainId'),
+		'tokenIn': (p('from')).toLowerCase(),
+		'tokenOut': (p('to')).toLowerCase(),
+		'price': p('price'),
+		'recipient': p('account'),
+		'slippage': p('slippage'),
+		'deadline': p('deadline')
+	}
+	data['chain'] = n(data.chainId);
+	data['fiat'] = f(data.chainId);
+
+	const d = key => data[key];
+	const fiats = d('fiat');
+	const WETH = fiats[0];
+	//console.log("WETH: ", WETH);
+
+	//console.log("Kyberswap:\t", data);
+	//
+	//
+	const getAmount = async (address, price) => {
+		const path = `offchain/convert/${address}/${price}`
+		const ops = {
+			method: 'GET',
+		}
+		const amount = await fetch(`http://localhost:8888/${path}`, ops)
+		return amount;
+	}
+
+	const call = async (chain, chainId, tokenIn, tokenOut, amountIn, recipient, slippage, deadline) => {
+		const slug = `http://localhost:4444/api?chain=${chain}&chainId=${chainId}&tokenIn=${tokenIn}&tokenOut=${tokenOut}&amountIn=${amountIn}&recipient=${recipient}&slippage=${slippage}&deadline=${deadline}`;
+		//console.log("CALLING: ", slug);
+		return await fetch(slug, {});
+	}
+
+	const swap = async (tokenIn, tokenOut, price) => {
+		try {
+			const res = await getAmount(tokenIn, price);
+			const entryAmount = await res.text();
+			//console.log(`${tokenIn} @ ${price} is ${amount}`)
+			const entry = await Promise.resolve(call(d('chain'), d('chainId'), tokenIn, tokenOut, entryAmount, d('recipient'), d("slippage"), d("deadline"))).then(async r => await r.json())
+			//return {entry: entry, exit: entry}
+			const delta = (a,b) => ((1 - ((a-b)/a)) - 1) * 100
+			const zelta = (a,b) => delta(a,b) > 0 ? '+' : '-'
+			//console.log("entry:\t", entry)
+			if (Object.keys(entry).length < 1) throw Error("Rejected Entry")
+			
+			const bridgeAmount = entry.stats.crypto.amountOut;
+			//const slippage = .08;
+			const slippage = .03;
+			const adBridgeAmount = bridgeAmount - (bridgeAmount * slippage)
+			const bridge = await Promise.resolve(call(d('chain'), d('chainId'), tokenOut, WETH, adBridgeAmount, d('recipient'), d("slippage"), d("deadline"))).then(async r => await r.json())
+			if (Object.keys(bridge).length < 1) throw Error("Rejected Bridge")
+			
+			/*
+			const exitAmount = bridge.stats.crypto.amountOut;
+			const adExitAmount = exitAmount - (exitAmount * slippage)
+			const exit = await Promise.resolve(call(d('chain'), d('chainId'), WETH, tokenIn, adExitAmount, d('recipient'), d("slippage"), d("deadline"))).then(async r => await r.json())
+			if (Object.keys(exit).length < 1) throw Error("Rejected Exit")
+			
+			
+			const rebridgeAmount = exit.stats.crypto.amountOut;
+			const adRebridgeAmount = rebridgeAmount - (rebridgeAmount * slippage)
+			const rebridge = await Promise.resolve(call(d('chain'), d('chainId'), tokenIn, tokenOut, adRebridgeAmount, d('recipient'), d("slippage"), d("deadline"))).then(async r => await r.json())
+			if (Object.keys(rebridge).length < 1) throw Error("Rejected Rebridge")
+			*/
+				//const exit = await Promise.resolve(call(d('chain'), d('chainId'), tokenOut, tokenIn, adjusted, d('recipient'), d("slippage"), d("deadline"))).then(async r => await r.json())
+			//console.log("Exit", exit)
+			//const trade = tradable ? {entry:entry, exit:exit} : {};
+			//const trade = {entry:entry, bridge:bridge, exit:exit, rebridge: rebridge}
+			//const trade = {entry:entry, exit:bridge}
+			const trade = {entry:entry, exit:bridge}
+			//console.log("Trade", trade)
+			//const trade = tradable ? {entry:entry, exit:exit} : {};
+				
+			//const profitability =  delta(entry.stats.amountIn, exit.stats.amountOut)
+			//const profitability =  delta(entry.stats.amountIn, bridge.stats.amountOut)
+			const profitability =  delta(entry.stats.amountIn, bridge.stats.amountOut)
+			const profit = bridge.stats.amountOut - entry.stats.amountIn
+			const tradable = (profitability >= 0.05) && (profit >= .01)
+			//const flow = (type, a, b, c, d, e, f, g, h) => `\t\t[>>> Flow of ${type}: ${a} => ${b} => ${c} => ${d} => ${e} => ${f} => ${g} => ${h} :: ${h - a} <<<]`
+			//const flow = (type, a, b) => `\t\t[>>> Flow of ${type}: ${a} => ${b} :: ${b - a} <<<]`
+			const flow = (type, a, b, c, d) => `\t\t[>>> Flow of ${type}: ${a} => ${b} => ${c} => ${d} :: ${d - a} <<<]`
+			//const deltas = (type, a, b, c, d, e, f, g, h) => `\t\t[>>> Delta Flow of ${type}: ${delta(a, b)} => ${delta(b, c)} => ${delta(c, d)} => ${delta(d, e)} => ${delta(e, f)} => ${delta(f, g)} => ${delta(g, h)} :: ${delta(a, h)} <<<]`
+			const deltas = (type, a, b, c, d) => `\t\t[>>> Delta Flow of ${type}: ${delta(a, b)} => ${delta(b, c)} => ${delta(c, d)} :: ${delta(a, d)} <<<]`
+			//const deltas = (type, a, b) => `\t\t[>>> Delta Flow of ${type}: ${delta(a, b)} <<<]`
+			//const heatmap = (type, a, b, c, d, e, f, g, h) => `\t\t[>>> Heatmap of ${type}: ${zelta(a, b)} => ${zelta(b, c)} => ${zelta(c, d)} => ${zelta(d, e)} => ${zelta(e, f)} => ${zelta(f, g)} => ${zelta(g, h)} :: ${zelta(a, h)} <<<]`
+			const heatmap = (type, a, b, c, d) => `\t\t[>>> Heatmap of ${type}: ${zelta(a, b)} => ${zelta(b, c)} => ${zelta(c, d)} :: ${zelta(a, d)} <<<]`
+			//const heatmap = (type, a, b) => `\t\t[>>> Heatmap of ${type}: ${zelta(a, b)} <<<]`
+			//const track = (a, b, c, d, e, f, g, h) => {
+			//const track = (a, b, c, d) => {
+			const track = (a, b, c, d) => {
+				//console.log(flow("USD", a, b, c, d, e, f, g, h))
+				console.log(flow("USD", a, b, c, d))
+				//console.log(flow("USD", a, b))
+				//console.log(deltas("USD", a, b, c, d, e, f, g, h))
+				//console.log(deltas("USD", a, b))
+				console.log(deltas("USD", a, b, c, d))
+				//console.log(heatmap("USD Deltas", a, b, c, d, e, f, g, h))
+				//console.log(heatmap("USD Deltas", a, b))
+				console.log(heatmap("USD Deltas", a, b, c, d))
+			}
+	
+			if (tradable) {
+				console.log("[")
+				console.log(`[>>> Profit: $${profit} // ${profitability} <<<]`)
+				console.log("\t{")
+				//track(entry.stats.amountIn, entry.stats.amountOut, bridge.stats.amountIn, bridge.stats.amountOut, exit.stats.amountIn, exit.stats.amountOut, rebridge.stats.amountIn, rebridge.stats.amountOut)
+				track(entry.stats.amountIn, entry.stats.amountOut, bridge.stats.amountIn, bridge.stats.amountOut)
+				//track(entry.stats.amountIn, entry.stats.amountOut)
+				//console.log(flow("CRYPTO", entry.stats.crypto.amountIn, entry.stats.crypto.amountOut, bridge.stats.crypto ... exit.stats.crypto.amountIn, exit.stats.crypto.amountOut))
+				//console.log(deltas("CRYPTO", entry.stats.crypto.amountIn, entry.stats.crypto.amountOut, exit.stats.crypto.amountIn, exit.stats.crypto.amountOut))
+				console.log("\t}")
+				console.log("]")
+			} else {
+				//track(entry.stats.amountIn, entry.stats.amountOut, bridge.stats.amountIn, bridge.stats.amountOut, exit.stats.amountIn, exit.stats.amountOut, rebridge.stats.amountIn, rebridge.stats.amountOut)
+				track(entry.stats.amountIn, entry.stats.amountOut, bridge.stats.amountIn, bridge.stats.amountOut)
+				//track(entry.stats.amountIn, entry.stats.amountOut)
+			}
+			return tradable && false ? trade : {}
+		}
+		catch (e) {
+			//console.error(e)
+			return await {}
+		}
+	}
+
+	const swapIn = async (fiat, price) => await swap(fiat, d('tokenOut'), price);
+	const connect = async (price) => await swap(d('tokenIn'), d('tokenOut'), price);
+	//const connect = async () => await {}
+	const swapOut = async (fiat, price) => await swap(d('tokenOut'), fiat, price);
+	const fakeSwap = async () => await {};
+	//const swapOut = async () => await {}
+
+	//const swapAll = async (fiat, price) => await Promise.all([swapIn(fiat, price), fakeSwap(), swapOut(fiat, price)])
+	const swapAll = async (fiat, price) => await Promise.all([swapIn(fiat, price), fakeSwap(), fakeSwap()])
+
+	const price = p('price');
+
+	const promises = [...fiats].map(async fiat => {
+		//console.log("fiat: ", fiat);
+		//console.log(swapAll(fiat))
+		const [entry, bridge, exit] = await swapAll(fiat, price);
+		const res = {'entry': entry, 'bridge': bridge, 'exit': exit};
+		//console.log(`${fiat}: `, res);
+		//let res = await swapAll(fiat);
+		return await res;
+	})
+
+	const cross = async price => {
+		const entry = await fakeSwap();
+		const bridge = await connect(price);
+		const exit = await fakeSwap();
+		const res = {'entry': entry, 'bridge': bridge, 'exit': exit};
+		return res
+	}
+
+	let crate = await Promise.all(promises);
+	
+	//const bridge = await cross(price);
+	//crate.push(bridge)
+	const split = crate => {
+		let c = [];
+		
+
+		const arraify = obj => Object.entries(obj).map(entry => {
+			  return {[entry[0]]: entry[1]};
+		});
+		crate.forEach(ensemble => arraify(ensemble).forEach(item => c.push(item)));
+		
+		//c.forEach(item => map.push(Object.keys(item)));
+		c = [...c].map(item => {
+			let template = {'entry': {}, 'bridge': {}, 'exit': {}};
+			const keys = Object.keys(item);
+			keys.forEach(k => template[k] = item[k])
+			//console.log("iT", template);
+			return template;
+		})
+		
+		return c;
+	}
+
+	return c.json(split(crate));
+})
+
+//export const path = compose(_, name);
+module.exports.path = compose(_, name);

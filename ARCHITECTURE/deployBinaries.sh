@@ -5,6 +5,8 @@ vol=$3
 network=$4
 time=$(cat "$exchange/DATA/time")
 
+echo "Binaries Deploying "
+
 while read -r line; do
     a=($line)
     hash=${a[0]}

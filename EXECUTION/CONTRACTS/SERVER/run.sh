@@ -1,3 +1,4 @@
 #!/bin/bash
 
-npm run start
+node --no-warnings ./Kyberswap.js &
+npm run start 

@@ -34,13 +34,12 @@ async function main() {
 	
 	_({value: value})
 
-	const libraries = {
-		"contracts/Main.sol:Swapper": "0xBb4093699316e2731D091D384F5F6d2e1A825698",
-		"contracts/Main.sol:console": "0xE824e736C3B079F4cc5bACb8424121DC196607c2"
+	const libs = {
+		"contracts/Main.sol:KyberSwap": "0xce8db887bfa7bd234567e083c25984080826a8f9",
+		"contracts/Main.sol:console": "0x179a95EEFC3e0b99016B4f95E83FD1EcEE920A08"
 	}
-	const biblio = {"libraries": libraries};
-	console.info("libraries", biblio);
-	const Contract = await hre.ethers.getContractFactory("Main", biblio);
+	console.info(libs);
+	const Contract = await hre.ethers.getContractFactory("Main", {"libraries": libs});
 	const contract = await Contract.deploy(...params);
 	console.log(`Contract address: ${contract.address}`);
 

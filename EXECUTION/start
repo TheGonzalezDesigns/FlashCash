@@ -32,7 +32,8 @@ fi
 
 until [ $status -eq 0 ]; do
 	./header
-	./serve.sh \
+	./load.sh \
+	&& ./serve.sh \
 	&& echo "Ready to accept cargo."
 	status=$?
 	if [[ $status -ne 0  ]]; then

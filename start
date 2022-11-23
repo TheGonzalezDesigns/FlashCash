@@ -8,13 +8,13 @@ cd ./ANALYSIS
 ./start $1 $2
 cd ..
 cd ./API
-./start $1 $2
-cd ..
-cd ./ARCHITECTURE
-./operate &
+./continue 13800 ./start $1 $2
 cd ..
 cd ./EXECUTION
-./operate
+./operate &
+cd ..
+cd ./ARCHITECTURE
+sleep 160 && ./operate &
 cd ..
 #cd ./OPTIMIZATION
 #./start $1 $2

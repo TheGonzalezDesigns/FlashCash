@@ -1,6 +1,6 @@
-import { send } from "./utils.js";
+const { send } = require("./utils.js");
 //import chalkAnimation from 'chalk-animation';
-export const yell = (name, what) => {
+const yell = (name, what) => {
 	        let t = "";
 
 	        const r = (...d) => {
@@ -24,14 +24,15 @@ export const yell = (name, what) => {
 	        return t;
 }
 
-export const audit = (b, c) => {
+module.exports.yell = yell;
+module.exports.audit = (b, c) => {
 
 	let cargo = {
 		baggage: b,
 		collection: c
 	}
 	//yell("PROCESSING", cargo);
-	cargo.collection = [...cargo.collection].filter(load => load.stats.profitable)
+	//cargo.collection = [...cargo.collection].filter(load => load.stats.profitable)
 
 	let collection = {};
 	let profits = {};
@@ -41,7 +42,7 @@ export const audit = (b, c) => {
 	const ledger = [...cargo.baggage.ledger];
 	const latest = ledger[0]?.block;
 
-	yell(`Currently @ ${latest}`, "");
+	//yell(`Currently @ ${latest}`, "");
 
 	//yell("Collection Age", [...cargo.collection].map(load => latest - load?.id?.block))
 
@@ -49,18 +50,23 @@ export const audit = (b, c) => {
 	//yell("ledger", ledger)
 	
 	//yell("collection", collection)
+	//yell("meta", collection[Object.keys(collection)[0]].load.meta)
+	//yell("routes", collection[Object.keys(collection)[0]].load.routes)
+	//yell("routes", collection[0])
 	let audited = [...cargo.baggage.ledger]
 		.filter(bag => collection[bag.hash]?.id.block == bag.block)
 		.map(bag => {
+			//yell("bag", collection[bag.hash])
 			return { 
 				hash: bag.hash, 
 				load: collection[bag.hash]?.load 
 			}
 		})     
-	
+	//yell("audited", audited)	
 	profits = [...cargo.collection]
 		.filter(bag => collection[bag.hash]?.id.block == bag.block)
 		.map(load => {
+			//yell("load", load)
 			return { 
 				hash: load.id.hash, 
 				stats: load?.stats 
@@ -79,8 +85,8 @@ export const audit = (b, c) => {
 	let parcel = [...verified].map(hash => {
 		return {
 			stats: {
-				profit: profits[hash].stats.profit,
-				gas: profits[hash].stats.gas,
+				profit: profits[hash]?.stats?.profit,
+				gas: profits[hash]?.stats?.gas,
 			},
 			envelope: audited[hash].load
 		}
@@ -112,19 +118,20 @@ export const audit = (b, c) => {
 		
 	parcel = {
 		stats: stats,
-		envelope: envelope
+		envelope: envelope,
+		block: latest
 	}
 
 	//profits.length && yell("Profits", profits)
 	
 	//audited.length && yell("audited", audited)
 	
-	//yell("Final Parcel", parcel)
+	yell("Final Parcel", parcel)
 
 	return parcel;
 }
 
-export const deliver = async (crates) => {
+module.exports.deliver = async (crates) => {
 	yell("crates", crates)
 	const path = "/encrypt"
 	const ops = {
@@ -136,7 +143,12 @@ export const deliver = async (crates) => {
 		body: JSON.stringify(crates)
 	}
 	let res = await send(path, ops)
-	res = JSON.parse(await res.text());
+	try {
+		res = await res.json();
+	} catch (e) {
+		error.log("Failed to parse response after delivery");
+		res = {}
+	}
 
 	//yell("Response", res)
 	return res;

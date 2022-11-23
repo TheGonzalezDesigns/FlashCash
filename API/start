@@ -31,7 +31,7 @@ until [ $status -eq 0 ]; do
 	&& echo "Parsing list" \
 	&& bun run ./parseList.js $exRelPath \
 	&& echo "Fetching tokens" \
-	&& ./fetchTokens.sh $exRelPath $networkID 2.25 \
+	&& ./fetchTokens.sh $exRelPath $networkID 5 \
 	&& echo "Cleaning list" \
 	&& bun run ./cleanList.js $exRelPath \
 	&& echo "Calculating tokens" \

@@ -488,14 +488,16 @@ let meta = [
 		"address",
 		"uint256",
 		"uint256",
-		"address"
+		"address",
+		"uint256"
 	],
 	[
 		fToken,
 		tToken,
 		due.priceRoute.srcAmount,
 		loan,
-		router
+		router,
+		due.priceRoute.destAmount
 	]
 ]
 
