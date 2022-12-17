@@ -2,9 +2,9 @@
 
 //const fs = require("fs");
 //const repack = require('../baggage/suitcase.js');
-const deliver = require("../baggage/deliver.js");
+// const deliver = require("../baggage/deliver.js");
 const board = require("../baggage/board.js");
-const { utils: blockchain } = require("./../../interface.js");
+// const { utils: blockchain } = require("./../../interface.js");
 //const call = require("../call.js")
 
 module.exports = async function (fastify, opts) {
@@ -20,6 +20,7 @@ module.exports = async function (fastify, opts) {
       from: from,
       to: to,
     };
+    // console.log("Ticket: ", ticket);
     let flights;
     flights = await board(ticket.from, ticket.to);
     const tradable = flights.length > 0;
@@ -37,20 +38,44 @@ module.exports = async function (fastify, opts) {
           };
           return await fetch(`http://localhost:3000/${path}`, ops);
         };
+        const retry = async (flight) => {
+          const path = "retry";
+          const ops = {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(flight),
+          };
+          return await fetch(`http://localhost:3000/${path}`, ops);
+        };
         let reports = [];
         for (let uint = 0, report, flight; uint < flights.length; uint++) {
           flight = flights[uint];
           // console.log("deploying flight: ", flight);
           try {
             report = await (await deploy(flight)).json();
-            if (report.status == 200) {
-              console.log(`🚀 R-${uint}:`, report);
-              reports.push(report);
-            }
             report.price = flight.price;
             report.profit = flight.profit;
             report.total = flight.total;
-            console.error(`☔ R-${uint}:`, report);
+            report.gas = flight.gas;
+            if (report.status == 200) {
+              console.log(`🚀 R-${uint}:`, report);
+              reports.push(report);
+            } else {
+              if (false && report.error.includes("UNPREDICTABLE_GAS_LIMIT")) {
+                report = await (await retry(flight)).json();
+                report.price = flight.price;
+                report.profit = flight.profit;
+                report.total = flight.total;
+                report.gas = flight.gas;
+                if (report.status == 200) {
+                  console.log(`🚀 R-${uint}:`, report);
+                  reports.push(report);
+                } else console.error(`☔ R-${uint}:`, report);
+              } else console.error(`☔ R-${uint}:`, report);
+            }
           } catch (e) {
             console.error(e);
           }

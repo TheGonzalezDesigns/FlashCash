@@ -3,6 +3,8 @@ const express = require("express");
 const axios = require("axios");
 const app = express();
 const ABI = require(`${process.cwd()}/../contract.json`);
+const swapper = ABI.address;
+const { permit } = require("../interface.js");
 app.use(express.json());
 axios.interceptors.response.use(
   (response) => {
@@ -23,7 +25,7 @@ const getPermit = (srcToken, kyberswapper, value) => {
   return permit;
 };
 
-const modify = (data) => {
+const modify = async (data) => {
   const round = (n) => {
     const g = n + "";
     let r = g;
@@ -52,21 +54,25 @@ const modify = (data) => {
     ((SIMPLE & swapType) != 0 || true) && (modified[2].length < 7170 || true); //remove true
   const _SHOULD_CLAIM = 0x04;
 
-  if ((swapType & _SHOULD_CLAIM) != 0) {
-    // add generated encoded permit here
-    // signERC2612Permit(wallet, tokenAddress, senderAddress, spender, value);
-    const srcToken = modified[1][0];
-    const kyberswapper = `0x617dee16b86534a5d792a4d7a62fb491b544111e`; //this address is valid cross-chain : (https://blockscan.com/address/0x617Dee16B86534a5d792A4d7A62FB491B544111E)
-    const value = modified[1][5];
-    modified[1][8] = getPermit(srcToken, kyberswapper, value);
-  }
+  const srcToken = modified[1][0];
+  const kyberswapper = `0x617Dee16B86534a5d792A4d7A62FB491B544111E`; //this address is valid cross-chain : (https://blockscan.com/address/0x617Dee16B86534a5d792A4d7A62FB491B544111E)
+  // const value = modified[1][5];
+  // try {
+  //   modified[1][8] = await permit(srcToken, kyberswapper);
+  // } catch (e) {
+  //   console.error("permit err: ", e);
+  // }
   // console.log("SwapDescription[5]:", SwapDescription[5]);
   // console.log("modified[1][5]:", modified[1][5]);
   modified.push(clientData);
-  // console.log("Modified", modified);
+  // modified[0] = "0x93131EFeE501d5721737C32576238F619548edda";
+  // console.log("Modified[0]", modified[0]);
+  console.info("Call Data: ", modified);
   return whitelisted ? modified : {};
 };
-
+//0x617Dee16B86534a5d792A4d7A62FB491B544111E
+//0x20dd72ed959b6147912c2e529f0a0c651c33c9ce8e82e904dd9cb298d324c2c27929ca473d3e9bb00001
+//0x20dd72ed959b6147912c2e529f0a0c651c33c9ce6feb4c8aaa24838a30feb3ffbc561957ff886a86000100000
 const handleApiResponse = async ({
   data,
   chainId,
@@ -106,8 +112,8 @@ const handleApiResponse = async ({
     feeConfig: {
       isInBps: true,
       feeAmount: "8", // 0.08%
-      feeReceiver: "0xfA9dA51631268A30Ec3DDd1CcBf46c65FAD99251",
-      chargeFeeBy: "currency_in",
+      feeReceiver: `0x93131EFeE501d5721737C32576238F619548edda`, //0xfA9dA51631268A30Ec3DDd1CcBf46c65FAD99251
+      // chargeFeeBy: "currency_in",
     },
     customTradeRoute: JSON.stringify(swaps),
   });
@@ -116,7 +122,8 @@ const handleApiResponse = async ({
 };
 app.get("/api", async (req, res) => {
   let { chain, chainId, tokenIn, tokenOut, amountIn } = req.query;
-  const recipient = ABI.address;
+  const recipient = swapper;
+  const to = recipient;
   const slippage = 2;
   const deadline = "fffffffffffffffff";
   try {
@@ -133,18 +140,20 @@ app.get("/api", async (req, res) => {
     tokenIn,
     tokenOut,
     amountIn,
+    to,
   };
   // console.log("params: ", params);
   let response = {};
   let callData = {};
 
   try {
+    console.error("params: ", params);
     if (tokenIn.toLowerCase() != tokenOut.toLowerCase()) {
       response = await axios.get(
-        `https://aggregator-api.kyberswap.com/${chain}/route`,
+        `https://aggregator-api.kyberswap.com/${chain}/route/encode`,
         { params }
       );
-      //console.error("Raw: ", response);
+      console.error("Route Data: ", response);
     }
   } catch (e) {
     // console.error("Kyberswap fail: ", e.response);
@@ -163,28 +172,41 @@ app.get("/api", async (req, res) => {
     const amountInUsd = data.amountInUsd;
     const amountOutUsd = data.amountOutUsd;
     const receivedUsd = data.receivedUsd;
+    const gasUsd = data.gasUsd;
+    const gwei = data.gasPriceGwei;
+    const totalGas = data.totalGas;
 
-    const avgReturn = (amountOutUsd + receivedUsd) / 2;
-    const ROR = (1 - (amountInUsd - avgReturn) / amountInUsd - 1) * 100;
-    const profitable = ROR > 0;
+    // const avgReturn = (amountOutUsd + receivedUsd) / 2;
+    // const ROR = (1 - (amountInUsd - receivedUsd) / amountInUsd - 1) * 100;
+    const profit = amountOutUsd - amountInUsd; /* + gasUsd */
+    const profitability = (profit / amountInUsd) * 100;
+    const profitable = profit > 0;
 
     const crypto = {
       amountIn: amountIn,
       amountOut: amountOut,
+    };
+    const gas = {
+      gasUsd: gasUsd,
+      gwei: gwei,
+      totalGas: totalGas,
     };
 
     const stats = {
       amountIn: amountInUsd,
       amountOut: amountOutUsd,
       recieved: receivedUsd,
-      average: avgReturn,
-      profitability: ROR,
+      profitability: profitability,
       profiitable: profitable,
+      profit: profit,
       crypto: crypto,
+      gas: gas,
     };
 
-    //console.log("PROFITABLE: ", profitable);
-    if (profitable || true) {
+    // if (stats.profitability === Infinity) console.log("Infinte Warning!");
+    // else console.log("good", stats.profitability);
+    if (stats.profitability !== Infinity && profitable) {
+      //console.log("PROFITABLE: ", profitable);
       //console.log("Profiting...");
       try {
         callData = await handleApiResponse({
@@ -199,7 +221,7 @@ app.get("/api", async (req, res) => {
         try {
           //console.log("Trying...");
           let finalRes = {};
-          finalRes.data = modify(callData);
+          finalRes.data = await modify(callData);
           finalRes.stats = stats;
           //console.log("finalRes: ", finalRes)
           if (Object.keys(finalRes).length > 0) {
@@ -229,9 +251,9 @@ app.get("/api", async (req, res) => {
         failed = true;
       }
     } else {
-      console.error(
-        `\n[>>> No profitable swap available for ${tokenIn} => ${tokenOut} <<<]\n`
-      );
+      // console.error(
+      //   `\n[>>> No profitable swap available for ${tokenIn} => ${tokenOut} <<<]\n`
+      // );
       //console.error(`\n[>>> Stats for ${tokenIn} => ${tokenOut} ::: `, stats)
       failed = true;
     }

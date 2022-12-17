@@ -20,7 +20,7 @@ module.exports = async function (fastify, opts) {
   const blockchain = I;
   //console.log("Interface log:", Object.keys(I));
   //console.log("Blockchain log:", blockchain);
-  //console.log("contract:", contract);
+  // console.log("contract:", contract);
   // Place here your custom code!
   fastify.register(cors, ops);
   // Do not touch the following lines

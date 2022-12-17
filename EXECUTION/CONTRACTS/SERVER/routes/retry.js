@@ -7,7 +7,7 @@ const { initialize } = require("./../../interface.js");
 // const { json } = require("stream/consumers");
 
 module.exports = async function (fastify, opts) {
-  fastify.post("/deploy", async function (request, reply) {
+  fastify.post("/retry", async function (request, reply) {
     const contract = await initialize();
     const { send } = contract;
     // console.info("contract: ", contract);
@@ -19,7 +19,7 @@ module.exports = async function (fastify, opts) {
         const limit = 1500000; //1.5;
         const options = {
           gasPrice: price, //< 100 ? price : 50,
-          // gasLimit: limit,
+          gasLimit: limit,
         };
         return options;
       };
@@ -37,8 +37,8 @@ module.exports = async function (fastify, opts) {
         const options = await genOps(gas.gwei, gas.amount);
         // console.log("Generated options for deployment:", options);
         // console.log("A drop before midnight");
-        // const tx = await send(swaps[0], fiatCode, price, DAI, options);
-        const tx = await {};
+        const tx = await send(swaps[0], fiatCode, price, DAI, options);
+        // const tx = await send();
         // console.log("TX:\t", tx);
         const receipt = await tx.wait();
         // console.log(`Confirmed Flight`);
@@ -102,8 +102,8 @@ module.exports = async function (fastify, opts) {
 
           // if (error.includes("processing response "))
           //   console.error("Process Error:\t", err);
-          if (error.includes("CALL_EXCEPTION"))
-            console.error("CALL_EXCEPTION:\t", err);
+          if (error.includes("transaction failed"))
+            console.error("Transaction Failiure:\t", err);
           // else console.error("Reg. error:\t", err);
           // // if (error.includes("invalid swap amount"))
           // //   console.error("Invalid amount:\t", JSON.stringify(amounts));

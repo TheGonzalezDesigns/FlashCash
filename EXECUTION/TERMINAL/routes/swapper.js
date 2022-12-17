@@ -31,6 +31,18 @@ const weth = (chainId) => access(chainId).weth;
 
 const vault = (chainId) => access(chainId).vault;
 
+const hasFiat = (token, chainId) => vault(chainId).join("").includes(token);
+
+const entryIsFiat = (data, chainId) => hasFiat(data[1][0], chainId);
+
+const exitIsFiat = (data, chainId) => hasFiat(data[1][1], chainId);
+
+const hasAnyFiat = (data, chainId) =>
+  entryIsFiat(data, chainId) && exitIsFiat(data, chainId);
+
+const fiatCode = (data, chainId) =>
+  entryIsFiat(data, chainId) ? 0 : exitIsFiat(data, chainId) ? 1 : 2;
+
 const getAmount = async (address, price) => {
   const path = `offchain/convert/${address}/${price}`;
   const ops = {
@@ -44,9 +56,9 @@ const call = async (signature, chain, chainId, tokenIn, tokenOut, amountIn) => {
   amountIn = BigInt(amountIn);
   //   console.log("Timestamp: ", new Date().toISOString());
   const slug = `http://localhost:4444/api?chain=${chain}&chainId=${chainId}&tokenIn=${tokenIn}&tokenOut=${tokenOut}&amountIn=${amountIn}`;
-  //   console.log(`\t\t\t\t\t=> Trying: ${slug}`);
+  // console.log(`\t\t\t\t\t=> Trying: ${slug}`);
   const res = await (await fetch(slug, {})).json();
-  //   console.log("Call response: ", res);
+  // console.log("Call response: ", res);
   return res;
   //   const slug = `http://localhost:8888/balancer/proxy/${chain}/${chainId}/${tokenIn}/${tokenOut}/${amountIn}`;
   //   //   console.log(`\t\t\t=> Calling: ${slug} \n\t\t\twith amount: `, amountIn);
@@ -87,20 +99,27 @@ const zelta = (a, b) => {
 };
 const profitability = (USDin, USDout) => delta(USDin, USDout); // al three into one function
 const profit = (USDin, USDout) => USDout - USDin;
-const tradable = (USDin, USDout, expectedProfit, expectedProfititability) => {
-  const acceptableProfitability =
-    profitability(USDin, USDout) >= expectedProfititability;
-  const acceptableProfit = profit(USDin, USDout) >= expectedProfit;
+const tradable = (
+  profit,
+  profitability,
+  expectedProfit,
+  expectedProfititability
+) => {
+  const acceptableProfitability = profitability >= expectedProfititability;
+  // const acceptableProfit = profit(USDin, USDout) >= expectedProfit;
+  const acceptableProfit = profit >= expectedProfit;
   //   console.log(
   //     `\t=> (${USDin}, ${USDout}) :: acceptableProfitability: ${acceptableProfitability} || acceptableProfit: ${acceptableProfit}`
   //   );
   return acceptableProfitability && acceptableProfit;
 };
-const profitable = (USDin, USDout, price) => {
-  const expectedProfititability = 0.05; //.05
-  const expectedProfit = 0.2;
+const profitable = (profit, profititability, price) => {
+  const expectedProfititability = 0.0; //.05
+  const expectedProfit = 0.0;
   price = price >= 1 ? `$${Number(price).toLocaleString()}` : `${price * 100}¢`;
-  if (tradable(USDin, USDout, expectedProfit, expectedProfititability)) {
+  if (
+    tradable(profit, profititability, expectedProfit, expectedProfititability)
+  ) {
     console.log(`\t${good()} [:>> ${price} <<:]`);
     return true;
   } else {
@@ -183,7 +202,7 @@ const follow = (...addresses) => {
 };
 
 const track = (...movements) => {
-  //   console.log("Movements: ", movements);
+  // console.log("Movements: ", movements);
   flow("USD", ...movements);
 
   deltas("USD", ...movements);
@@ -192,15 +211,16 @@ const track = (...movements) => {
 };
 
 const trace = (...strategy) => {
-  //   console.log("Strategy: ", strategy);
+  // console.log("Strategy: ", strategy);
   let movements = [];
   let addresses = [];
   let cryptos = [];
   [...strategy].forEach((movement) => {
+    // console.log("Movement: ", movement);
     addresses.push(movement.data[1][0]);
     addresses.push(movement.data[1][1]);
-    movements.push(movement.USDin);
-    movements.push(movement.USDout);
+    movements.push(movement.USDin); //fix this
+    movements.push(movement.USDout); //fix this //recieved ? or just change it all together
     cryptos.push(movement.CRYin);
     cryptos.push(movement.CRYout);
   });
@@ -226,15 +246,27 @@ const swap = async (signature, chainId, tokenIn, tokenOut, amountIn) => {
     );
     let trade = {};
     trade.data = _.data;
-    if (Object.keys(trade.data).length < 1) throw Error();
+    if (Object.keys(trade.data).length < 1) {
+      throw Error();
+    }
+    trade.profit = _.stats.profit;
+    trade.profitability = _.stats.profitability;
     trade.USDin = _.stats.amountIn;
-    trade.USDout = _.stats.amountOut;
+    trade.USDout = _.stats.recieved;
     trade.CRYin = _.stats.crypto.amountIn;
     trade.CRYout = _.stats.crypto.amountOut;
+    trade.gasPrice = _.stats.gas.gwei;
+    trade.gasCost = _.stats.gas.totalGas;
+    trade.gasTotal = _.stats.gas.gasUsd;
+    // trade.entryIsFiat = entryIsFiat(trade.data, chainId);
+    // trade.exitIsFiat = exitIsFiat(trade.data, chainId);
+    // trade.hasAnyFiat = hasAnyFiat(trade.data, chainId);
+    trade.fiatCode = fiatCode(trade.data, chainId);
 
     // console.log("swap: ", trade);
     return trade;
   } catch (e) {
+    // console.log("Trade: ", trade);
     // console.error(e);
     throw Error("Swapper: Invalid or Unresolved Trade");
   }
@@ -246,10 +278,14 @@ const fuse = async (signature, tokenIn, tokenOut, amount, chainId) => {
     //   `\t\t\t\t=> swap(${chainId}, ${tokenIn}, ${tokenOut}, ${amount})`
     // );
     let _ = await swap(signature, chainId, tokenIn, tokenOut, amount);
-    const USDin = _.USDin;
-    const USDout = _.USDout;
-    _.profit = profit(USDin, USDout);
-    _.profitability = profitability(USDin, USDout);
+    // const USDin = _.USDin;
+    // const USDout = _.USDout;
+    // _.profit = profit(USDin, USDout);
+    // _.profit = profit(USDin, USDout);
+    // _.profitability = profitability(USDin, USDout);
+    // _.profitability = profitability(USDin, USDout);
+
+    // console.log("_: ", _);
     return _;
   } catch (e) {
     throw Error(e);
@@ -309,19 +345,28 @@ const interlace = async (signature, chainId, price, slippage, ...tokens) => {
     );
     const entry = strategy.at(0);
     const exit = strategy.at(-1);
-    const USDin = entry.USDin;
-    const USDout = exit.USDout;
-    const tProfit = profit(USDin, USDout);
-    const tProfitability = profitability(USDin, USDout);
-    const tradable = profitable(USDin, USDout, price);
+    // const USDin = entry.USDin;// swith to profit and
+    // const USDout = exit.USDout;
+    // const tProfit = profit(USDin, USDout);
+    // const tProfitability = profitability(USDin, USDout);profitability
+    const profit = entry.profit;
+    const profitability = entry.profitability;
+    const tradable = profitable(profit, profitability, price);
 
     if (!tradable)
-      throw Error(`Interlace: Unprofitable swap @ -$${tProfit * -1}`);
-    trace(...strategy);
+      throw Error(`Interlace: Unprofitable swap @ -$${profit * -1}`);
     // else console.log("interlace/strategy:", strategy);
+    trace(...strategy);
     return strategy;
   } catch (e) {
+    const params = {
+      chainId: chainId,
+      price: price,
+      slippage: slippage,
+      tokens: tokens,
+    };
     // console.error(e);
+    // console.error("Params: ", params);
     return await [];
   }
 };
@@ -337,7 +382,10 @@ const braid = async (
   [bLimit, tLimit] = [tLimit, bLimit].sort();
   const prices = Array.from(
     Array(Math.log10(tLimit) + 1 + Math.log10(bLimit) * -1).keys()
-  ).map((x) => 10 ** (x + Math.log10(bLimit)));
+  )
+    .map((x) => 10 ** (x + Math.log10(bLimit)))
+    .map((x) => Array.from([1], (y) => Number((y * x).toPrecision(1))))
+    .flat();
   let trades = [];
   for (let i = 0, price, res; i < prices.length; i++) {
     price = prices[i];
@@ -351,6 +399,7 @@ const braid = async (
     trades.push(res);
     await sleep(REM);
   }
+  // console.log("Trades: ", trades);
   return trades;
 };
 
@@ -374,7 +423,7 @@ const interweave = async (
   let interwoven = [];
   const start = performance.now();
   for (let i = 0, strategy, res; i < plugged.length; i++) {
-    strategy = strategies[i];
+    strategy = plugged[i];
     strategy = [...strategy].filter((v, i, a) => a[i - 1] !== a[i]);
     const signature = sign(
       chainId,
@@ -401,7 +450,7 @@ const interweave = async (
   return interwoven.flat().filter((weave) => weave.length);
 };
 
-const entwine = async (chainId, tokenIn, tokenOut) => {
+const entwine = async (chainId, tokenIn, tokenOut, b, t) => {
   const WETH = weth(chainId);
   const fiats = vault(chainId);
 
@@ -412,24 +461,14 @@ const entwine = async (chainId, tokenIn, tokenOut) => {
     res = await interweave(
       chainId,
       0.01,
-      0.1,
-      0.1, //100k // .0001
+      b,
+      t, //100k // .0001
       fiats[i],
-      // [tokenIn, fiat(), WETH, tokenIn],
-      // [fiat(), WETH, tokenIn, fiat()],
-      [fiat(), tokenIn, fiat()],
-      [fiat(), tokenOut, fiat()],
-      // [fiat(), tokenIn, tokenOut, fiat()],
-      // [fiat(), tokenOut, tokenIn, fiat()],
-      // [fiat(), WETH, fiat()],
-      // [fiat(), WETH, tokenIn],
       [fiat(), tokenIn],
       [fiat(), tokenOut],
-      // [fiat(), tokenIn, tokenOut],
-      // [fiat(), tokenOut, tokenIn],
       [fiat(), WETH],
-      [fiat(), WETH],
-      [WETH, fiat()]
+      [tokenIn, fiat()],
+      [tokenOut, fiat()]
     );
     entwined.push(res);
     await sleep(REM);
@@ -437,22 +476,19 @@ const entwine = async (chainId, tokenIn, tokenOut) => {
   return entwined.flat();
 };
 
-const tangle = async (chainId, tokenIn, tokenOut) => {
+const tangle = async (chainId, tokenIn, tokenOut, b, t) => {
   const WETH = weth(chainId);
-  const fiats = vault(chainId);
 
   let entangled = await interweave(
     chainId,
     0.01,
-    0.1,
-    0.1,
+    b,
+    t, //100k // .0001
     "0x",
-    [WETH, tokenIn, WETH],
-    [WETH, tokenOut, WETH],
-    // [WETH, tokenIn, tokenOut, WETH],
-    // [WETH, tokenOut, tokenIn, WETH],
     [tokenIn, WETH],
     [tokenOut, WETH],
+    [WETH, tokenIn],
+    [WETH, tokenOut],
     [tokenIn, tokenOut],
     [tokenOut, tokenIn]
     // [tokenIn, tokenOut, WETH],
@@ -462,10 +498,10 @@ const tangle = async (chainId, tokenIn, tokenOut) => {
   return entangled;
 };
 
-const search = async (chainId, tokenIn, tokenOut) => {
+const search = async (chainId, tokenIn, tokenOut, b, t) => {
   const start = performance.now();
-  const entangled = await tangle(chainId, tokenIn, tokenOut);
-  const entwined = await entwine(chainId, tokenIn, tokenOut);
+  const entangled = await tangle(chainId, tokenIn, tokenOut, b, t);
+  const entwined = await entwine(chainId, tokenIn, tokenOut, b, t);
   const found = [entangled, entwined].flat();
   const end = performance.now();
   const runtime = end - start;
@@ -474,3 +510,7 @@ const search = async (chainId, tokenIn, tokenOut) => {
 };
 
 module.exports.search = search;
+//
+// 0.01,
+// 0.1,
+// 0.0001, //100k // .0001

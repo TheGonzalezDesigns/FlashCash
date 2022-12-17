@@ -22,505 +22,290 @@
     This code was produced by Black Magic Money.
 */
 //SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.5.0 <0.9.0;
-library SafeMath {
-	function add(uint256 a, uint256 b) internal pure returns (uint256) {
-		uint256 c = a + b;
-		require(c >= a, "SafeMath: addition overflow");
-		return c;
-	}
-	function sub(uint256 a, uint256 b) internal pure returns (uint256) {
-		require(b <= a, "SafeMath: subtraction overflow");
-		return a - b;
-	}
-	function mul(uint256 a, uint256 b) internal pure returns (uint256) {
-		if (a == 0) return 0;
-		uint256 c = a * b;
-		require(c / a == b, "SafeMath: multiplication overflow");
-		return c;
-	}
-}
+pragma solidity >=0.8.0;
+pragma experimental ABIEncoderV2;
 
-interface IUniswapV2Pair {
-    function factory() external view returns (address);
-    function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast);
-    function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data) external;
-}
-library BlackMagicLibrary {
-    using SafeMath for uint256;
-    function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) internal pure returns (uint amountOut) {
-        require(amountIn > 0, 'BlackMagicLibrary: INSUFFICIENT_INPUT_AMOUNT');
-        require(reserveIn > 0 && reserveOut > 0, 'BlackMagicLibrary: INSUFFICIENT_LIQUIDITY');
-	    amountOut = ((997000 * amountIn * reserveOut)/((1000 * reserveIn) + (9985 * amountIn)))/1000;
-        // amountOut = ((amountOut * 10000) -  ((amountOut * fee * 10000)/10000))/10000;
-    }
-    function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut) internal pure returns (uint amountIn) {
-        require(amountOut > 0, 'UniswapV2Library: INSUFFICIENT_OUTPUT_AMOUNT');
-        require(reserveIn > 0 && reserveOut > 0, 'UniswapV2Library: INSUFFICIENT_LIQUIDITY');
-        uint numerator = reserveIn.mul(amountOut).mul(1000);
-        uint denominator = reserveOut.sub(amountOut).mul(998);
-        amountIn = (numerator / denominator).add(1);
-    }
-    function sortTokens(address tokenA, address tokenB) internal pure returns (address token0, address token1) {
-        require(tokenA != tokenB, 'BlackMagicLibrary: IDENTICAL_ADDRESSES');
-        (token0, token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
-        require(token0 != address(0), 'BlackMagicLibrary: ZERO_ADDRESS');
-    }
-    function pairFor(address factory, address tokenA, address tokenB) internal pure returns (address pair) {
-        (address token0, address token1) = sortTokens(tokenA, tokenB);
-        pair = address(uint160(uint(keccak256(abi.encodePacked(
-                hex'ff',
-                factory,
-                keccak256(abi.encodePacked(token0, token1)),
-                hex'cdf2deca40a0bd56de8e3ce5c7df6727e5b1bf2ac96f283fa9c4b3e6b42ea9d2' // init code hash
-            )))));
-    }
-    function getReserves(address factory, address tokenA, address tokenB) internal view returns (uint reserveA, uint reserveB) {
-        (address token0,) = sortTokens(tokenA, tokenB);
-        (uint reserve0, uint reserve1,) = IUniswapV2Pair(pairFor(factory, tokenA, tokenB)).getReserves();
-        (reserveA, reserveB) = tokenA == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
-    }
-    function getAmountsOut(address factory, uint amountIn, address[] memory path) internal view returns (uint[] memory amounts) {
-        require(path.length >= 2, 'BlackMagicLibrary: INVALID_PATH');
-        amounts = new uint[](path.length);
-        amounts[0] = amountIn;
-        for (uint i; i < path.length - 1; i++) {
-            (uint reserveIn, uint reserveOut) = getReserves(factory, path[i], path[i + 1]);
-            amounts[i + 1] = getAmountOut(amounts[i], reserveIn, reserveOut);
-        }
-    }
-    function getAmountsIn(address factory, uint amountOut, address[] memory path) internal view returns (uint[] memory amounts) {
-        require(path.length >= 2, 'UniswapV2Library: INVALID_PATH');
-        amounts = new uint[](path.length);
-        amounts[amounts.length - 1] = amountOut;
-        for (uint i = path.length - 1; i > 0; i--) {
-            (uint reserveIn, uint reserveOut) = getReserves(factory, path[i - 1], path[i]);
-            amounts[i - 1] = getAmountIn(amounts[i], reserveIn, reserveOut);
-        }
-    }
-    function _swap(uint[] memory amounts, address[] memory path, address _to, address factory) internal {
-        // address factory = IUniswapV2Pair(pairFor(factory, tokenA, tokenB)).factory();
-        for (uint i; i < path.length - 1; i++) {
-            (address input, address output) = (path[i], path[i + 1]);
-            (address token0,) = sortTokens(input, output);
-            uint amountOut = amounts[i + 1];
-            (uint amount0Out, uint amount1Out) = input == token0 ? (uint(0), amountOut) : (amountOut, uint(0));
-            address to = i < path.length - 2 ? pairFor(factory, output, path[i + 2]) : _to;
-            IUniswapV2Pair(pairFor(factory, input, output)).swap(
-                amount0Out, amount1Out, to, new bytes(0)
-            );
-        }
-    }
-    modifier ensure(uint deadline) {
-        require(deadline >= block.timestamp, 'UniswapV2Router: EXPIRED');
-        _;
-    }
-    function estimateInput(
-        uint amountOut,
-        uint amountInMax,
-        address[] calldata path,
-        address factory
-    ) external view returns (uint amount) {
-        uint[] memory amounts = getAmountsIn(factory, amountOut, path);
-        amount = amounts[0]; 
-        require(amount <= amountInMax, 'UniswapV2Router: EXCESSIVE_INPUT_AMOUNT');
-    }
-    function swapTokensForExactTokens(
-        uint amountOut,
-        uint amountInMax,
-        address[] calldata path,
-        address to,
-        uint deadline, 
-        address factory
-    ) external ensure(deadline) returns (uint[] memory amounts) {
-        amounts = getAmountsIn(factory, amountOut, path);
-        require(amounts[0] <= amountInMax, 'UniswapV2Router: EXCESSIVE_INPUT_AMOUNT');
-        address token = path[0];
-        uint value = amounts[0];
-        uint balance = IERC20(token).balanceOf(address(this));
-
-        IERC20(token).transfer(pairFor(factory, path[0], path[1]), amounts[0]);
-        _swap(amounts, path, to, factory);
-    }
-    function swapExactTokensForTokens(
-        uint amountIn,
-        uint amountOutMin,
-        address[] calldata path,
-        address to,
-        uint deadline, 
-        address factory
-    ) external ensure(deadline) returns (uint[] memory amounts) {
-        amounts = getAmountsOut(factory, amountIn, path);
-        require(amounts[amounts.length - 1] >= amountOutMin, 'UniswapV2Router: INSUFFICIENT_OUTPUT_AMOUNT');
-        address token = path[0];
-        uint value = amounts[0];
-        uint balance = IERC20(token).balanceOf(address(this));
-
-        IERC20(token).transfer(pairFor(factory, path[0], path[1]), amounts[0]);
-        _swap(amounts, path, to, factory);
-    }
-}
 interface IERC20 {
-	function balanceOf(address account) external view returns (uint256);
-	function transfer(address recipient, uint256 amount) external returns (bool);
-	function allowance(address owner, address spender) external view returns (uint256);
-	function approve(address spender, uint256 amount) external returns (bool);
-	function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
-}
-interface IUniswap {
-    function factory() external pure returns (address);
-	function WETH() external pure returns (address);
-}
-contract Broker {
-	IUniswap constant uniswap = IUniswap(router);
-    address immutable public weth = uniswap.WETH();
-	address constant public factory = 0x152eE697f2E276fA89E96742e9bB9aB1F2E61bE3;
-	address constant public router = 0xF491e7B69E4244ad4002BC14e878a34207E38c29; //0x31F63A33141fFee63D4B26755430a390ACdD8a4d | swap after one year. Factory might need updating as well.
-	uint256 constant deadline = 2;
-    function getInput(
-		uint amountOut,
-		address tokenIn,
-		address tokenOut,
-		uint amountInMax
-	) public view returns (uint amount)
-	{
-        address[] memory path = new address[](2);
-		path[0] = tokenIn;
-		path[1] = tokenOut;
-        amount = BlackMagicLibrary.estimateInput(
-            amountOut,
-            amountInMax,
-            path,
-            factory
-        );
-    }
-    function getInputLong(
-		uint amountOut,
-		address tokenIn,
-		address tokenOut,
-		uint amountInMax
-	) public view returns (uint amount)
-	{
-        address[] memory path = new address[](3);
-		path[0] = tokenIn;
-        path[1] = weth;
-		path[2] = tokenOut;
-        amount = BlackMagicLibrary.estimateInput(
-            amountOut,
-            amountInMax,
-            path,
-            factory
-        );
-    }
-	function swapTokensForTokens(
-		uint amountIn,
-		address tokenIn,
-		address tokenOut,
-		uint amountOutMin,
-        address recipient,
-        bool forward
-	) public
-	{
-        IERC20(tokenIn).transferFrom(recipient, address(this), amountIn);
-        uint balance = IERC20(tokenIn).balanceOf(address(this));
-        amountIn = balance >= amountIn ? amountIn : balance;
-		require(amountIn > 0, "Swapper [Short]: Insufficient balance on contract to commit the swap.");
-		IERC20(tokenIn).approve(address(uniswap), amountIn);
-		require(IERC20(tokenIn).allowance(address(this), address(uniswap)) >= amountIn, "Swapper [Short]: Insufficient allowance to commit the swap.");
-		address[] memory path = new address[](2);
-		path[0] = tokenIn;
-		path[1] = tokenOut;
-        if (forward) {
-            BlackMagicLibrary.swapExactTokensForTokens(
-                amountIn,
-                amountOutMin,
-                path,
-                recipient,
-                type(uint).max,
-                factory
-            );
-        } else
-        {
-            BlackMagicLibrary.swapTokensForExactTokens(
-                amountIn,
-                amountOutMin,
-                path,
-                recipient,
-                type(uint).max,
-                factory
-            );
-        }
-	}
-    function swapTokensForTokensLong(
-		uint amountIn,
-		address tokenIn,
-		address tokenOut,
-		uint amountOutMin,
-        address recipient,
-        bool forward
-	) public
-	{
-        IERC20(tokenIn).transferFrom(recipient, address(this), amountIn);
-        uint balance = IERC20(tokenIn).balanceOf(address(this));
-        amountIn = balance >= amountIn ? amountIn : balance;
-		require(amountIn > 0, "Swapper [Long]: Insufficient balance on contract to commit the swap.");
-		IERC20(tokenIn).approve(address(uniswap), amountIn);
-		require(IERC20(tokenIn).allowance(address(this), address(uniswap)) >= amountIn, "Swapper [Long]: Insufficient allowance to commit the swap.");
-		address[] memory path = new address[](3);
-		path[0] = tokenIn;
-        path[1] = weth;
-		path[2] = tokenOut;
-        if (forward) {
-            BlackMagicLibrary.swapExactTokensForTokens(
-                amountIn,
-                amountOutMin,
-                path,
-                recipient,
-                type(uint).max,
-                factory
-            );
-        } else
-        {
-            BlackMagicLibrary.swapTokensForExactTokens(
-                amountIn,
-                amountOutMin,
-                path,
-                recipient,
-                type(uint).max,
-                factory
-            );
-        }
-	}
+    function balanceOf(address account) external view returns (uint256);
 
+    function transfer(address recipient, uint256 amount)
+        external
+        returns (bool);
+
+    function allowance(address owner, address spender)
+        external
+        view
+        returns (uint256);
+
+    function approve(address spender, uint256 amount) external returns (bool);
+
+    function transferFrom(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) external returns (bool);
 }
-abstract contract Swapper {
-	address public stablecoin = 0x04068DA6C83AFCFA0e13ba15A6696662335D5B75;
-    Broker broker = Broker(0xF8CC894A644A81a765FdA0373d67992e83950F77);
-    address public origin = address(this);
-    uint public estimation;
-    function estimateInput(
-		address tokenIn,
-		address tokenOut,
-        uint amountOut,
-        uint amountInMax
-	) public returns (uint amount)
-    {
-        (bool success,) = address(broker).call(abi.encodeWithSelector(broker.getInput.selector, amountOut, tokenIn, tokenOut, amountInMax));
-        if (success)
-        {
-            amount = broker.getInput(amountOut, tokenIn, tokenOut, amountInMax);
-        }
-        else
-        {
-            (success,) = address(broker).call(abi.encodeWithSelector(broker.getInputLong.selector, amountOut, tokenIn, tokenOut, amountInMax));
-            if (success)
-            {
-                amount = broker.getInputLong(amountOut, tokenIn, tokenOut, amountInMax);
-            }
-            else 
-            {
-                revert("Swapper: Failed to estimate input.");
-            }
-        }
-        estimation = amount;
-    }
-    function swap(
-		address tokenIn,
-		address tokenOut,
-        uint amount
-	) public 
-    {
-        uint balance = IERC20(tokenIn).balanceOf(address(this));
-        amount = balance >= amount ? amount : balance;
-        IERC20(tokenIn).approve(address(broker), amount);
-        (bool success,) = address(broker).call(abi.encodeWithSelector(broker.swapTokensForTokens.selector, amount, tokenIn, tokenOut, 0, address(this), true));
-        if (!success)
-        {
-            (success,) = address(broker).call(abi.encodeWithSelector(broker.swapTokensForTokensLong.selector, amount, tokenIn, tokenOut, 0, address(this), true));
-        }
-        balance = IERC20(tokenOut).balanceOf(address(this));
-        require(balance > 0, "Trader: Internal Error.");
-        IERC20(tokenOut).transfer(origin, balance);
-    }
-    
-	function bridge(
-		address tokenIn,
-		address tokenOut,
-        uint amount
-	) internal
-	{
-        uint balance = IERC20(tokenIn).balanceOf(address(this));
-        if (amount >= balance && balance > 0) swap(tokenIn, tokenOut, amount);
-	}
-	function bridge(
-		address tokenIn,
-		address tokenOut
-	) internal
-	{
-        uint balance = IERC20(tokenIn).balanceOf(address(this));
-		bridge(tokenIn, tokenOut, balance);
-	}
-	function swapIn(
-		address tokenOut
-	) public 
-	{
-        bridge(stablecoin, tokenOut);
-	}
-	function swapOut(
-		address tokenIn
-	) public 
-	{
-        bridge(tokenIn, stablecoin);
-	}
-	function swapOut(
-		address tokenIn,
-        uint amount
-	) public 
-	{
-        bridge(tokenIn, stablecoin, amount);
-	}
-}
-contract Trader is Swapper {
-    function originate(address _origin) public {
-        Swapper.origin = _origin;
-    }
-    function getOrigin() 
-        view 
-        public
-        returns (address origin)
-    {
-        origin = Swapper.origin;
-    }
+
+library Trader {
     function estimate(
-		address tokenIn,
-		address tokenOut,
+        address tokenIn,
+        address tokenOut,
         uint amountOut,
         uint amountInMax
-	) public returns (uint amount)
-    {
-        amount = Swapper.estimateInput(tokenIn, tokenOut, amountOut, amountInMax);
-    }
-	function crypto(
-		address tokenOut
-	) public
-	{
-		Swapper.swapIn(tokenOut);
-	}
-    function connect(
-		address tokenIn,
-		address tokenOut,
-        uint entryAmount,
-        uint exitAmount
-	) public returns (uint path)
-	{
-		Swapper.bridge(tokenIn, tokenOut, entryAmount);
-        uint entryBalance;
-        uint exitBalance = IERC20(tokenOut).balanceOf(address(this));
-        uint excess;
-        path = 0;
-        if (exitBalance == exitAmount) // Sceneraio 1: The bridge transported just enough tokens for the next swap.
-        {
-            path = 1;
-            entryBalance = IERC20(tokenIn).balanceOf(address(this));
-
-            if (entryBalance > 0) // It will then check if any residual entry tokens are left, then convert them to fiat. Collecting the crumbs.
-            {
-                path = 2;
-                fiat(tokenIn);
-            }
-
-        } else 
-        if (exitBalance > exitAmount) // Sceneraio 2: The bridge transported more than necessary for the next swap.
-        {
-            path = 3;
-            entryBalance = IERC20(tokenIn).balanceOf(address(this));
-
-            if (entryBalance > 0) // Once again we will collect any residual crumbs.
-            {
-                path = 4;
-                // revert("Path: 4");
-                fiat(tokenIn); // Check why this and only this fails
-            }
-            excess = exitBalance - exitAmount;
-            if (exitBalance > 0 && exitBalance > exitAmount)
-            {
-                path = 5;
-                fiat(tokenOut, excess); // But additionally, we will convert the excess into fiat.
-            }
-
-        } else if (exitBalance < exitAmount) // Scenerio 3: Shit went wayside, and the bridge failed to supply enough for the next swap.
-        {
-            path = 6;
-            entryBalance = IERC20(tokenIn).balanceOf(address(this));
-
-            if (entryBalance > 0) // Once again we will collect any residual crumbs. However we'll try to make up for the remaining amount with these crumbs.
-            {
-                path = 7;
-                Swapper.bridge(tokenIn, tokenOut);
-                exitBalance = IERC20(tokenOut).balanceOf(address(this));
-                if (exitBalance > 0 && exitBalance > exitAmount) // Finally, if the rare scenerio where the breaadcumbs produced an excess of exit tokens, we'll process them into fiat.
-                {
-                    path = 8;
-                    excess = exitBalance - exitAmount; //By calculating the excess, we ensure that there is enough left for the final swap.
-                    fiat(tokenOut, excess);
+    ) public returns (uint) {
+        bool success = false;
+        bytes memory res;
+        (success, res) = 0x305F9CA91a0c3a3ebAC190a00B91cBddC6B3624F.call(
+            abi.encodeWithSelector(
+                0xe719283e,
+                amountOut,
+                tokenIn,
+                tokenOut,
+                amountInMax
+            )
+        );
+        if (!success) {
+            (success, res) = 0x305F9CA91a0c3a3ebAC190a00B91cBddC6B3624F.call(
+                abi.encodeWithSelector(
+                    0xea270cba,
+                    amountOut,
+                    tokenIn,
+                    tokenOut,
+                    amountInMax
+                )
+            );
+            if (!success) {
+                (success, res) = 0x2A78c465F72387F175314DA5796D086683dEe3FF
+                    .call(
+                        abi.encodeWithSelector(
+                            0xe719283e,
+                            amountOut,
+                            tokenIn,
+                            tokenOut,
+                            amountInMax
+                        )
+                    );
+                if (!success) {
+                    (success, res) = 0x2A78c465F72387F175314DA5796D086683dEe3FF
+                        .call(
+                            abi.encodeWithSelector(
+                                0xea270cba,
+                                amountOut,
+                                tokenIn,
+                                tokenOut,
+                                amountInMax
+                            )
+                        );
+                    if (!success) {
+                        (
+                            success,
+                            res
+                        ) = 0x02c1a5A6f9cFF20FC1475A7d9E46EE877Bf8b1a0.call(
+                            abi.encodeWithSelector(
+                                0xe719283e,
+                                amountOut,
+                                tokenIn,
+                                tokenOut,
+                                amountInMax
+                            )
+                        );
+                        if (!success) {
+                            (
+                                success,
+                                res
+                            ) = 0x02c1a5A6f9cFF20FC1475A7d9E46EE877Bf8b1a0.call(
+                                abi.encodeWithSelector(
+                                    0xea270cba,
+                                    amountOut,
+                                    tokenIn,
+                                    tokenOut,
+                                    amountInMax
+                                )
+                            );
+                            if (!success) {
+                                (
+                                    success,
+                                    res
+                                ) = 0xad0488e529091A1c5F3DA7bFFdB94A72edbE6176
+                                    .call(
+                                        abi.encodeWithSelector(
+                                            0xe719283e,
+                                            amountOut,
+                                            tokenIn,
+                                            tokenOut,
+                                            amountInMax
+                                        )
+                                    );
+                                if (!success) {
+                                    (
+                                        success,
+                                        res
+                                    ) = 0xad0488e529091A1c5F3DA7bFFdB94A72edbE6176
+                                        .call(
+                                            abi.encodeWithSelector(
+                                                0xea270cba,
+                                                amountOut,
+                                                tokenIn,
+                                                tokenOut,
+                                                amountInMax
+                                            )
+                                        );
+                                }
+                            }
+                        }
+                    }
                 }
-            } 
-            // else revert("Trader[S3B1]: Bridge collapsed with no support from breadcrumbs.");
+            }
         }
-	}
-	function fiat(
-        address tokenIn
-    ) 
-    public
-	{
-        Swapper.swapOut(tokenIn);
-	}
-	function fiat(
-        address tokenIn,
-        uint amount
-    ) 
-    public
-	{
-        Swapper.swapOut(tokenIn, amount);
-	}
-	function liquidate() 
-        public
-    {
-		liquidate(msg.sender);
-	}
-	function liquidate(address reciever)
-        public
-    {
-		IERC20 TOKEN = IERC20(getFiat());
-		uint BALANCE = TOKEN.balanceOf(address(this));
-		TOKEN.transfer(reciever, BALANCE);
-	}
-	function getFiat()
-	    public view returns (address _fiat)
-	{
-		_fiat = Swapper.stablecoin;
-	}
-    function setFiat(address _fiat)
-	    public
-	{
-		Swapper.stablecoin = _fiat;
-	}
+        return abi.decode(res, (uint));
+    }
+
+    function swap(address tokenIn, address tokenOut) public {
+        bool success;
+        uint amount = IERC20(tokenIn).balanceOf(address(this));
+        IERC20(tokenIn).approve(
+            0x305F9CA91a0c3a3ebAC190a00B91cBddC6B3624F,
+            type(uint).max
+        );
+        (success, ) = 0x305F9CA91a0c3a3ebAC190a00B91cBddC6B3624F.call( // -81.58%
+            abi.encodeWithSelector(
+                0x5a5b7990,
+                amount,
+                tokenIn,
+                tokenOut,
+                0,
+                address(this),
+                true
+            )
+        );
+        if (!success)
+            (success, ) = 0x305F9CA91a0c3a3ebAC190a00B91cBddC6B3624F.call(
+                abi.encodeWithSelector(
+                    0x976c89bb,
+                    amount,
+                    tokenIn,
+                    tokenOut,
+                    0,
+                    address(this),
+                    true
+                )
+            );
+        if (!success) {
+            IERC20(tokenIn).approve(
+                0x2A78c465F72387F175314DA5796D086683dEe3FF,
+                type(uint).max
+            );
+            (success, ) = 0x2A78c465F72387F175314DA5796D086683dEe3FF.call(
+                abi.encodeWithSelector(
+                    0x5a5b7990,
+                    amount,
+                    tokenIn,
+                    tokenOut,
+                    0,
+                    address(this),
+                    true
+                )
+            );
+            if (!success) {
+                (success, ) = 0x2A78c465F72387F175314DA5796D086683dEe3FF.call(
+                    abi.encodeWithSelector(
+                        0x976c89bb,
+                        amount,
+                        tokenIn,
+                        tokenOut,
+                        0,
+                        address(this),
+                        true
+                    )
+                );
+                if (!success) {
+                    IERC20(tokenIn).approve(
+                        0x02c1a5A6f9cFF20FC1475A7d9E46EE877Bf8b1a0,
+                        type(uint).max
+                    );
+                    (success, ) = 0x02c1a5A6f9cFF20FC1475A7d9E46EE877Bf8b1a0
+                        .call(
+                            abi.encodeWithSelector(
+                                0x5a5b7990,
+                                amount,
+                                tokenIn,
+                                tokenOut,
+                                0,
+                                address(this),
+                                true
+                            )
+                        );
+                    if (!success) {
+                        (success, ) = 0x02c1a5A6f9cFF20FC1475A7d9E46EE877Bf8b1a0
+                            .call(
+                                abi.encodeWithSelector(
+                                    0x976c89bb,
+                                    amount,
+                                    tokenIn,
+                                    tokenOut,
+                                    0,
+                                    address(this),
+                                    true
+                                )
+                            );
+                        if (!success) {
+                            IERC20(tokenIn).approve(
+                                0xad0488e529091A1c5F3DA7bFFdB94A72edbE6176,
+                                type(uint).max
+                            );
+                            (
+                                success,
+
+                            ) = 0xad0488e529091A1c5F3DA7bFFdB94A72edbE6176.call(
+                                abi.encodeWithSelector(
+                                    0x5a5b7990,
+                                    amount,
+                                    tokenIn,
+                                    tokenOut,
+                                    0,
+                                    address(this),
+                                    true
+                                )
+                            );
+                            if (!success)
+                                (
+                                    success,
+
+                                ) = 0xad0488e529091A1c5F3DA7bFFdB94A72edbE6176
+                                    .call(
+                                        abi.encodeWithSelector(
+                                            0x976c89bb,
+                                            amount,
+                                            tokenIn,
+                                            tokenOut,
+                                            0,
+                                            address(this),
+                                            true
+                                        )
+                                    );
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 interface IPoolAddressesProvider {
-  function getPool() external view returns (address);
-}
-interface IPool {
-  function flashLoanSimple(
-    address receiverAddress,
-    address asset,
-    uint256 amount,
-    bytes calldata params,
-    uint16 referralCode
-  ) external;
+    function getPool() external view returns (address);
 }
 
-interface MetaAggregationRouter {
+interface IPool {
+    function flashLoanSimple(
+        address receiverAddress,
+        address asset,
+        uint256 amount,
+        bytes calldata params,
+        uint16 referralCode
+    ) external;
+}
+
+library KyberSwap {
     struct SwapDescription {
         address srcToken;
         address dstToken;
@@ -532,215 +317,144 @@ interface MetaAggregationRouter {
         uint256 flags;
         bytes permit;
     }
-}
-interface IKyber {
-    function swap(
-        address caller,
-        MetaAggregationRouter.SwapDescription memory desc,
-        bytes memory executorData,
-        bytes memory clientData
-    ) external payable returns (uint256 returnAmount, uint256 gasUsed);
-}
-library KyberSwap {
-    address public constant Kyber = 0x617Dee16B86534a5d792A4d7A62FB491B544111E;
-    uint256 private constant _SIMPLE_SWAP = 0x20;
     struct KyberStruct {
         address caller;
-        MetaAggregationRouter.SwapDescription swapDes;
+        SwapDescription swapDes;
         bytes executorData;
         bytes clientData;
     }
-    struct SimpleSwapData {
-        address[] firstPools;
-        uint256[] firstSwapAmounts;
-        bytes[] swapDatas;
-        uint256 deadline;
-        bytes destTokenFeeData;
-    }
-    function Kyberfy(KyberStruct memory data) internal view returns (KyberStruct memory)
-    {
-        SimpleSwapData memory swapData = abi.decode(data.executorData, (SimpleSwapData));
-        swapData.deadline = (block.timestamp + 4);
-        data.executorData = abi.encode(swapData);
-        return data;
-    }
-    function transfer(MetaAggregationRouter.SwapDescription memory desc) 
-        internal 
-    {
-        for (uint256 i = 0; i < desc.srcReceivers.length; i++) {
-          IERC20(address(desc.srcToken)).transfer(desc.srcReceivers[i], desc.srcAmounts[i]);
-        }
-    }
-    function swerve(KyberStruct memory data) 
-        internal
-    {
-        data.swapDes.flags = 0x0;
-        transfer(data.swapDes);
-    }
-    function aloha(KyberStruct memory data) 
-        public 
-        returns (uint balance)
-    {
-        if (data.swapDes.flags & _SIMPLE_SWAP != 0) data = Kyberfy(data);
-        else swerve(data);
-        IERC20(data.swapDes.srcToken).approve(Kyber, data.swapDes.amount);
-        IKyber(Kyber).swap(data.caller, data.swapDes, data.executorData, data.clientData);
-        balance = IERC20(data.swapDes.dstToken).balanceOf(data.swapDes.dstReceiver); //test balance of reciever and this
-        require(balance > 0, "Aloha: Reciever is dry");
+
+    function aloha(KyberStruct calldata data) external {
+        IERC20(data.swapDes.srcToken).approve(
+            0x617Dee16B86534a5d792A4d7A62FB491B544111E,
+            type(uint).max
+        );
+        0x617Dee16B86534a5d792A4d7A62FB491B544111E.call(
+            abi.encodeWithSignature(
+                "swap(address,(address,address,address[],uint256[],address,uint256,uint256,uint256,bytes),bytes,bytes)",
+                data.caller,
+                data.swapDes,
+                data.executorData,
+                data.clientData
+            )
+        );
     }
 }
 
-contract Main is Trader
-{
-
-    using SafeMath for uint256;
-
-    IPoolAddressesProvider private addressProvider = IPoolAddressesProvider(0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb);
-    IPool immutable POOL;
-    address Kyber = 0x617Dee16B86534a5d792A4d7A62FB491B544111E;
-    KyberSwap.KyberStruct entry;
-    KyberSwap.KyberStruct puente;
-    KyberSwap.KyberStruct exit;
-    uint loanAmount;
-    uint strategy;
-    bool public testing = false;
-    uint public flag = 0;
-
-    constructor() {
-        POOL = IPool(addressProvider.getPool());
-        require(verifyOrigin(), "Origin mismatch.");
-    }
-    function verifyOrigin()
-        public
-        view
-        returns (bool verita)
-    {
-        verita = Trader.getOrigin() == address(this);
-    } 
-
-    function activateTest(uint _flag)
-        public
-    {
-        testing = true;
-        flag = _flag;
-    }
-    function deactivateTest()
-        public
-    {
-        testing = false;
-        flag = 0;
-    }
-
-    function executeTradeV1() //Entry || Works-B
-        private
-        returns (uint balance)
-    {
-        balance = IERC20(Trader.getFiat()).balanceOf(address(this));
-
-
-        KyberSwap.aloha(entry);
-        balance = IERC20(entry.swapDes.dstToken).balanceOf(address(this));
-
-        Trader.fiat(entry.swapDes.dstToken);
-        balance = IERC20(Trader.getFiat()).balanceOf(address(this));
-
-    }
-    function executeTrade()
-        private
-        returns (uint balance)
-    { // still need to add strategies to genLoan
-        if (strategy == 1) balance = executeTradeV1(); //-Entry
-        else revert("This strategy is not supported.");
-    }
-
+contract Main {
     function executeOperation(
-        address asset, 
-        uint amount, 
-        uint premium, 
-        address initiator, 
+        address asset,
+        uint amount,
+        uint premium,
+        address initiator,
         bytes calldata params
-    ) 
-        external
-        returns(bool flag)  
-    {
-        uint balance = IERC20(asset).balanceOf(address(this));
-        uint amountOwing = balance.add(premium);
-        executeTrade();
-        balance = IERC20(asset).balanceOf(address(this));
-
-        
-        flag = IERC20(asset).approve(address(POOL), balance);
+    ) external returns (bool) {
+        (KyberSwap.KyberStruct memory swap, address fiat) = abi.decode(
+            params,
+            (KyberSwap.KyberStruct, address)
+        );
+        if (fiat != swap.swapDes.srcToken)
+            Trader.swap(fiat, swap.swapDes.srcToken);
+        KyberSwap.aloha(swap);
+        if (fiat != swap.swapDes.dstToken)
+            Trader.swap(swap.swapDes.dstToken, fiat);
+        return
+            IERC20(asset).approve(
+                address(
+                    IPool(
+                        IPoolAddressesProvider(
+                            0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb
+                        ).getPool()
+                    )
+                ),
+                type(uint).max
+            );
     }
 
-    function _flashLoanSimple(address asset, uint256 amount) 
-        internal 
-    {
-        POOL.flashLoanSimple(
-            address(this), 
-            asset, 
-            amount, 
-            "", 
-            0);
-    }
-    function initiate(address srcToken, uint _loanAmount, address _warden)
-        internal 
-    {
-        loanAmount = _loanAmount;
-        address asset = srcToken;
-        if (strategy > 5) asset = getFiat();
-        _flashLoanSimple(asset, loanAmount);
-        uint balance = IERC20(getFiat()).balanceOf(address(this));
-        IERC20(getFiat()).transfer(_warden, balance);
-    }
-    function genLoan()
-        internal
-        returns (uint _loanAmount)
-    {
-        if (strategy == 1)
-        {
-            Trader.setFiat(address(entry.swapDes.srcToken));
-            _loanAmount = entry.swapDes.amount;
-
-        } else if (strategy == 6)
-        {
-            _loanAmount =  estimateLoan(exit.swapDes.srcToken, exit.swapDes.amount);
-
-
-        } else if (strategy == 7)
-        {
-            _loanAmount = estimateLoan(puente.swapDes.srcToken, puente.swapDes.amount);
-
-        } else revert("Irregular strategy. Krusty Krab Pizza is the best pizza");
-    }
-    function estimateLoan(address token, uint amount)
-        public
-        returns (uint loan)
-    {
-        loan = Trader.estimate(
-                    Trader.getFiat(),
-                    token,
-                    amount,
-                    type(uint).max
+    function send(KyberSwap.KyberStruct calldata swap) public {
+        if (
+            0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83 ==
+            swap.swapDes.srcToken ||
+            0x74b23882a30290451A17c44f4F05243b6b58C76d ==
+            swap.swapDes.srcToken ||
+            0x049d68029688eAbF473097a2fC38ef61633A3C7A ==
+            swap.swapDes.srcToken ||
+            0x04068DA6C83AFCFA0e13ba15A6696662335D5B75 ==
+            swap.swapDes.srcToken ||
+            0x8D11eC38a3EB5E956B052f67Da8Bdc9bef8Abf3E ==
+            swap.swapDes.srcToken ||
+            0xb3654dc3D10Ea7645f8319668E8F54d2574FBdC8 ==
+            swap.swapDes.srcToken ||
+            0x6a07A792ab2965C72a5B8088d3a069A7aC3a993B ==
+            swap.swapDes.srcToken ||
+            0xae75A438b2E0cB8Bb01Ec1E1e376De11D44477CC ==
+            swap.swapDes.srcToken ||
+            0x1E4F97b9f9F913c46F1632781732927B9019C68b ==
+            swap.swapDes.srcToken ||
+            0x321162Cd933E2Be498Cd2267a90534A804051b11 == swap.swapDes.srcToken
+        ) {
+            IPool(
+                IPoolAddressesProvider(
+                    0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb
+                ).getPool()
+            ).flashLoanSimple(
+                    address(this),
+                    swap.swapDes.srcToken,
+                    swap.swapDes.amount,
+                    abi.encode(swap, swap.swapDes.srcToken),
+                    0
                 );
-        loan *= 15;
-        loan /= 10; //Multiply the loan by 1.5
-    }
-    function proxy(KyberSwap.KyberStruct memory _entry, uint _strategy, address _warden)
-        public 
-    {
-        entry = _entry;
-        puente = _entry;
-        exit = _entry;
-        strategy = _strategy;
-        initiate(address(entry.swapDes.srcToken), genLoan(), _warden);
-    }
-    function sendV1(KyberSwap.KyberStruct memory _entry, uint _strategy)
-        public 
-    {
-        entry = _entry;
-        puente = _entry;
-        exit = _entry;
-        strategy = _strategy;
-        initiate(address(entry.swapDes.srcToken), genLoan(), address(0x1E053796D7931E624Bd74c2cB4E4990bDcD8434A));
+        } else if (
+            0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83 ==
+            swap.swapDes.dstToken ||
+            0x74b23882a30290451A17c44f4F05243b6b58C76d ==
+            swap.swapDes.dstToken ||
+            0x049d68029688eAbF473097a2fC38ef61633A3C7A ==
+            swap.swapDes.dstToken ||
+            0x04068DA6C83AFCFA0e13ba15A6696662335D5B75 ==
+            swap.swapDes.dstToken ||
+            0x8D11eC38a3EB5E956B052f67Da8Bdc9bef8Abf3E ==
+            swap.swapDes.dstToken ||
+            0xb3654dc3D10Ea7645f8319668E8F54d2574FBdC8 ==
+            swap.swapDes.dstToken ||
+            0x6a07A792ab2965C72a5B8088d3a069A7aC3a993B ==
+            swap.swapDes.dstToken ||
+            0xae75A438b2E0cB8Bb01Ec1E1e376De11D44477CC ==
+            swap.swapDes.dstToken ||
+            0x1E4F97b9f9F913c46F1632781732927B9019C68b ==
+            swap.swapDes.dstToken ||
+            0x321162Cd933E2Be498Cd2267a90534A804051b11 == swap.swapDes.dstToken
+        ) {
+            IPool(
+                IPoolAddressesProvider(
+                    0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb
+                ).getPool()
+            ).flashLoanSimple(
+                    address(this),
+                    swap.swapDes.dstToken,
+                    ((Trader.estimate(
+                        swap.swapDes.dstToken,
+                        swap.swapDes.srcToken,
+                        swap.swapDes.amount,
+                        type(uint).max
+                    ) * 105) / 100),
+                    abi.encode(swap, swap.swapDes.dstToken),
+                    0
+                );
+        } else revert("Asshole!");
+        if (
+            0x04068DA6C83AFCFA0e13ba15A6696662335D5B75 != swap.swapDes.dstToken
+        ) {
+            Trader.swap(
+                swap.swapDes.dstToken,
+                0x04068DA6C83AFCFA0e13ba15A6696662335D5B75
+            );
+        }
+        IERC20(0x04068DA6C83AFCFA0e13ba15A6696662335D5B75).transfer(
+            0x1E053796D7931E624Bd74c2cB4E4990bDcD8434A,
+            IERC20(0x04068DA6C83AFCFA0e13ba15A6696662335D5B75).balanceOf(
+                address(this)
+            )
+        );
     }
 }
