@@ -25,8 +25,9 @@ let chainlist = fs.readFileSync(sourceFiles.chainlist, "utf8");
 const getChain = (net) => {
   const $ = cheerio.load(chainlist);
   const script = $("#__NEXT_DATA__").text();
-  const chains = JSON.parse(script).props.pageProps.sortedChains;
+  const chains = JSON.parse(script).props.pageProps.chains;
   const match = (attr) => attr !== undefined && attr.search(net) == 0;
+  //console.log("chains:", chains);
   const chain = chains.filter(
     (chain) =>
       match(chain?.icon?.toLowerCase()) ||

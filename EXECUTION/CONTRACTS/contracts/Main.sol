@@ -76,7 +76,7 @@ library console {
 
     function concat(
         string calldata a,
-        uint b
+        uint256 b
     ) public pure returns (string memory) {
         return string(abi.encodePacked(a, toString(b)));
     }
@@ -84,11 +84,11 @@ library console {
     function warn(
         bool condition,
         string calldata a,
-        uint b,
+        uint256 b,
         string calldata c,
-        uint d,
+        uint256 d,
         string calldata e,
-        uint f
+        uint256 f
     ) public pure {
         require(
             condition,
@@ -101,9 +101,9 @@ library console {
     function warn(
         bool condition,
         string calldata a,
-        uint b,
+        uint256 b,
         string calldata c,
-        uint d
+        uint256 d
     ) public pure {
         require(
             condition,
@@ -111,7 +111,7 @@ library console {
         );
     }
 
-    function warn(bool condition, string calldata a, uint b) public pure {
+    function warn(bool condition, string calldata a, uint256 b) public pure {
         require(condition, string(abi.encodePacked(a, toString(b))));
     }
 
@@ -151,80 +151,12 @@ library Trader {
     function estimate(
         address tokenIn,
         address tokenOut,
-        uint amountOut,
-        uint amountInMax
-    ) public returns (uint) {
+        uint256 amountOut,
+        uint256 amountInMax
+    ) public returns (uint256) {
         bool success = false;
         bytes memory res;
-        // (success, res) = 0x305F9CA91a0c3a3ebAC190a00B91cBddC6B3624F.call(
-        //     abi.encodeWithSelector(
-        //         0xe719283e,
-        //         amountOut,
-        //         tokenIn,
-        //         tokenOut,
-        //         amountInMax
-        //     )
-        // );
-        // if (!success) {
-        //     (success, res) = 0x305F9CA91a0c3a3ebAC190a00B91cBddC6B3624F.call(
-        //         abi.encodeWithSelector(
-        //             0xea270cba,
-        //             amountOut,
-        //             tokenIn,
-        //             tokenOut,
-        //             amountInMax
-        //         )
-        //     );
-        //     if (!success) {
-        //         (success, res) = 0x2A78c465F72387F175314DA5796D086683dEe3FF
-        //             .call(
-        //                 abi.encodeWithSelector(
-        //                     0xe719283e,
-        //                     amountOut,
-        //                     tokenIn,
-        //                     tokenOut,
-        //                     amountInMax
-        //                 )
-        //             );
-        //         if (!success) {
-        //             (success, res) = 0x2A78c465F72387F175314DA5796D086683dEe3FF
-        //                 .call(
-        //                     abi.encodeWithSelector(
-        //                         0xea270cba,
-        //                         amountOut,
-        //                         tokenIn,
-        //                         tokenOut,
-        //                         amountInMax
-        //                     )
-        //                 );
-        //             if (!success) {
-        //                 (
-        //                     success,
-        //                     res
-        //                 ) = 0x02c1a5A6f9cFF20FC1475A7d9E46EE877Bf8b1a0.call(
-        //                     abi.encodeWithSelector(
-        //                         0xe719283e,
-        //                         amountOut,
-        //                         tokenIn,
-        //                         tokenOut,
-        //                         amountInMax
-        //                     )
-        //                 );
-        //                 if (!success) {
-        //                     (
-        //                         success,
-        //                         res
-        //                     ) = 0x02c1a5A6f9cFF20FC1475A7d9E46EE877Bf8b1a0.call(
-        //                         abi.encodeWithSelector(
-        //                             0xea270cba,
-        //                             amountOut,
-        //                             tokenIn,
-        //                             tokenOut,
-        //                             amountInMax
-        //                         )
-        //                     );
-        // if (!success)
-        (success, res) = 0xad0488e529091A1c5F3DA7bFFdB94A72edbE6176.call(
+        (success, res) = 0x305F9CA91a0c3a3ebAC190a00B91cBddC6B3624F.call(
             abi.encodeWithSelector(
                 0xe719283e,
                 amountOut,
@@ -233,8 +165,8 @@ library Trader {
                 amountInMax
             )
         );
-        if (!success)
-            (success, res) = 0xad0488e529091A1c5F3DA7bFFdB94A72edbE6176.call(
+        if (!success) {
+            (success, res) = 0x305F9CA91a0c3a3ebAC190a00B91cBddC6B3624F.call(
                 abi.encodeWithSelector(
                     0xea270cba,
                     amountOut,
@@ -243,24 +175,102 @@ library Trader {
                     amountInMax
                 )
             );
-        //                         }
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
-        return abi.decode(res, (uint));
+            if (!success) {
+                (success, res) = 0x2A78c465F72387F175314DA5796D086683dEe3FF
+                    .call(
+                        abi.encodeWithSelector(
+                            0xe719283e,
+                            amountOut,
+                            tokenIn,
+                            tokenOut,
+                            amountInMax
+                        )
+                    );
+                if (!success) {
+                    (success, res) = 0x2A78c465F72387F175314DA5796D086683dEe3FF
+                        .call(
+                            abi.encodeWithSelector(
+                                0xea270cba,
+                                amountOut,
+                                tokenIn,
+                                tokenOut,
+                                amountInMax
+                            )
+                        );
+                    if (!success) {
+                        (
+                            success,
+                            res
+                        ) = 0x02c1a5A6f9cFF20FC1475A7d9E46EE877Bf8b1a0.call(
+                            abi.encodeWithSelector(
+                                0xe719283e,
+                                amountOut,
+                                tokenIn,
+                                tokenOut,
+                                amountInMax
+                            )
+                        );
+                        if (!success) {
+                            (
+                                success,
+                                res
+                            ) = 0x02c1a5A6f9cFF20FC1475A7d9E46EE877Bf8b1a0.call(
+                                abi.encodeWithSelector(
+                                    0xea270cba,
+                                    amountOut,
+                                    tokenIn,
+                                    tokenOut,
+                                    amountInMax
+                                )
+                            );
+                            if (!success) {
+                                (
+                                    success,
+                                    res
+                                ) = 0xad0488e529091A1c5F3DA7bFFdB94A72edbE6176
+                                    .call(
+                                        abi.encodeWithSelector(
+                                            0xe719283e,
+                                            amountOut,
+                                            tokenIn,
+                                            tokenOut,
+                                            amountInMax
+                                        )
+                                    );
+                                if (!success) {
+                                    (
+                                        success,
+                                        res
+                                    ) = 0xad0488e529091A1c5F3DA7bFFdB94A72edbE6176
+                                        .call(
+                                            abi.encodeWithSelector(
+                                                0xea270cba,
+                                                amountOut,
+                                                tokenIn,
+                                                tokenOut,
+                                                amountInMax
+                                            )
+                                        );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return abi.decode(res, (uint256));
     }
 
-    function swap(address tokenIn, address tokenOut) public {
+    function partialSwap(
+        address tokenIn,
+        address tokenOut,
+        uint256 amount
+    ) public {
         bool success;
-        uint amount = IERC20(tokenIn).balanceOf(address(this));
-        // IERC20(tokenIn).approve(
-        //     0x305F9CA91a0c3a3ebAC190a00B91cBddC6B3624F,
-        //     type(uint).max
-        // );
-        // (success, ) = 0x305F9CA91a0c3a3ebAC190a00B91cBddC6B3624F.call( // -81.58%
+        // amount = IERC20(tokenIn).balanceOf(address(this)) <= amount
+        //     ? amount
+        //     : IERC20(tokenIn).balanceOf(address(this));
+        // (success, ) = 0x305F9CA91a0c3a3ebAC190a00B91cBddC6B3624F.call(
         //     abi.encodeWithSelector(
         //         0x5a5b7990,
         //         amount,
@@ -271,7 +281,7 @@ library Trader {
         //         true
         //     )
         // );
-        // if (!success)
+        // if (!success) {
         //     (success, ) = 0x305F9CA91a0c3a3ebAC190a00B91cBddC6B3624F.call(
         //         abi.encodeWithSelector(
         //             0x976c89bb,
@@ -283,26 +293,10 @@ library Trader {
         //             true
         //         )
         //     );
-        // if (!success) {
-        //     IERC20(tokenIn).approve(
-        //         0x2A78c465F72387F175314DA5796D086683dEe3FF,
-        //         type(uint).max
-        //     );
-        //     (success, ) = 0x2A78c465F72387F175314DA5796D086683dEe3FF.call(
-        //         abi.encodeWithSelector(
-        //             0x5a5b7990,
-        //             amount,
-        //             tokenIn,
-        //             tokenOut,
-        //             0,
-        //             address(this),
-        //             true
-        //         )
-        //     );
         //     if (!success) {
         //         (success, ) = 0x2A78c465F72387F175314DA5796D086683dEe3FF.call(
         //             abi.encodeWithSelector(
-        //                 0x976c89bb,
+        //                 0x5a5b7990,
         //                 amount,
         //                 tokenIn,
         //                 tokenOut,
@@ -312,14 +306,10 @@ library Trader {
         //             )
         //         );
         //         if (!success) {
-        //             IERC20(tokenIn).approve(
-        //                 0x02c1a5A6f9cFF20FC1475A7d9E46EE877Bf8b1a0,
-        //                 type(uint).max
-        //             );
-        //             (success, ) = 0x02c1a5A6f9cFF20FC1475A7d9E46EE877Bf8b1a0
+        //             (success, ) = 0x2A78c465F72387F175314DA5796D086683dEe3FF
         //                 .call(
         //                     abi.encodeWithSelector(
-        //                         0x5a5b7990,
+        //                         0x976c89bb,
         //                         amount,
         //                         tokenIn,
         //                         tokenOut,
@@ -329,24 +319,101 @@ library Trader {
         //                     )
         //                 );
         //             if (!success) {
-        //                 (success, ) = 0x02c1a5A6f9cFF20FC1475A7d9E46EE877Bf8b1a0
-        //                     .call(
-        //                         abi.encodeWithSelector(
-        //                             0x976c89bb,
-        //                             amount,
-        //                             tokenIn,
-        //                             tokenOut,
-        //                             0,
-        //                             address(this),
-        //                             true
-        //                         )
-        //                     );
-        //                 if (!success) {
+        (success, ) = 0x02c1a5A6f9cFF20FC1475A7d9E46EE877Bf8b1a0.call(
+            abi.encodeWithSelector(
+                0x5a5b7990,
+                amount,
+                tokenIn,
+                tokenOut,
+                0,
+                address(this),
+                true
+            )
+        );
+        if (!success) {
+            (success, ) = 0x02c1a5A6f9cFF20FC1475A7d9E46EE877Bf8b1a0.call(
+                abi.encodeWithSelector(
+                    0x976c89bb,
+                    amount,
+                    tokenIn,
+                    tokenOut,
+                    0,
+                    address(this),
+                    true
+                )
+            );
+            if (!success) {
+                (success, ) = 0xad0488e529091A1c5F3DA7bFFdB94A72edbE6176.call(
+                    abi.encodeWithSelector(
+                        0x5a5b7990,
+                        amount,
+                        tokenIn,
+                        tokenOut,
+                        0,
+                        address(this),
+                        true
+                    )
+                );
+                if (!success)
+                    (success, ) = 0xad0488e529091A1c5F3DA7bFFdB94A72edbE6176
+                        .call(
+                            abi.encodeWithSelector(
+                                0x976c89bb,
+                                amount,
+                                tokenIn,
+                                tokenOut,
+                                0,
+                                address(this),
+                                true
+                            )
+                        );
+            }
+        }
+        //             }
+        //         }
+        //     }
+        // }
+    }
+
+    function segmentedSwap(
+        address tokenIn,
+        address tokenOut,
+        uint256 cycles
+    ) public {
+        bool success;
+        IERC20(tokenIn).approve(
+            0x305F9CA91a0c3a3ebAC190a00B91cBddC6B3624F,
+            type(uint256).max
+        );
+
+        IERC20(tokenIn).approve(
+            0x2A78c465F72387F175314DA5796D086683dEe3FF,
+            type(uint256).max
+        );
+
+        IERC20(tokenIn).approve(
+            0x02c1a5A6f9cFF20FC1475A7d9E46EE877Bf8b1a0,
+            type(uint256).max
+        );
+
         IERC20(tokenIn).approve(
             0xad0488e529091A1c5F3DA7bFFdB94A72edbE6176,
-            type(uint).max
+            type(uint256).max
         );
-        (success, ) = 0xad0488e529091A1c5F3DA7bFFdB94A72edbE6176.call(
+        uint256 amount = IERC20(tokenIn).balanceOf(address(this)) / cycles;
+        for (uint256 i = 0; i < cycles; i++) {
+            partialSwap(tokenIn, tokenOut, amount);
+        }
+    }
+
+    function swap(address tokenIn, address tokenOut) public {
+        bool success;
+        uint256 amount = IERC20(tokenIn).balanceOf(address(this));
+        IERC20(tokenIn).approve(
+            0x305F9CA91a0c3a3ebAC190a00B91cBddC6B3624F,
+            type(uint256).max
+        );
+        (success, ) = 0x305F9CA91a0c3a3ebAC190a00B91cBddC6B3624F.call(
             abi.encodeWithSelector(
                 0x5a5b7990,
                 amount,
@@ -358,7 +425,7 @@ library Trader {
             )
         );
         if (!success)
-            (success, ) = 0xad0488e529091A1c5F3DA7bFFdB94A72edbE6176.call(
+            (success, ) = 0x305F9CA91a0c3a3ebAC190a00B91cBddC6B3624F.call(
                 abi.encodeWithSelector(
                     0x976c89bb,
                     amount,
@@ -369,12 +436,105 @@ library Trader {
                     true
                 )
             );
+        if (!success) {
+            IERC20(tokenIn).approve(
+                0x2A78c465F72387F175314DA5796D086683dEe3FF,
+                type(uint256).max
+            );
+            (success, ) = 0x2A78c465F72387F175314DA5796D086683dEe3FF.call(
+                abi.encodeWithSelector(
+                    0x5a5b7990,
+                    amount,
+                    tokenIn,
+                    tokenOut,
+                    0,
+                    address(this),
+                    true
+                )
+            );
+            if (!success) {
+                (success, ) = 0x2A78c465F72387F175314DA5796D086683dEe3FF.call(
+                    abi.encodeWithSelector(
+                        0x976c89bb,
+                        amount,
+                        tokenIn,
+                        tokenOut,
+                        0,
+                        address(this),
+                        true
+                    )
+                );
+                if (!success) {
+                    IERC20(tokenIn).approve(
+                        0x02c1a5A6f9cFF20FC1475A7d9E46EE877Bf8b1a0,
+                        type(uint256).max
+                    );
+                    (success, ) = 0x02c1a5A6f9cFF20FC1475A7d9E46EE877Bf8b1a0
+                        .call(
+                            abi.encodeWithSelector(
+                                0x5a5b7990,
+                                amount,
+                                tokenIn,
+                                tokenOut,
+                                0,
+                                address(this),
+                                true
+                            )
+                        );
+                    if (!success) {
+                        (success, ) = 0x02c1a5A6f9cFF20FC1475A7d9E46EE877Bf8b1a0
+                            .call(
+                                abi.encodeWithSelector(
+                                    0x976c89bb,
+                                    amount,
+                                    tokenIn,
+                                    tokenOut,
+                                    0,
+                                    address(this),
+                                    true
+                                )
+                            );
+                        if (!success) {
+                            IERC20(tokenIn).approve(
+                                0xad0488e529091A1c5F3DA7bFFdB94A72edbE6176,
+                                type(uint256).max
+                            );
+                            (
+                                success,
+
+                            ) = 0xad0488e529091A1c5F3DA7bFFdB94A72edbE6176.call(
+                                abi.encodeWithSelector(
+                                    0x5a5b7990,
+                                    amount,
+                                    tokenIn,
+                                    tokenOut,
+                                    0,
+                                    address(this),
+                                    true
+                                )
+                            );
+                            if (!success)
+                                (
+                                    success,
+
+                                ) = 0xad0488e529091A1c5F3DA7bFFdB94A72edbE6176
+                                    .call(
+                                        abi.encodeWithSelector(
+                                            0x976c89bb,
+                                            amount,
+                                            tokenIn,
+                                            tokenOut,
+                                            0,
+                                            address(this),
+                                            true
+                                        )
+                                    );
+                        }
+                    }
+                }
+            }
+        }
     }
-    // }
-    //             }
-    //         }
-    //     }
-    // }
 }
 
 interface IPoolAddressesProvider {
@@ -391,246 +551,143 @@ interface IPool {
     ) external;
 }
 
-library KyberSwap {
-    struct SwapDescription {
-        address srcToken;
-        address dstToken;
-        address[] srcReceivers;
-        uint256[] srcAmounts;
-        address dstReceiver;
-        uint256 amount;
-        uint256 minReturnAmount;
-        uint256 flags;
-        bytes permit;
-    }
-    struct KyberStruct {
-        address caller;
-        SwapDescription swapDes;
-        bytes executorData;
-        bytes clientData;
-    }
+library EnigmaV3 {
+    address private constant Kyber = 0x6131B5fae19EA4f9D964eAc0408E4408b66337b5;
+    address private constant Para = 0xDEF171Fe48CF0115B1d80b88dc8eAB59176FEe57;
+    address private constant Zero = 0xDEF189DeAEF76E379df891899eb5A00a94cBC250;
 
-    function aloha(KyberStruct calldata data) external returns (bool s) {
-        (s, ) = 0x617Dee16B86534a5d792A4d7A62FB491B544111E.call(
-            abi.encodeWithSignature(
-                "swap(address,(address,address,address[],uint256[],address,uint256,uint256,uint256,bytes),bytes,bytes)",
-                data.caller,
-                data.swapDes,
-                data.executorData,
-                data.clientData
-            )
-        );
-        if (!s) {
-            (s, ) = 0x617Dee16B86534a5d792A4d7A62FB491B544111E.call(
-                abi.encodeWithSignature(
-                    "swapExecutor1Inch(address,(address,address,address[],uint256[],address,uint256,uint256,uint256,bytes),bytes,bytes)",
-                    data.caller,
-                    data.swapDes,
-                    data.executorData,
-                    data.clientData
-                )
-            );
-            if (!s) {
-                (s, ) = 0x617Dee16B86534a5d792A4d7A62FB491B544111E.call(
-                    abi.encodeWithSignature(
-                        "swapRouter1Inch(address,(address,address,address[],uint256[],address,uint256,uint256,uint256,bytes),bytes,bytes)",
-                        data.caller,
-                        data.executorData,
-                        data.swapDes,
-                        data.clientData
-                    )
-                );
-                if (!s) {
-                    (s, ) = 0x617Dee16B86534a5d792A4d7A62FB491B544111E.call(
-                        abi.encodeWithSignature(
-                            "swapSimpleMode(address,(address,address,address[],uint256[],address,uint256,uint256,uint256,bytes),bytes,bytes)",
-                            data.caller,
-                            data.swapDes,
-                            data.executorData,
-                            data.clientData
-                        )
-                    );
-                }
-            }
-        }
-        require(s, "KF");
+    address private constant ParaProxy =
+        0x216B4B4Ba9F3e719726886d34a177484278Bfcae;
+
+    function swap(
+        uint256 provider,
+        address tokenIn,
+        bytes memory swapParams
+    ) external returns (bool success, bytes memory error) {
+        IERC20(tokenIn).approve(Kyber, type(uint256).max);
+        if (provider == 0) (success, error) = Kyber.call(swapParams);
+        else if (provider == 1) {
+            IERC20(tokenIn).approve(Zero, type(uint256).max);
+            (success, error) = Zero.call(swapParams);
+        } else if (provider == 2) {
+            IERC20(tokenIn).approve(Para, type(uint256).max);
+            IERC20(tokenIn).approve(ParaProxy, type(uint256).max);
+            (success, error) = Para.call(swapParams);
+        } else revert("Provider Uknown");
+        require(success, string(error));
     }
 }
 
-interface UniswapV2Pair {
-    function getReserves()
-        external
-        view
-        returns (
-            uint112 _reserve0,
-            uint112 _reserve1,
-            uint32 _blockTimestampLast
-        );
-}
+interface IWETH {
+    function withdraw(uint256 amount) external;
 
-interface UniswapV2Router02 {
-    function getAmountOut(
-        uint256 amountIn,
-        uint256 reserveIn,
-        uint256 reserveOut
-    ) external pure returns (uint256 amountOut);
-}
-
-library Gas {
-    uint public constant inate = 147700;
-    uint public constant camila = 23260;
-
-    function estimate(
-        uint price,
-        uint gasUsed
-    ) public view returns (uint cost) {
-        uint fee = price * ((gasUsed - gasleft()) - camila);
-        (uint WFTM_RESERVES, uint DAI_RESERVES, ) = UniswapV2Pair(
-            0xe120ffBDA0d14f3Bb6d6053E90E63c572A66a428
-        ).getReserves();
-        cost = UniswapV2Router02(0xF491e7B69E4244ad4002BC14e878a34207E38c29)
-            .getAmountOut(fee, WFTM_RESERVES, DAI_RESERVES);
-    }
-
-    function measure(uint gasUsed) public view {
-        revert(
-            string(
-                abi.encodePacked(
-                    "Gas Usage: ",
-                    console.toString((gasUsed - gasleft()) - inate)
-                )
-            )
-        );
-    }
-
-    function guage(
-        uint limit,
-        string memory tag,
-        uint gasUsed
-    ) public view returns (uint gas) {
-        gas = (gasUsed - gasleft()) - inate;
-        require(
-            gasUsed < limit,
-            string(
-                abi.encodePacked(
-                    "@[ ",
-                    tag,
-                    " ] / Usage: ",
-                    console.toString(gasUsed)
-                )
-            )
-        );
-    }
+    function balanceOf(address account) external view returns (uint256);
 }
 
 contract Main {
+    address public WETH = 0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83;
     address internal immutable pool =
         IPoolAddressesProvider(0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb)
             .getPool();
 
-    function delta(uint a, uint b) internal pure returns (uint y) {
-        int d = ((int(b) - int(a)) * 10000) / int(a == 0 ? 1 : a);
-        y = (a * b) == 0 ? 818 : (b > a) ? uint(d) : uint(d * -1);
+    struct TradeDesc {
+        uint providerID;
+        address tokenIn;
+        bytes data;
+    }
+
+    receive() external payable {}
+
+    fallback() external payable {}
+
+    function encode(
+        TradeDesc calldata intro,
+        TradeDesc calldata outro
+    ) public pure returns (bytes memory encoded) {
+        encoded = abi.encode(intro, outro);
+    }
+
+    function decode(
+        bytes calldata encoded
+    ) public pure returns (TradeDesc memory intro, TradeDesc memory outro) {
+        (intro, outro) = abi.decode(encoded, (TradeDesc, TradeDesc));
     }
 
     function executeOperation(
         address asset,
-        uint amount,
-        uint premium,
+        uint256 amount,
+        uint256 premium,
         address initiator,
         bytes calldata params
-    ) external returns (bool approved) {
-        (KyberSwap.KyberStruct memory swap, address fiat) = abi.decode(
-            params,
-            (KyberSwap.KyberStruct, address)
-        ); //6785
-        IERC20(swap.swapDes.srcToken).approve(
-            0x617Dee16B86534a5d792A4d7A62FB491B544111E,
-            type(uint).max
-        );
-
-        if (fiat != swap.swapDes.srcToken)
-            Trader.swap(fiat, swap.swapDes.srcToken);
-        // uint gasUsed = gasleft();
-        KyberSwap.aloha(swap);
-        // KyberSwap.aloha(swap);
-        // KyberSwap.aloha(swap);
-        // KyberSwap.aloha(swap);
-        // KyberSwap.aloha(swap);
-        // KyberSwap.aloha(swap);
-        // Gas.measure(gasUsed);
-        if (fiat != swap.swapDes.dstToken)
-            Trader.swap(swap.swapDes.dstToken, fiat);
-        approved = IERC20(asset).approve(pool, type(uint).max);
+    ) external returns (bool) {
+        (TradeDesc memory intro, TradeDesc memory outro) = decode(params);
+        EnigmaV3.swap(intro.providerID, intro.tokenIn, intro.data);
+        EnigmaV3.swap(outro.providerID, outro.tokenIn, outro.data);
+        return IERC20(asset).approve(pool, type(uint256).max);
     }
 
     function send(
-        KyberSwap.KyberStruct calldata swap,
-        uint256 branch,
+        address payment,
+        address tokenA,
+        address tokenB,
+        address account,
+        uint256 loanAmount,
         uint256 price,
-        address payment
-    ) public returns (uint256 balance) {
-        uint gasUsed = gasleft();
-        if (branch == 0) {
-            IPool(pool).flashLoanSimple(
-                address(this),
-                swap.swapDes.srcToken,
-                swap.swapDes.amount,
-                abi.encode(swap, swap.swapDes.srcToken),
-                0
-            );
-            if (
-                (payment != swap.swapDes.srcToken) &&
-                (IERC20(swap.swapDes.srcToken).balanceOf(address(this)) > 0)
-            ) {
-                Trader.swap(swap.swapDes.srcToken, payment);
-            }
-        } else if (branch == 1) {
-            IPool(pool).flashLoanSimple(
-                address(this),
-                swap.swapDes.dstToken,
-                ((Trader.estimate(
-                    swap.swapDes.dstToken,
-                    swap.swapDes.srcToken,
-                    swap.swapDes.amount,
-                    type(uint).max
-                ) * 105) / 100),
-                abi.encode(swap, swap.swapDes.dstToken),
-                0
-            );
-            if (
-                (payment != swap.swapDes.dstToken) &&
-                (IERC20(swap.swapDes.dstToken).balanceOf(address(this)) > 0)
-            ) {
-                Trader.swap(swap.swapDes.dstToken, payment);
-            }
-        } else {
-            IPool(pool).flashLoanSimple(
-                address(this),
-                payment,
-                ((Trader.estimate(
-                    payment,
-                    swap.swapDes.srcToken,
-                    swap.swapDes.amount,
-                    type(uint).max
-                ) * 105) / 100),
-                abi.encode(swap, payment),
-                0
-            );
-        }
-        // revert("Artemis");
-        // balance ;
-        gasUsed -= gasleft();
-        console.warn(
-            false,
-            "Minerva' Balance: ",
-            IERC20(payment).balanceOf(address(this)),
-            " | Gas: ",
-            gasUsed
-        );
-        // IERC20(payment).transfer(
-        //     0x1E053796D7931E624Bd74c2cB4E4990bDcD8434A,
-        //     balance
-        // );
+        TradeDesc calldata intro,
+        TradeDesc calldata outro
+    ) public returns (uint balance) {
+        IPool(pool).flashLoanSimple(
+            address(this),
+            tokenA,
+            loanAmount,
+            encode(intro, outro),
+            0
+        ); // Initiates flashloan with swap data
+        balance = IERC20(tokenB).balanceOf(address(this));
+        IERC20(tokenB).transfer(account, balance); // Transfers unswapped to account
+        balance = IERC20(tokenA).balanceOf(address(this));
+        IERC20(tokenA).transfer(account, balance); // Transfers unswapped to account
     }
+
+    function getBalance() public view returns (uint) {
+        return msg.sender.balance;
+    }
+
+    function getLimit(uint limit) public view returns (uint) {
+        return msg.sender.balance / limit;
+    }
+
+    // function send(
+    //     address payment,
+    //     address tokenA,
+    //     address tokenB,
+    //     address account,
+    //     uint256 loanAmount,
+    //     uint256 price,
+    //     TradeDesc calldata intro,
+    //     TradeDesc calldata outro
+    // ) public returns (uint gasUsed, uint balance) {
+    //     gasUsed = gasleft();
+    //     IPool(pool).flashLoanSimple(
+    //         address(this),
+    //         tokenA,
+    //         loanAmount,
+    //         encode(intro, outro),
+    //         0
+    //     ); // Initiates flashloan with swap data
+    //     balance = IERC20(tokenB).balanceOf(address(this));
+    //     IERC20(tokenB).transfer(account, balance); // Transfers unswapped to account
+    //     if (tokenA != WETH) Trader.swap(tokenA, WETH); //Swaps all gross profit to WETh
+    //     gasUsed -= gasleft(); // Mesures gas used.
+    //     // gasUsed += 405000; //
+    //     gasUsed *= price; //Calculates total gas cost.
+    //     IWETH(WETH).withdraw(gasUsed); // Unwraps necessary WETH -> ETH
+    //     payable(msg.sender).transfer(gasUsed); // Sends ETH to account provided
+    //     Trader.swap(WETH, payment); // Reswaps all remaining WETH to payment desired
+    //     balance = IERC20(payment).balanceOf(address(this));
+    //     IERC20(payment).transfer(account, balance); // Transfers all profit to account.
+    //     // console.warn(false, "Artemis | B: ", balance, " | G: ", gasUsed);
+    //     // require(balance > 0, "UNPROFITABLE"); // Prevents profitless operations.
+    // }
 }
+//0x1E053796D7931E624Bd74c2cB4E4990bDcD8434A

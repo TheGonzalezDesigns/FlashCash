@@ -12,8 +12,8 @@ const print = (name, data) => {
 	if (debug) {
 		try {
 			data = JSON.stringify(data);
-		} catch(e) {}
-	
+		} catch (e) { }
+
 		fs.writeFileSync(`./${name}.pr`, data);
 		console.log(`#${step++} | ./${name}:\n`, data);
 	}
@@ -43,7 +43,7 @@ const structure = payload => {
 }
 
 const encode = payload => {
-	
+
 	const structured = structure(payload);
 
 	const encoded = utils.AbiCoder.prototype.encode(structured.types, structured.data);
@@ -55,9 +55,9 @@ const encode = payload => {
 }
 
 const compress = item => {
-	
+
 	const type = [item[0]];
-	
+
 	const data = [item[1]];
 
 	const compressed = ['bytes', encode([type, data])];
@@ -85,9 +85,9 @@ const compact = items => {
 
 const realign = items => {
 
-	const trim = (arr, i) => [...[...arr].splice(0,i), ...[...arr].splice((i+1),arr.length)];
+	const trim = (arr, i) => [...[...arr].splice(0, i), ...[...arr].splice((i + 1), arr.length)];
 
-	const extract = (arr, i) => [...arr].splice(i,1)[0];
+	const extract = (arr, i) => [...arr].splice(i, 1)[0];
 
 	const bite = (arr, i) => extract(arr, i)[1];
 
@@ -102,7 +102,7 @@ const realign = items => {
 		let trimmed = items;
 
 		[...cart].forEach(x => {
-		
+
 			trimmed = trim(trimmed, x);
 
 		})
@@ -127,13 +127,13 @@ const seperate = items => {
 	items.forEach(item => {
 
 		seperated[0].push(item[0]);
-		
+
 		seperated[1].push(item[1]);
 
 	})
 
 	print("seperated", seperated)
-	
+
 	return seperated;
 }
 
@@ -163,7 +163,7 @@ const segregate = bag => {
 	print("sPacked", packed);
 
 	//const routes = reserialize(packed); // [bytes] => bytes
-	
+
 	const routes = packed;
 
 	const segregated = [meta, routes]; // [bytes, bytes]

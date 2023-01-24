@@ -20,7 +20,7 @@ if [[ -z $network ]]; then
 fi
 
 exchange=$relPath/$exchange
-mrc=$(cat "$exchange/DATA/mrc")
+mrc=$(cat "$exchange/DATA/mrc")F
 spread=$(cat "$exchange/DATA/spread")
 trailLimit=$(cat "$exchange/DATA/trailLimit")
 

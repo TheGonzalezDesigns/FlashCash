@@ -15,4 +15,5 @@ while read -r line; do
     ./proxyBinary.sh $hash $contract_A $contract_B $exchange $vol $network &
     sleep $time
     ./throttle.sh $exchange
+    #./asses.sh $exchange
 done <$file

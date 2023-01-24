@@ -18,14 +18,35 @@ Chain Details:
 {
   "name": "Fantom Opera",
   "chain": "FTM",
-  "rpc": ["https: //rpc.ftm.tools",
-  "https: //fantom-mainnet.gateway.pokt.network/v1/lb/62759259ea1b320039c9e7ac",
-  "https: //rpc.ankr.com/fantom",
-  "https: //rpc.fantom.network",
-  "https: //rpc2.fantom.network",
-  "https: //rpc3.fantom.network",
-  "https: //rpcapi.fantom.network",
-  "https: //fantom-mainnet.public.blastapi.io"],
+  "rpc": [{
+  "url": "https: //fantom-mainnet.gateway.pokt.network/v1/lb/62759259ea1b320039c9e7ac"
+},{
+  "url": "https: //rpc.ftm.tools"
+},{
+  "url": "https: //rpc.ankr.com/fantom",
+  "tracking": "limited",
+  "trackingDetails": "For service delivery purposes, we temporarily record IP addresses to set usage limits and monitor for denial of service attacks against our infrastructure. Though we do look at high-level data around the success rate of transactions made over the blockchain RPC, we do not correlate wallet transactions made over the infrastructure to the IP address making the RPC request. Thus, we do not store, exploit, or share any information regarding Personal Identifiable Information (PII), including wallet addresses. https: //www.ankr.com/blog/ankrs-ip-address-policy-and-your-privacy/"
+},{
+  "url": "https: //rpc.fantom.network"
+},{
+  "url": "https: //rpc2.fantom.network"
+},{
+  "url": "https: //rpc3.fantom.network"
+},{
+  "url": "https: //rpcapi.fantom.network"
+},{
+  "url": "https: //fantom-mainnet.public.blastapi.io",
+  "tracking": "limited",
+  "trackingDetails": "All the information in our logs (log data) can only be accessed for the last 7 days at any certain time, and it is completely purged after 14 days. We do not store any user information for longer periods of time or with any other purposes than investigating potential errors and service failures. https: //blastapi.io/privacy-policy"
+},{
+  "url": "https: //1rpc.io/ftm",
+  "tracking": "none",
+  "trackingDetails": "With the exception of data that will be public on chain, all the other metadata / data should remain private to users and other parties should not be able to access or collect it. 1RPC uses many different techniques to prevent the unnecessary collection of user privacy, which prevents tracking from RPC providers. https: //docs.ata.network/1rpc/design/#tracking-prevention"
+},{
+  "url": "https: //fantom.blockpi.network/v1/rpc/public",
+  "tracking": "limited",
+  "trackingDetails": "We do not collect request data or request origin. We only temporarily record the request method names and IP addresses for 7 days to ensure our service functionality such as load balancing and DDoS protection. All the data is automatically deleted after 7 days and we do not store any user information for longer periods of time. https: //blockpi.io/privacy-policy"
+}],
   "faucets": ["https: //free-online-app.com/faucet-for-eth-evm-chains/"],
   "nativeCurrency": {
   "name": "Fantom",
@@ -43,7 +64,7 @@ Chain Details:
   "icon": "ftmscan",
   "standard": "EIP3091"
 }],
-  "tvl": 500470824.4284621,
+  "tvl": 581892434.3012241,
   "chainSlug": "fantom"
 }
 ________________________________________________________________

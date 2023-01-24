@@ -2,7 +2,10 @@
 
 const deliver = require("../baggage/deliver.js");
 // const board = require("../baggage/board.js");
-const { initialize } = require("./../../interface.js");
+const { initialize } = require("../../interface.js");
+
+// const { Console } = require("console");
+// const { json } = require("stream/consumers");
 
 module.exports = async function (fastify, opts) {
   fastify.post("/deploy", async function (request, reply) {
@@ -14,7 +17,7 @@ module.exports = async function (fastify, opts) {
       // console.info("Flight 🛪:", flight);
       const genOps = async (gasPrice, gasCost) => {
         const price = (Number(gasPrice) * 1e9);
-        const limit = `0x${BigInt(12500000).toString(16)}`;
+        const limit = `0x${BigInt(12500000).toString(16)}`; //680; //1.5;
         const options = {
           gasPrice: price,
           // gasLimit: limit,
@@ -35,6 +38,16 @@ module.exports = async function (fastify, opts) {
         const intro = flight.swaps[0];
         const outro = flight.swaps[1];
         const account = "0x1e053796d7931e624bd74c2cb4e4990bdcd8434a";
+        // const multiplier = 1;
+        // console.log(`const tx = await send(
+        //   ${payment},
+        //   ${tokenIn},
+        //   ${tokenOut},
+        //   ${loanAmount},
+        //   ${intro},
+        //   ${outro},
+        //   ${options}
+        // );`);
         false && console.warn(`const tx = await send(
           ${payment},
           ${tokenIn},

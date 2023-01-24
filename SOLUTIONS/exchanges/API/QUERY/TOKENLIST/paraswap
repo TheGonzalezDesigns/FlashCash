@@ -6,4 +6,5 @@ file=$2
 rm -f -- $file
 touch $file
 
-curl https://apiv5.paraswap.io/tokens/$network >> $file
+curl https://open-api.openocean.finance/v3/$network/tokenList >> $file
+#curl https://apiv5.paraswap.io/tokens/$network >> $file

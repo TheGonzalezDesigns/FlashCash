@@ -47,3 +47,5 @@ tl=$time
 
 echo "$tl" > $throttle
 echo "$ps" > $pause
+
+./limit.sh true

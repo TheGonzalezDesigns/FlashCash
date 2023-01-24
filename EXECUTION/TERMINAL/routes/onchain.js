@@ -61,9 +61,10 @@ _.get("/kyberswap/:chainId/:from/:to", async (c) => {
   const chainId = p("chainId");
   const tokenIn = p("from").toLowerCase();
   const tokenOut = p("to").toLowerCase();
-  const rL = 0.1;
-  const rT = 0.1;
+  const rL = .1;
+  const rT = 1; //.1 - .001
   try {
+    // console.log("\tSearching...");
     const found = await search(chainId, tokenIn, tokenOut, rL, rT);
     // console.log("Found:", found);
     return c.json(found);

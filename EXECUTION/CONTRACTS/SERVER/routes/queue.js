@@ -7,6 +7,9 @@ const board = require("../baggage/board.js");
 // const { utils: blockchain } = require("./../../interface.js");
 //const call = require("../call.js")
 
+const inspect = (tag, res) =>
+  false; /* && console.log(`Call response [${tag}]: `, typeof res); */
+
 module.exports = async function (fastify, opts) {
   fastify.post("/queue", async function (request, reply) {
     const message = Object.keys(request.body).length
@@ -22,9 +25,22 @@ module.exports = async function (fastify, opts) {
     };
     // console.log("Ticket: ", ticket);
     let flights;
+    const tag = "Queue flights";
+    const start = performance.now();
     flights = await board(ticket.from, ticket.to);
+    const end = performance.now();
+
+    const runtime = end - start;
+
+    inspect(tag, flights);
     const tradable = flights.length > 0;
     if (tradable) {
+      console.log(
+        `\t🛬⌚${runtime < 1000 ? "🔥" : "🐢"} Flights Runtime: ${
+          runtime / 1000
+        } seconds`
+      );
+      // console.log("Flights: ", flights);
       try {
         const deploy = async (flight) => {
           const path = "deploy";
@@ -56,12 +72,24 @@ module.exports = async function (fastify, opts) {
           // console.log("deploying flight: ", flight);
           try {
             report = await (await deploy(flight)).json();
+            inspect("deploy report", report);
             report.price = flight.price;
             report.profit = flight.profit;
+            report.profitability = flight.profitability;
             report.total = flight.total;
             report.gas = flight.gas;
+            report.fiatCode = flight.fiatCode;
+            report.loanAmount = flight.loanAmount;
+            report.output = flight.output;
+            report.tokens = flight.tokens;
             if (report.status == 200) {
-              console.log(`🚀 R-${uint}:`, report);
+              console.log(
+                "💰💸💰💸💰💸🤑💰💸💰💸💰💸🤑💰💸💰💸💰💸🤑💰💸💰💸💰💸🤑💸💰"
+              );
+              console.log(`🚀 R-${uint}/${flights.length}:`, report);
+              console.log(
+                "💰💸💰💸💰💸🤑💰💸💰💸💰💸🤑💰💸💰💸💰💸🤑💰💸💰💸💰💸🤑💸💰"
+              );
               reports.push(report);
             } else {
               if (false && report.error.includes("UNPREDICTABLE_GAS_LIMIT")) {
@@ -74,7 +102,11 @@ module.exports = async function (fastify, opts) {
                   console.log(`🚀 R-${uint}:`, report);
                   reports.push(report);
                 } else console.error(`☔ R-${uint}:`, report);
-              } else console.error(`☔ R-${uint}:`, report);
+              } else
+                console.error(
+                  `☔ R-${uint}/${flights.length}:`,
+                  /* JSON.stringify */ report
+                );
             }
           } catch (e) {
             console.error(e);
