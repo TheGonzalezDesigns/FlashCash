@@ -4,6 +4,19 @@ const deliver = require("../baggage/deliver.js");
 // const board = require("../baggage/board.js");
 const { initialize } = require("./../../interface.js");
 
+const repeat = async (flight) => {
+  const path = "repeat";
+  const ops = {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(flight),
+  };
+  return await fetch(`http://localhost:3000/${path}`, ops);
+};
+
 module.exports = async function (fastify, opts) {
   fastify.post("/deploy", async function (request, reply) {
     const contract = await initialize();
@@ -50,12 +63,9 @@ module.exports = async function (fastify, opts) {
         // console.log("\t📧 Sending Transaction to blockchain...");
         const start = performance.now();
         const tx = await send(
-          payment,
           tokenIn,
           tokenOut,
-          account,
           loanAmount,
-          price,
           intro,
           outro,
           options
@@ -71,7 +81,6 @@ module.exports = async function (fastify, opts) {
         call
       ).then(
         (res) => {
-          // console.log("Congrats:\t", res);
           return { status: 200, response: res };
         },
         (err) => {
@@ -79,8 +88,6 @@ module.exports = async function (fastify, opts) {
           try {
             error = JSON.parse(err.error?.error?.body)?.error?.message;
           } catch (e) {
-            // console.error("error: ", err);
-            // error = `[${err?.code}] ${err?.reason} (${err?.error?.reason}): ${err?.error?.reason}`;
             error = err.reason;
           }
           error = error ? error : `Reason Unknown`;
@@ -94,17 +101,8 @@ module.exports = async function (fastify, opts) {
             error === "overflow"
           )
             console.error("SERVER ERROR:\t", err);
-          // //  invalid swap amount
-
-          // if (error.includes("processing response "))
-          //   console.error("Process Error:\t", err);
           if (error.includes("CALL_EXCEPTION") || error.includes("UNPREDICTABLE_GAS_LIMIT"))
             console.error("CALL_EXCEPTION:\t", err);
-          // else console.error("Reg. error:\t", err);
-          // // if (error.includes("invalid swap amount"))
-          // //   console.error("Invalid amount:\t", JSON.stringify(amounts));
-          // if (error.toLowerCase().includes("transfer"))
-          //   console.log(flight.swaps);
           if (error === `Reason Unknown`) {
             error = err
           }
@@ -116,7 +114,6 @@ module.exports = async function (fastify, opts) {
           return errorReport;
         }
       );
-      // console.log("Report finished");
       let response = JSON.parse(JSON.stringify(flight));
       delete response.swaps
       let M = 1;
@@ -128,9 +125,11 @@ module.exports = async function (fastify, opts) {
         let { status, error } = res;
 
         if (status !== 200) response.error = error;
-        response.multiplier = x;
-        // if (true || response.error.includes("M:"))
-        console.log(`${status === 200 ? `🚀` : `☔`} M-${x} Response: `, response);
+        else {
+          response.multiplier = x;
+          console.log(`${status === 200 ? `🚀` : `☔`} M-${x} Response: `, response);
+          await repeat(flight);
+        }
       }
 
       return "report";

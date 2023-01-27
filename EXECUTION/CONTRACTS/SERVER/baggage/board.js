@@ -1,7 +1,7 @@
 const inspect = (tag, res) =>
   false; /* && console.log(`Call response [${tag}]: `, typeof res); */
-const board = async (tin, tout) => {
-  const slug = `http://localhost:8888/onchain/kyberswap/250/${tin}/${tout}`;
+const board = async (tin, tout, chainId) => {
+  const slug = `http://localhost:8888/onchain/kyberswap/${chainId}/${tin}/${tout}`;
   // console.log("Now boarding: ", slug);
   let package;
   const tag = "board"; //inspect needed
@@ -35,7 +35,7 @@ const board = async (tin, tout) => {
         gas: {
           gwei: Math.round(
             [...op].map((y) => Number(y.gasPrice)).reduce((x, y) => x + y) /
-              op.length
+            op.length
           ),
           // .reduce((x, y) => x + Number(y.gasPrice)) / op.length,
           amount: [...op].map((y) => y.gasCost).reduce((x, y) => x + y),

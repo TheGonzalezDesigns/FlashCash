@@ -733,7 +733,7 @@ const interlace = async (signature, chainId, price, slippage, ...tokens) => {
     // console.log("Interlacing strat: ", strategy);
     // return [];
 
-    // if (!tradable) return [];
+    if (!tradable) return [];
     const end = performance.now();
     const runtime = end - start;
     const flight = wrap(strategy, netProfit, profitability, runtime, gasRate, gasUsage);
@@ -743,10 +743,10 @@ const interlace = async (signature, chainId, price, slippage, ...tokens) => {
 
     // deploy(flight);
     trace(...strategy);
-    console.log(
-      `\t\t⌚ [:> Runtime:\t\t\t${runtime < 1000 ? "🔥" : "🐢"} ${runtime / 1000
-      } seconds`
-    );
+    // console.log(
+    //   `\t\t⌚ [:> Runtime:\t\t\t${runtime < 1000 ? "🔥" : "🐢"} ${runtime / 1000
+    //   } seconds`
+    // );
 
     // throw Error(`Interlace: Unprofitable swap @ -$${profit * -1}`);
     // else console.log("interlace/strategy:", strategy);

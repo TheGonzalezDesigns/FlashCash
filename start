@@ -10,6 +10,9 @@ cd ..
 cd ./API
 ./continue 13800 ./start $1 $2
 cd ..
+cd ./ACCOUNTANT
+./operate &
+cd ..
 cd ./EXECUTION
 ./operate &
 cd ..

@@ -1226,7 +1226,7 @@ app.get("/sell", async (req, res) => {
       //console.log(`\t📉 [:> ${optimal?.tokenIn} => ${optimal?.tokenOut}`);
       throw Error("Unprofitable");
     }
-    console.log("FinalRes: ", finalRes);
+    // console.log("FinalRes: ", finalRes);
 
     // console.log("sorted[0]:  ", sorted[0]);
     // console.error("\t\t🪙");

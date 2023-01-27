@@ -1,4 +1,4 @@
-const deliver = async (profit, gas, fn, ...data) => {
+const deliver = async (profit, gas, fn, data) => {
 	const start = performance.now();
 
 	let state = {
@@ -11,15 +11,16 @@ const deliver = async (profit, gas, fn, ...data) => {
 		allowance: 0,
 		threshold: .125, //This ensures that it always remains profitible, the larger the number, the more transactions and potential earnings, the smaller the number, the lesser the expenses but also the lesser the profit
 		profitable: false,
-		runtime: 0
+		runtime: 0,
+		data: {}
 	}
 
 	const init = () => {
 		state.profit = profit;
 		state.gas = gas;
-		state.allowance = Math.floor((state.profit/state.gas) * state.threshold);
+		state.allowance = Math.floor((state.profit / state.gas) * state.threshold);
 		state.permitted = state.allowance;
-
+		state.data = data
 	}
 
 	const next = () => {
@@ -31,21 +32,22 @@ const deliver = async (profit, gas, fn, ...data) => {
 
 		//console.info(account());
 	}
-	
+
 	const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
-			
+
 	const addAllowance = () => state.permitted += state.allowance;
-	
-	const decAllowance = () => state.permitted -= Math.floor(state.allowance/5);
+
+	const decAllowance = () => state.permitted -= Math.floor(state.allowance / 5);
 
 	const deploy = async () => {
 
-		Promise.resolve(fn(...data)).then(x => {
-			x && state.succeeded++;
-			x && addAllowance();
-			x || state.failed++;
-			x || decAllowance();
-			console.error("Entered Success:", x.hash)
+		Promise.resolve(fn(state.data)).then(x => {
+			!!x && state.succeeded++;
+			!!x && addAllowance();
+			!!x || state.failed++;
+			!!x || decAllowance();
+			console.error("Entered Success:", x?.hash)
+			state.data = x;
 		}, error => {
 			console.error("Entered Failure:", error)
 			state.failed++
@@ -61,7 +63,7 @@ const deliver = async (profit, gas, fn, ...data) => {
 		const expenses = state.transactions * state.gas; //Note: Unlike state.succeeded in gross, state.failed is not exlpicitly used in calculating expenses, because every transaction succesful or not would inccur a gas fee, which state.transactions would account for.
 		const gross = state.succeeded * state.profit;
 		const net = gross - expenses;
-		const aps = net/(state.runtime/1000)
+		const aps = net / (state.runtime / 1000)
 		const ppm = aps * 60;
 		const pph = ppm * 60;
 		const ppd = pph * 60;
@@ -89,17 +91,17 @@ const deliver = async (profit, gas, fn, ...data) => {
 			}
 		}
 	}
-	
+
 	if (profit > gas) {
 
 		init();
 
 		do {
 			deploy();
-	
+
 			next();
-			
-			await sleep(50); //Soooo this is my work computer's limit may be able to remove this on an RTX
+
+			await sleep(2000); //Soooo this is my work computer's limit may be able to remove this on an RTX
 
 		} while (state.profitable);
 
@@ -109,7 +111,7 @@ const deliver = async (profit, gas, fn, ...data) => {
 	const end = performance.now();
 
 	state.runtime = end - start
-	console.log(`Runtime: ${state.runtime/1000} seconds`)
+	console.log(`Runtime: ${state.runtime / 1000} seconds`)
 	return account();
 }
 

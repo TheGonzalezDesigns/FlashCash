@@ -627,12 +627,9 @@ contract Main {
     }
 
     function send(
-        address payment,
         address tokenA,
         address tokenB,
-        address account,
         uint256 loanAmount,
-        uint256 price,
         TradeDesc calldata intro,
         TradeDesc calldata outro
     ) public returns (uint balance) {
@@ -644,50 +641,8 @@ contract Main {
             0
         ); // Initiates flashloan with swap data
         balance = IERC20(tokenB).balanceOf(address(this));
-        IERC20(tokenB).transfer(account, balance); // Transfers unswapped to account
+        IERC20(tokenB).transfer(msg.sender, balance); // Transfers unswapped to account
         balance = IERC20(tokenA).balanceOf(address(this));
-        IERC20(tokenA).transfer(account, balance); // Transfers unswapped to account
+        IERC20(tokenA).transfer(msg.sender, balance); // Transfers unswapped to account
     }
-
-    function getBalance() public view returns (uint) {
-        return msg.sender.balance;
-    }
-
-    function getLimit(uint limit) public view returns (uint) {
-        return msg.sender.balance / limit;
-    }
-
-    // function send(
-    //     address payment,
-    //     address tokenA,
-    //     address tokenB,
-    //     address account,
-    //     uint256 loanAmount,
-    //     uint256 price,
-    //     TradeDesc calldata intro,
-    //     TradeDesc calldata outro
-    // ) public returns (uint gasUsed, uint balance) {
-    //     gasUsed = gasleft();
-    //     IPool(pool).flashLoanSimple(
-    //         address(this),
-    //         tokenA,
-    //         loanAmount,
-    //         encode(intro, outro),
-    //         0
-    //     ); // Initiates flashloan with swap data
-    //     balance = IERC20(tokenB).balanceOf(address(this));
-    //     IERC20(tokenB).transfer(account, balance); // Transfers unswapped to account
-    //     if (tokenA != WETH) Trader.swap(tokenA, WETH); //Swaps all gross profit to WETh
-    //     gasUsed -= gasleft(); // Mesures gas used.
-    //     // gasUsed += 405000; //
-    //     gasUsed *= price; //Calculates total gas cost.
-    //     IWETH(WETH).withdraw(gasUsed); // Unwraps necessary WETH -> ETH
-    //     payable(msg.sender).transfer(gasUsed); // Sends ETH to account provided
-    //     Trader.swap(WETH, payment); // Reswaps all remaining WETH to payment desired
-    //     balance = IERC20(payment).balanceOf(address(this));
-    //     IERC20(payment).transfer(account, balance); // Transfers all profit to account.
-    //     // console.warn(false, "Artemis | B: ", balance, " | G: ", gasUsed);
-    //     // require(balance > 0, "UNPROFITABLE"); // Prevents profitless operations.
-    // }
 }
-//0x1E053796D7931E624Bd74c2cB4E4990bDcD8434A

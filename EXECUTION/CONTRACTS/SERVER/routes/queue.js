@@ -12,12 +12,11 @@ const inspect = (tag, res) =>
 
 module.exports = async function (fastify, opts) {
   fastify.post("/queue", async function (request, reply) {
-    const message = Object.keys(request.body).length
-      ? request.body
-      : request.query;
+    const flight = request.body
+    const { chainId } = request.query;
 
-    const from = message.from;
-    const to = message.to;
+    const from = flight.from;
+    const to = flight.to;
 
     const ticket = {
       from: from,
@@ -27,7 +26,7 @@ module.exports = async function (fastify, opts) {
     let flights;
     const tag = "Queue flights";
     const start = performance.now();
-    flights = await board(ticket.from, ticket.to);
+    flights = await board(ticket.from, ticket.to, chainId);
     const end = performance.now();
 
     const runtime = end - start;
@@ -36,8 +35,7 @@ module.exports = async function (fastify, opts) {
     const tradable = flights.length > 0;
     if (tradable) {
       console.log(
-        `\t🛬⌚${runtime < 1000 ? "🔥" : "🐢"} Flights Runtime: ${
-          runtime / 1000
+        `\t🛬⌚${runtime < 1000 ? "🔥" : "🐢"} Flights Runtime: ${runtime / 1000
         } seconds`
       );
       // console.log("Flights: ", flights);

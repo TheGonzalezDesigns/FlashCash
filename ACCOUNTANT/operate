@@ -1,0 +1,10 @@
+#!/bin/bash
+dir=$(pwd)
+
+cd ../BUREAU
+exchange=$(./exchange)
+network=$(./network)
+
+cd $dir
+
+./start $exchange $network &

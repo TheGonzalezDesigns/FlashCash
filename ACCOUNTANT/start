@@ -1,0 +1,49 @@
+#!/bin/bash
+
+exchange=$1
+network=$2
+vol=$3
+status=1
+errStatus=0
+relPath=../SOLUTIONS/networks/$2/
+
+if [[ -z $exchange ]]; then
+	echo "Error: Missing exchange."
+	status=0
+	errStatus=1
+fi
+
+if [[ -z $network ]]; then
+	echo "Error: Missing network."
+	status=0
+	errStatus=2
+fi
+
+exchange=$relPath/$exchange
+mrc=$(cat "$exchange/DATA/mrc")
+spread=$(cat "$exchange/DATA/spread")
+trailLimit=$(cat "$exchange/DATA/trailLimit")
+
+if [[ -z $vol ]]; then
+	vol=$(cat "$exchange/DATA/volatility")
+fi
+
+./header
+
+until [ $status -eq 0 ]; do
+	./header
+	./serve.sh \
+	&& echo "Ready to move money."
+	status=$?
+	if [[ $status -ne 0  ]]; then
+		sleep 5
+	fi
+
+done
+
+if [[ $status -eq 0 && $errStatus -eq 0 ]]; then
+	echo -e
+	echo "Deal with your problems by becoming rich..."
+	echo -e
+fi
+
