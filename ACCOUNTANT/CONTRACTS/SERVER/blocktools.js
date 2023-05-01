@@ -43,6 +43,7 @@ exports.getWETH = (chainID) => chains[chainID].WETH
 exports.compress = (amount) => `0x${BigInt(amount).toString(16)}`
 
 exports.getGasPrice = async (chainID) => {
+    console.log("Getting gas price...")
     const chainData = getMETA(chainID)
     const gasTracker = chainData.GASTRACKER;
     const response = await fetch(gasTracker);

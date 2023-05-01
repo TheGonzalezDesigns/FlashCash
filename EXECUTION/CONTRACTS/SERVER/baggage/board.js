@@ -11,7 +11,7 @@ const board = async (tin, tout, chainId) => {
     // console.log("res: ", package);
   } catch (e) {
     console.log(e);
-    throw Error("Flight Boarding Aborted");
+    throw "Flight Boarding Aborted"
   }
   try {
     const crate = [...package].map((op, i) => {

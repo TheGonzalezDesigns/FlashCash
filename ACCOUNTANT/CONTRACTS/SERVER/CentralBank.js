@@ -31,7 +31,7 @@ app.post("/centralbank", async (req, res) => {
   let { service, payload } = req.body;
   try {
     payload.chainID ||= process.centralstate.chainID;
-    console.log(`Payload for: ${service}`, payload)
+    console.log(`\t🏛  Payload for: ${service}`, payload)
     const feedback = await execute(service)(payload)
     res.send({ feedback });
   } catch (e) {
@@ -44,9 +44,9 @@ app.post("/centralbank", async (req, res) => {
 app.post("/centralstate", async (req, res) => {
   let state = req.query;
   try {
-    console.log("CentralState: ", state)
+    //console.log("CentralState: ", state)
     Object.keys(state).forEach(key => process.centralstate[key] = state[key])
-    console.log("CentralState: ", process.centralstate)
+    //console.log("CentralState: ", process.centralstate)
     res.send(process.centralstate);
   } catch (e) {
     console.error("CentralBank Error: ", e);

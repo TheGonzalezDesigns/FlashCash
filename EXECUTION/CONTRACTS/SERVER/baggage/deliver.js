@@ -1,5 +1,6 @@
 const deliver = async (profit, gas, fn, data) => {
 	const start = performance.now();
+	// console.log("Delivering...")
 
 	let state = {
 		transactions: 0,
@@ -16,6 +17,7 @@ const deliver = async (profit, gas, fn, data) => {
 	}
 
 	const init = () => {
+		// console.log("Initializing...")
 		state.profit = profit;
 		state.gas = gas;
 		state.allowance = Math.floor((state.profit / state.gas) * state.threshold);
@@ -23,14 +25,42 @@ const deliver = async (profit, gas, fn, data) => {
 		state.data = data
 	}
 
+	const printState = () => {
+		try {
+			console.log(`</${state.transactions}\\><[${state.transactions - state.permitted}]></${state.permitted}\\>`)
+
+			// console.info(`𐂲 T-${state.transactions}: `, state);
+			const copy = JSON.stringify(state)
+			let stats = JSON.parse(copy)
+			delete stats.data
+
+			let data = JSON.parse(copy)?.data
+			delete data.swaps
+			let gas = data?.gas
+			delete data.gas
+			let params = data?.params
+			delete data.params
+			let tokens = data?.tokens
+			delete data.tokens
+
+			// console.log("Stats:")
+			// console.table(stats)
+			// console.log("Data:")
+			console.log(data.trail)
+			// console.log("Gas:")
+			// console.table(gas)
+			// console.log("Params:")
+			// console.table(params)
+			// console.log("Tokens:")
+			// console.table(tokens)
+		} catch (e) {
+			console.error("printState Error: ", e)
+		}
+	}
+
 	const next = () => {
 
 		state.profitable = (state.permitted > 0) && (state.transactions < state.permitted)
-
-
-		//console.log(`</${state.transactions}\\><[${state.transactions - state.permitted}]></${state.permitted}\\>`)
-
-		//console.info(account());
 	}
 
 	const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
@@ -39,18 +69,82 @@ const deliver = async (profit, gas, fn, data) => {
 
 	const decAllowance = () => state.permitted -= Math.floor(state.allowance / 5);
 
-	const deploy = async () => {
+	const decipherError = err => {
+		let error = undefined;
+		try {
+			error = JSON.parse(err.error?.error?.body)?.error?.message;
+		} catch (e) {
+			error = err.reason;
+		}
+		error = error ? error : `Reason Unknown`;
+		if (error == "execution reverted")
+			error = `${err.code} | ${err.reason}`;
 
+		// if (
+		// 	error.includes("SERVER_ERROR") ||
+		// 	error === "execution reverted" ||
+		// 	error === "underflow" ||
+		// 	error === "overflow" ||
+		// 	error.includes("transaction failed")
+		// )
+		// 	console.error("SERVER ERROR:\t", err);
+		// if (error.includes("CALL_EXCEPTION") || error.includes("UNPREDICTABLE_GAS_LIMIT"))
+		// 	console.error("CALL_EXCEPTION:\t", "err");
+		if (error === `Reason Unknown`) {
+			// error = JSON.stringify(err)
+			console.error(err);
+		}
+
+		if (
+			error == "processing response error"
+		) {
+			console.error(err)
+			// console.error(Object.keys(err))
+		}
+		// console.error(err);
+		return error;
+	}
+
+	const deploy = async () => {
 		Promise.resolve(fn(state.data)).then(x => {
 			!!x && state.succeeded++;
 			!!x && addAllowance();
 			!!x || state.failed++;
 			!!x || decAllowance();
-			console.error("Entered Success:", x?.hash)
-			state.data = x;
+			console.error("\t🚀 Entered Success");
+			// console.error("\t🚀 Entered Success:", x);
+			printState()
+			state.data = x.vuelo;
 		}, error => {
-			console.error("Entered Failure:", error)
-			state.failed++
+			const err = decipherError(error);
+			if (err.includes("Swap")) {
+				if (err.includes("+")) {
+					console.error(`\t🚀 Entered Success: ${err}`);
+				} else console.error("\t☔ Entered Failure:", err);
+				printState();
+			} else if (err.includes("UNPREDICTABLE_GAS_LIMIT") || err.includes("cannot estimate gas") || err.includes("value out-of-bounds") || err.includes("failed to get consistent fee data") || err.includes("bad response") || err.includes("could not detect network")) {
+				if (err.includes("value out-of-bounds") || err.includes("failed to get consistent fee data") || err.includes("bad response") || err.includes("value out-of-bounds") || err.includes("failed to get consistent fee data") || err.includes("bad response") || err.includes("could not detect network"))
+					console.error("\t☔ Entered Server Failure:", err);
+				else
+					console.error("\t☔ Entered Server Failure:", err);
+				// printState();
+			} else if (err.includes("replacement fee too low")) {
+				console.error("\t☔ Entered Execution Failure:", err);
+			} else if (err.includes("Insufficient balance") || err.includes("Insufficient repayment") || err.includes("Reason Unknown")) {
+				// console.error("\t☔ Entered Execution Failure:", err);
+				// printState()
+			} /* if (err.includes("insufficient funds for intrinsic transaction cost")) {
+				if (error?.reciept !== null) console.error("\t☔ Entered Alternative Failure:", error?.reciept);
+				else console.error("\t☔ Entered Alternative Failure:", error);
+				// printState();
+			} else {
+				console.error("\t☔ Entered Failure:", error);
+				// console.error("\t☔ Entered Failure:", error);
+				// printState();
+			} */
+			console.error("\t☔ Entered Failure:", err);
+			// console.error("\t☔ Entered Failure:", err);
+			state.failed++;
 			decAllowance();
 		});
 
@@ -92,8 +186,8 @@ const deliver = async (profit, gas, fn, data) => {
 		}
 	}
 
-	if (profit > gas) {
-
+	if (profit > gas || true) {
+		// console.log("Repetition is profitable...")
 		init();
 
 		do {
@@ -101,17 +195,15 @@ const deliver = async (profit, gas, fn, data) => {
 
 			next();
 
-			await sleep(2000); //Soooo this is my work computer's limit may be able to remove this on an RTX
+			await sleep(10); //Soooo this is my work computer's limit may be able to remove this on an RTX
 
 		} while (state.profitable);
-
-		console.log(state)
-	}
+	} else console.log("Gas is higher than profit")
 
 	const end = performance.now();
 
 	state.runtime = end - start
-	console.log(`Runtime: ${state.runtime / 1000} seconds`)
+	// console.log(`Runtime: ${state.runtime / 1000} seconds`)
 	return account();
 }
 

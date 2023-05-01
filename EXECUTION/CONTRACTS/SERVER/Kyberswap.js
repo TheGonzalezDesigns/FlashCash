@@ -8,6 +8,7 @@ const swapper = ABI.address;
 const { RateLimiter } = require("limiter");
 const Bottleneck = require("bottleneck");
 const { Agent } = require("https");
+const { getChainedQuote: buildQuote } = require("../../TERMINAL/routes/swapper.js");
 
 const httpsAgent = new Agent({
   rejectUnauthorized: false,
@@ -74,6 +75,7 @@ app.get("/Kyberswap", async (req, res) => {
     amountIn,
     to,
     deadline,
+    slippageTolerance: 50
   };
   // console.log("params: ", params);
   let response = {};
@@ -134,8 +136,12 @@ app.get("/Kyberswap", async (req, res) => {
     let tokenF;
     let tokenL;
     try {
-      tokenF = tokens[tokenIn.toLowerCase()].name;
-      tokenL = tokens[tokenOut.toLowerCase()].name;
+      tokenF = tokens[tokenIn.toLowerCase()]?.name;
+      tokenL = tokens[tokenOut.toLowerCase()]?.name;
+
+      tokenInDecimals = tokens[tokenIn.toLowerCase()]?.decimals;
+      tokenOutDecimals = tokens[tokenOut.toLowerCase()]?.decimals;
+      // console.info(`${tokenIn}: ${tokenInDecimals}, ${tokenOut}: ${tokenOutDecimals}`)
     } catch (e) {
       console.error(e);
       console.error(tokenIndex);
@@ -194,6 +200,8 @@ app.get("/Kyberswap", async (req, res) => {
     finalRes.stats = stats;
     finalRes.tokenIn = tokenF;
     finalRes.tokenOut = tokenL;
+    finalRes.tokenInDecimals = tokenInDecimals;
+    finalRes.tokenOutDecimals = tokenOutDecimals;
     finalRes.tokenInAddress = tokenIn;
     finalRes.tokenOutAddress = tokenOut;
 
@@ -258,7 +266,7 @@ app.get("/Paraswap", async (req, res) => {
     }
   } catch (e) {
     if (e?.response?.status == 429) {
-      console.error("\t⛔ Paraswap Limit Reached");
+      // console.error("\t⛔ Paraswap Limit Reached");
       res.send({ error: "paraswap-LMT", status: true });
       return 0;
     }
@@ -279,7 +287,7 @@ app.get("/Paraswap", async (req, res) => {
   if (status - 200 == 0) {
     let data = response?.data;
     const userAddress = recipient;
-    const slippage = 10;
+    const slippage = 20;
     const ignoreChecks = true;
     const onlyParams = false;
     params = {
@@ -410,7 +418,7 @@ app.get("/Zeroswap", async (req, res) => {
   } catch (e) {
     // console.error(e);
     if (e?.response?.status == 429) {
-      console.error("\t⛔ Zeroswap Limit Reached");
+      // console.error("\t⛔ Zeroswap Limit Reached");
       res.send({ error: "Zeroswap-LMT", status: true });
       return 0;
     }
@@ -581,7 +589,7 @@ const test = async (api, res, period) => {
 const check = (api) => {
   if (!state.available[api]) {
     // console.error(`awaiting ${api}...\n`);
-    throw Error("Unavailable");
+    throw "API Unavailable"
   }
 };
 const inspect = (tag, res) =>
@@ -605,8 +613,8 @@ const Kyberswap = async (chain, chainId, tokenIn, tokenOut, amountIn) => {
 };
 
 const limiterKyberswap = new Bottleneck({
-  maxConcurrent: 10,
-  minTime: 50,
+  maxConcurrent: 20,
+  minTime: 250,
 });
 const wKyberswap = limiterKyberswap.wrap(Kyberswap);
 const Paraswap = async (chain, chainId, tokenIn, tokenOut, amountIn) => {
@@ -789,7 +797,7 @@ app.get("/quote", async (req, res) => {
 
     if (!responsive) {
       // console.log("Responses-N2: ", references);
-      throw Error("quote-NULL-2");
+      throw "quote-NULL-2"
     }
 
     const rates = [...references].map((quote) => {
@@ -953,7 +961,7 @@ app.get("/quote", async (req, res) => {
 
     if (finalRes.stats.profitability < -0.75) {
       //console.log(`\t📉 [:> ${optimal.tokenIn} => ${optimal.tokenOut}`);
-      throw Error("Unprofitable");
+      throw "Unprofitable"
     }
     // console.log("FinalRes: ", finalRes);
     // console.error("\t\t🪙");
@@ -975,7 +983,7 @@ app.get("/sell", async (req, res) => {
     // console.info("⚛");
     const queries = [
       // wOpenocean(chain, chainId, srcToken, destToken, amount),
-      Kyberswap(chain, chainId, srcToken, destToken, amount),
+      wKyberswap(chain, chainId, srcToken, destToken, amount),
       Paraswap(chain, chainId, srcToken, destToken, amount),
       Zeroswap(chain, chainId, srcToken, destToken, amount),
     ];
@@ -1017,7 +1025,7 @@ app.get("/sell", async (req, res) => {
 
     if (!responsive) {
       // console.log("Responses-N2: ", references);
-      throw Error("quote-NULL-2");
+      throw "quote-NULL-2"
     }
 
     // console.log("responses: ", responses);
@@ -1040,7 +1048,7 @@ app.get("/sell", async (req, res) => {
 
     if (!tradable) {
       // console.log("Responses-N2: ", references);
-      throw Error("quote-NULL-3");
+      throw "quote-NULL-3"
     } /* else console.log("kyberless: ", kyberless); */
 
     const rates = [...references].map((quote) => {
@@ -1221,12 +1229,12 @@ app.get("/sell", async (req, res) => {
     // console.log("Optimal: ", optimal);
 
     const finalRes = optimal;
-
-    if (finalRes.stats.profitability < -0.75) {
-      //console.log(`\t📉 [:> ${optimal?.tokenIn} => ${optimal?.tokenOut}`);
-      throw Error("Unprofitable");
-    }
     // console.log("FinalRes: ", finalRes);
+
+    if (finalRes.stats.profitability > -0.75) {
+      // console.log(`\t📉 [:> ${optimal?.tokenIn} => ${optimal?.tokenOut}`);
+      // throw "Unprofitable"
+    }
 
     // console.log("sorted[0]:  ", sorted[0]);
     // console.error("\t\t🪙");
@@ -1240,6 +1248,18 @@ app.get("/sell", async (req, res) => {
     return 0;
   }
 });
+app.post("/buildQuote", async (req, res) => {
+  let { chainId, price, slippage, tokens } = req.body;
+  try {
+    // console.log("BQ Params: ", req.body)
+    const quote = await buildQuote(chainId, price, slippage, ...tokens);
+    res.send({ quote });
+  } catch (e) {
+    // console.error("build quote error:", e)
+    res.send({ error: e })
+  }
+  return 0;
+})
 
 const PORT = 4444;
 const wave = () => console.log("\t🔌_.:KYBERSWAP TERMINAL READY:._");

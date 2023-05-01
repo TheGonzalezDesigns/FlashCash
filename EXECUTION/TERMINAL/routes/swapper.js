@@ -18,15 +18,17 @@ let sign = (...initials) => {
 const access = (chainId) => {
   const chain = chains[chainId];
   if (!chain)
-    throw Error(
-      `Swapper: Couldn't correlate chain ID #${chainId}, to any network on file.`
-    );
+    throw `Swapper: Couldn't correlate chain ID #${chainId}, to any network on file.`
   return chain;
 };
 
 const identify = (chainId) => access(chainId).name;
 
 const weth = (chainId) => access(chainId).weth;
+
+const stable = (chainId) => access(chainId).stable;
+
+const stables = (chainId) => access(chainId).stables;
 
 const vault = (chainId) => access(chainId).vault;
 
@@ -81,11 +83,11 @@ const bounce = async () => {
     ).text()
   );
   console.log("Bounce: ", status);
-  if (status) throw Error("BOUNCE");
+  if (status) throw "BOUNCE";
 };
 
 const deploy = async (flight) => {
-  const path = "deploy";
+  const path = "repeat";
   const ops = {
     method: "POST",
     headers: {
@@ -96,7 +98,7 @@ const deploy = async (flight) => {
   };
   return await fetch(`http://localhost:3000/${path}`, ops);
 };
-const wrap = (op, profit, profitability, runtime, gasRate, gasCost) => {
+const wrap = (op, chainId, pricePoint, slippage, grossProfit, profit, profitability, runtime, gasRate, gasCost, ...tokenSet) => {
   let tokens = [...op].map((y) => [y.tokenInAddress, y.tokenOutAddress]);
   let price = op.at(0).USDin;
   let swapDatas = [...op].map((swap) => swap.data);
@@ -123,9 +125,11 @@ const wrap = (op, profit, profitability, runtime, gasRate, gasCost) => {
   let data = {
     swaps: swaps,
     // params: params,
+    pricePoint,
     price: price,
     quote: quote,
     profit: profit,
+    grossProfit,
     profitability: profitability,
     total: total,
     fiatCode: op.at(0).fiatCode,
@@ -157,13 +161,25 @@ const wrap = (op, profit, profitability, runtime, gasRate, gasCost) => {
       .filter((v, i, a) => a[i - 1] !== a[i])
       .join(" > "),
     tokens: tokens,
+    decimals: [...op]
+      .map((y) => [y.tokenInDecimals, y.tokenOutDecimals])
+      .flat()
+      .join(" > "),
     amounts: [...op].map((y) => y.CRYin),
     tokenIn: tin,
     tokenOut: tout,
     loanAmount: op.at(0).CRYin,
     output: op.at(-1).CRYout,
+    params: {},
     runtime: time
   };
+  const params = {
+    chainId,
+    "price": pricePoint,
+    slippage,
+    "tokens": tokenSet
+  }
+  data.params = params;
   return data;
 }
 const Kyberswap = async (
@@ -291,6 +307,8 @@ const call = async (
       amountIn
     );
 
+    // console.log("Res: ", res)
+
     const { data, status, error, tag } = res;
     // if (status !== undefined) {
     //   // console.log("tag: ", tag);
@@ -298,7 +316,7 @@ const call = async (
     //   if (!!status) await pause(tag);
     //   else await resume(tag);
     // }
-    if (!!error) throw Error(error);
+    if (!!error) throw error;
     // console.log("call: ", res);
 
     const end = performance.now();
@@ -308,7 +326,7 @@ const call = async (
     //   } seconds`)
     return res;
   } catch (e) {
-    throw Error(e);
+    throw e
   }
 };
 
@@ -318,7 +336,7 @@ const estimatePrice = async (tokenIn, price) => {
     const amount = await res.text();
     return amount;
   } catch (e) {
-    throw Error("Price Estimation Failed");
+    throw "Price Estimation Failed";
   }
 };
 
@@ -352,13 +370,39 @@ const tradable = (
   //   );
   return acceptableProfitability && acceptableGasProfitability && acceptableProfit;
 };
+const isRisky = (gasRate, gwei, netProfit) => { //needs testing
+  const extract10 = n => Math.round(Math.log10(Math.ceil((n)))) + 1
+  const getAcceptableProfit = n => Number((`${n}e${extract10(n)}`))
+  // return false
+  const gasRateUSD = gasRate * gwei * 1e9
+  const gasLimit = 1.5e9
+  const costOfError = gasRateUSD * gasLimit;
+  const acceptableProfit = 1000 * costOfError
+  const acceptableGasUSD = getAcceptableProfit(costOfError)
+  const riskless = Math.round(costOfError) <= acceptableGasUSD
+  const worthIt = Math.round(netProfit) >= acceptableProfit
+  const safe = riskless || worthIt
+  const params = {
+    gasRateUSD,
+    gasLimit,
+    costOfError,
+    acceptableProfit,
+    acceptableGasUSD,
+    riskless,
+    worthIt,
+    safe
+  }
+  // console.log("Params: ", params)
+  return false
+  return !safe;
+}
 const profitable = (profit, profitability, price, gasProfitability) => {
-  const expectedProfitability = 0.0005; //.05
-  const expectedProfit = 0.0;
-  const expectedGasProfitability = 20
+  const expectedProfitability = 0.00; //.05
+  const expectedProfit = 0;
+  const expectedGasProfitability = 0
   price = price >= 1 ? `$${Number(price).toLocaleString()}` : `${price * 100}¢`;
   if (tradable(profit, profitability, expectedProfit, expectedProfitability, gasProfitability, expectedGasProfitability)) {
-    console.log(`\t${good()} [:>> ${price} 💸 ${profit}<<:]`);
+    // console.log(`\t${good()} [:>> ${price} 💸 ${profit} | ${profitability}%<<:]`);
     return true;
   } else {
     // console.log(
@@ -366,15 +410,15 @@ const profitable = (profit, profitability, price, gasProfitability) => {
     // );
     let reasons = "";
 
-    // if (profit > 0) { // eventually redesign
-    //   reasons += "∵ Lacking profit";
-    //   if (profitability < expectedProfitability)
-    //     reasons += " and profitability. ";
-    //   else reasons += ". ";
-    //   reasons += `∵ $${profit} | ${profitability.toPrecision(3)}%`;
-    // }
-    // const stats = `${profit} : ${profititability} : ${expectedProfit} : ${expectedProfititability}`;
-    // console.log(`\t${bad()} [:> ${price} ${reasons}`);
+    if (profit > 0) { // eventually redesign
+      reasons += "∵ Lacking profit";
+      if (profitability < expectedProfitability)
+        reasons += " and profitability. ";
+      else reasons += ". ";
+      reasons += `∵ $${profit} | ${profitability.toPrecision(3)}%`;
+    }
+    const stats = `profit: ${profit} ~ profitability: ${profitability} ~ gasProfitability: ${gasProfitability} ~ expectedProfit: ${expectedProfit} ~ expectedProfitability: ${expectedProfitability}  ~ expectedGasProfitability: ${expectedGasProfitability}`;
+    console.log(`\t${bad()} [:> ${price} ${reasons} | ${stats}`);
     return false;
   }
 };
@@ -409,18 +453,11 @@ const consumption = (type, ...movements) => {
 };
 
 const deltas = (type, ...movements) => {
-  //   console.log("deltas: ", movements);
   let movement = movements[0];
   let f = `[:> Delta Flow of ${type}:\t${delta(movement, movements[1])} `;
-  //   let r = "";
-  //   movements.forEach((x, i) => (r += `movem #${i}: ${movements[i]}\n`));
-  //   console.log(r);
-  //   console.log("movements[1]: ", movements[1]);
   for (let i = 2; i < movements.length; i++) {
     movement = movements[i];
     f += `=> ${delta(movements[i - 1], movements[i])} `;
-    // console.log(`=> \${delta(${movements[i - 1]}, ${movements[i]})} `);
-    // console.log(`=> \${delta(movement[${i - 1}], movements[${i}]}) `);
   }
   const start = movements.at(0);
   const end = movements.at(-1);
@@ -431,18 +468,11 @@ const deltas = (type, ...movements) => {
 };
 
 const heatmap = (type, ...movements) => {
-  //   console.log("heatmap: ", movements);
   let movement = movements[0];
   let f = `[:> Heatmap of ${type}:\t${zelta(movement, movements[1])} `;
-  //   let r = "";
-  //   movements.forEach((x, i) => (r += `movem #${i}: ${movements[i]}\n`));
-  //   console.log(r);
-  //   console.log("movements[1]: ", movements[1]);
   for (let i = 2; i < movements.length; i++) {
     movement = movements[i];
     f += `=> ${zelta(movements[i - 1], movements[i])} `;
-    // console.log(`=> \${zelta(${movements[i - 1]}, ${movements[i]})} `);
-    // console.log(`=> \${zelta(movement[${i - 1}], movements[${i}]}) `);
   }
   const start = movements.at(0);
   const end = movements.at(-1);
@@ -476,23 +506,18 @@ const trail = (...providers) => {
 };
 
 const track = (...movements) => {
-  // console.log("Movements: ", movements);
   flow("🪙 ", ...movements);
-
   deltas("🪙 ", ...movements);
-
   heatmap("🪙  Deltas", ...movements);
 };
 
 const trace = (...strategy) => {
-  // console.log("Trace Strategy: ", strategy);
   let movements = [];
   let addresses = [];
   let providers = [];
   let cryptos = [];
   let gas = [];
   [...strategy].forEach((movement) => {
-    // console.log("Movement: ", movement);
     addresses.push(movement.tokenIn);
     addresses.push(movement.tokenOut);
     providers.push(movement.provider);
@@ -503,11 +528,11 @@ const trace = (...strategy) => {
     cryptos.push(movement.CRYout);
   });
   follow(...addresses);
-  trail(...providers);
-  consumption("Gas", ...gas);
-  track(...movements);
-  // deltas("CRYPTO", ...cryptos);
-  // flow("CRYPTO", ...cryptos);
+  // trail(...providers);
+  // consumption("Gas", ...gas);
+  // track(...movements);
+  deltas("CRYPTO", ...cryptos);
+  flow("CRYPTO", ...cryptos);
 };
 
 const swap = async (
@@ -522,9 +547,7 @@ const swap = async (
   let trade = {};
   try {
     const chain = identify(chainId);
-    // console.log(
-    //   `\t\t\t\t\t=> call(tokenIn: ${tokenIn}, tokenOut: ${tokenOut}, amountIn: ${amountIn}, provider: ${provider})`
-    // );
+
     _ = await call(
       signature,
       chain,
@@ -533,10 +556,10 @@ const swap = async (
       tokenOut,
       amountIn,
       provider
-    ); //Minerva
-    // console.log("Swap: ", _);
+    );
+
     if (!_?.data || Object.keys(_.data).length < 1) {
-      throw Error("Trade Data Missing");
+      throw "Trade Data Missing";
     }
 
     trade.data = _.data;
@@ -552,23 +575,16 @@ const swap = async (
     trade.gasTotal = _.stats.gas.gasUsd;
     trade.tokenIn = _.tokenIn;
     trade.tokenOut = _.tokenOut;
+    trade.tokenInDecimals = _.tokenInDecimals;
+    trade.tokenOutDecimals = _.tokenOutDecimals;
     trade.tokenInAddress = _.tokenInAddress;
     trade.tokenOutAddress = _.tokenOutAddress;
     trade.provider = _.provider;
     trade.providerID = _.providerID;
     trade.rate = _.rate;
-    // trade.entryIsFiat = entryIsFiat(trade.data, chainId);
-    // trade.exitIsFiat = exitIsFiat(trade.data, chainId);
-    // trade.hasAnyFiat = hasAnyFiat(trade.data, chainId);
-
-    // console.log("swap: ", trade);
     return trade;
   } catch (e) {
-    // console.log("_: ", _);
-    // console.log("Trade: ", trade);
-    // console.error(e);
-    throw Error(e);
-    // throw Error("Swapper: Invalid or Unresolved Trade");
+    throw e;
   }
 };
 
@@ -582,22 +598,10 @@ const fuse = async (
 ) => {
   let fused;
   try {
-    // console.log(
-    //   `\t\t\t\t=> swap(${chainId}, ${tokenIn}, ${tokenOut}, ${amount})`
-    // );
     fused = await swap(signature, chainId, tokenIn, tokenOut, amount, provider);
-    // const USDin = _.USDin;
-    // const USDout = _.USDout;
-    // _.profit = profit(USDin, USDout);
-    // _.profit = profit(USDin, USDout);
-    // _.profitability = profitability(USDin, USDout);
-    // _.profitability = profitability(USDin, USDout);
-
-    // console.log("fused: ", fused);
     return fused;
   } catch (e) {
-    // console.log("Error fused: ", e);
-    throw Error(e);
+    throw e;
   }
 };
 
@@ -645,11 +649,13 @@ const weave = async (signature, chainId, entryAmount, slippage, ...tokens) => {
 };
 
 let getGas = (gwei, gasRate, ...strategy) => {
-  const flashLoanGasUsage = 180000 * gasRate * gwei * 1e9
-  const traderGasUsage = 405000 * gasRate * gwei * 1e9 * 0
-  const extraGasUsage = 300000 * gasRate * gwei * 1e9 * 0
+  // const flashLoanGasUsage = 180000 * gasRate * gwei * 1e9
+  // const traderGasUsage = 405000 * gasRate * gwei * 1e9 * 0
+  // const extraGasUsage = 300000 * gasRate * gwei * 1e9 * 0
+  const extraGasUsage = 189683 * gasRate * gwei * 1e9 * 0
+  const flashLoanGasUsage = 10000 * gasRate * gwei * 1e9
   const gasUsage = [...strategy].map((y) => y.gasTotal).reduce((x, y) => x + y)
-  const totalGasUsage = gasUsage + flashLoanGasUsage + traderGasUsage + extraGasUsage
+  const totalGasUsage = gasUsage + extraGasUsage //+ flashLoanGasUsage //+ traderGasUsage + extraGasUsage
   // console.log(`totalGasUsage: ${totalGasUsage} = + gasUsage: ${gasUsage} + flashLoanGasUsage: ${flashLoanGasUsage}`)
   return totalGasUsage;
 };
@@ -687,10 +693,72 @@ const getGwei = strategy => {
 
 const getProfitability = (profit, input) => profit / input;
 
+exports.getChainedQuote = async (chainId, price, slippage, ...tokens) => {
+  const entryToken = tokens[0];
+  const entryAmount = hexify(
+    BigInt(
+      Math.round(Number(await (await getAmount(entryToken, price)).text()))
+    )
+  );
+  const start = performance.now();
+  const strategy = await weave(
+    ["0x"],
+    chainId,
+    entryAmount,
+    slippage,
+    ...tokens
+  );
+
+  if (!Object.keys(strategy).length) throw `getChainedQuote: Incomplete Chain`;
+  const entry = strategy.at(0);
+  const exit = strategy.at(-1);
+  const input = entry.USDin;
+  const grossProfit = getGrossProfit(...strategy);
+
+  const profitability = getProfitability(grossProfit, input);
+
+  const gasRate = getGasrate(strategy);
+
+  const gwei = getGwei(strategy);
+
+  const gasUsage = getGas(gwei, gasRate, ...strategy);
+
+  const netProfit = getNetProfit(grossProfit, gasUsage, ...strategy);
+
+  const gasProfitability = getGasProfitability(gasUsage, grossProfit);
+  const end = performance.now();
+  const runtime = end - start;
+
+  const flight = wrap(strategy, chainId, price, slippage, grossProfit, netProfit, profitability, runtime, gasRate, gasUsage, ...tokens);
+  const tradable = (() => {
+    let amounts = flight.flow.split(` > `)
+    let decimals = flight.decimals.split(` > `)
+    return ((amounts.at(-1) * Math.pow(10, Number(decimals.at(0)))) > (amounts.at(0) * Math.pow(10, Number(decimals.at(-1)))))
+  })()
+  // console.log(flight)
+
+
+  // const risky = isRisky(gasRate, gwei, netProfit);
+
+  strategy.at(0).fiatCode = fiatCode(
+    { tokenIn: entry.tokenIn, tokenOut: exit.tokenOut },
+    chainId
+  );
+  // trace(...strategy);
+
+  if (!tradable) throw `getChainedQuote: Unprofitable swap @ U$D ${netProfit}`;
+  // trace(...strategy);
+  // if (risky) throw `Current gas prices are to risky @ GWEI ${gwei}`;
+
+  return flight;
+}
+
 const interlace = async (signature, chainId, price, slippage, ...tokens) => {
   // console.log("Interlace tokens: ", tokens);
   try {
-    const entryToken = tokens[0];
+    const entryToken = tokens[0].toLowerCase();
+    // let preTest = await (await getAmount(entryToken, price)).text();
+    // console.log(`<${entryToken}, ${price}> pretest: `, preTest)
     const entryAmount = hexify(
       BigInt(
         Math.round(Number(await (await getAmount(entryToken, price)).text()))
@@ -722,37 +790,46 @@ const interlace = async (signature, chainId, price, slippage, ...tokens) => {
     const netProfit = getNetProfit(grossProfit, gasUsage, ...strategy);
     // console.log("Interlacing profitability: ", profitability);
     const gasProfitability = getGasProfitability(gasUsage, grossProfit);
-    const tradable = profitable(netProfit, profitability, price, gasProfitability);
-    // const tradable = profitable(grossProfit, profitability, price); //switch this back!!
-    // const tokens = ;
+    // profitable(netProfit, profitability, price, gasProfitability);
+    const end = performance.now();
+    const runtime = end - start;
+
+    const flight = wrap(strategy, chainId, price, slippage, grossProfit, netProfit, profitability, runtime, gasRate, gasUsage, ...tokens);
+    const tradable = (() => {
+      let validDelta = (x, y, z) => (Math.abs(x - y) / x) * 100 <= z;
+      let amounts = flight.flow.split(` > `)
+      let decimals = flight.decimals.split(` > `)
+      let weightedAmount0 = (amounts.at(0) * Math.pow(10, Number(decimals.at(-1))))
+      let weightedAmount1 = (amounts.at(-1) * Math.pow(10, Number(decimals.at(0))))
+      let profitable = (weightedAmount1 > weightedAmount0);
+      let lossless = validDelta(weightedAmount0, weightedAmount1, 0.25)
+      return profitable //&&true || !profitable && lossless;
+    })()
+    // console.log(flight)
+
+
+    // const risky = isRisky(gasRate, gwei, netProfit);
+
     strategy.at(0).fiatCode = fiatCode(
       { tokenIn: entry.tokenIn, tokenOut: exit.tokenOut },
       chainId
     );
-
-    // console.log("Interlacing strat: ", strategy);
-    // return [];
+    // trace(...strategy);
 
     if (!tradable) return [];
-    const end = performance.now();
-    const runtime = end - start;
-    const flight = wrap(strategy, netProfit, profitability, runtime, gasRate, gasUsage);
 
     // console.log("strategy: ", strategy)
-    console.log("flight: ", flight)
+    // console.log("flight: ", flight)
 
-    // deploy(flight);
-    trace(...strategy);
+    // if (risky) throw `Current gas prices are to risky @ GWEI ${gwei}`;
+    deploy(flight);
+    console.log(`${flight.trail} : ${flight.tokens.join(' > ')} : ${flight.flow}`);
+    // trace(...strategy);
     // console.log(
     //   `\t\t⌚ [:> Runtime:\t\t\t${runtime < 1000 ? "🔥" : "🐢"} ${runtime / 1000
     //   } seconds`
     // );
-
-    // throw Error(`Interlace: Unprofitable swap @ -$${profit * -1}`);
-    // else console.log("interlace/strategy:", strategy);
-    // trace(...strategy);
     return [];
-    // return strategy;
   } catch (e) {
     const params = {
       chainId: chainId,
@@ -761,7 +838,7 @@ const interlace = async (signature, chainId, price, slippage, ...tokens) => {
       tokens: tokens,
     };
     console.error("Controlled: ", e);
-    // console.error("Params: ", params);
+    console.error("Params: ", params);
     return [];
   }
 };
@@ -775,13 +852,14 @@ const braid = async (
   ...tokens
 ) => {
   [bLimit, tLimit] = [tLimit, bLimit].sort();
-  const prices = Array.from(
+  let prices = Array.from(
     Array(Math.log10(tLimit) + 1 + Math.log10(bLimit) * -1).keys()
   )
     .map((x) => 10 ** (x + Math.log10(bLimit)))
-    .map((x) => Array.from([3, 5, 7, 8, 9], (y) => Number((y * x).toPrecision(1))))
+    .map((x) => Array.from([1/* , 2, 3 */], (y) => Number((y * x).toPrecision(1))))
     .flat();
   let trades = [];
+  // prices = [9.28332]
   for (let i = 0, price, res; i < prices.length; i++) {
     price = prices[i];
     // console.log(
@@ -842,7 +920,7 @@ const interweave = async (
     ); //hung up
     // console.log("int-res: ", res);
     interwoven.push(res);
-    await sleep(REM);
+    // await sleep(1000);
   }
   const end = performance.now();
 
@@ -868,12 +946,17 @@ const entwine = async (chainId, tokenIn, tokenOut, b, t) => {
       b,
       t, //100k // .0001
       fiats[i],
-      [fiat(), WETH, fiat()],
-      [fiat(), tokenOut, fiat()],
-      [fiat(), tokenIn, fiat()]
-      // [fiat(), tokenIn, tokenOut, fiat()],
+      // [tokenIn, tokenOut],
+      // [tokenOut, tokenIn],
+      // [fiat(), tokenOut]
+      // [fiat(), tokenOut]
+      // [fiat(), WETH],
+      // [fiat(), tokenOut, fiat()]
+      // [fiat(), tokenIn, fiat()],
+      // [fiat(), tokenIn],
+      // [fiat(), tokenOut],
       // [fiat(), tokenOut, tokenIn, fiat()],
-      // [WETH, fiat(), WETH],
+      // [WETH, fiat(), WETH]
       // [fiat(), tokenIn, WETH, tokenOut, fiat()],
       // [fiat(), tokenOut, WETH, tokenIn, fiat()],
       // [WETH, tokenOut, fiat(), tokenIn, WETH]
@@ -889,18 +972,85 @@ const entwine = async (chainId, tokenIn, tokenOut, b, t) => {
 
 const tangle = async (chainId, tokenIn, tokenOut, b, t) => {
   const WETH = weth(chainId);
+  const STABLE = stable(chainId);
+  const lead = "0x8D11eC38a3EB5E956B052f67Da8Bdc9bef8Abf3E"
 
   let entangled = await interweave(
     chainId,
-    0.005,
+    0.0005,
     b,
     t, //100k // .0001
     "0x",
-    [WETH, tokenIn, WETH],
-    [WETH, tokenOut, WETH]
+    // [STABLE, WETH],
+    // [tokenOut, WETH, tokenOut],
+    [WETH, tokenIn, tokenOut, WETH],
+    // [WETH, tokenOut],
+    // [WETH, tokenIn],
+    // [tokenIn, tokenOut, tokenIn],
+    // [tokenIn, tokenOut],
+    // [tokenOut, tokenIn],
+    // [tokenIn, WETH],
+    // [tokenOut, WETH],
+    // [STABLE, tokenOut, WETH],
+    // [STABLE, tokenIn, WETH],
+    // [STABLE, tokenIn, tokenOut, WETH],
+    // [tokenIn, tokenOut, WETH],
+    // [STABLE, WETH],
+    // [tokenOut, tokenIn, WETH],
+    // [WETH, tokenIn, WETH],
+    // [WETH, tokenOut, WETH]
     // [WETH, tokenIn, tokenOut, WETH],
     // [WETH, tokenOut, tokenIn, WETH]
+    // [lead, /* tokenIn, */ /* tokenOut, */ "0xE3a486C1903Ea794eED5d5Fa0C9473c7D7708f40"],
+    // [lead, /* tokenIn, */ /* tokenOut, */ "0xdc301622e621166BD8E82f2cA0A26c13Ad0BE355"],
+    // [lead, /* tokenIn, */ /* tokenOut, */ "0x4A89338A2079A01eDBF5027330EAC10B615024E5"],
+    // [lead, /* tokenIn, */ /* tokenOut, */ "0x4A89338A2079A01eDBF5027330EAC10B615024E5"],
+    // [lead, /* tokenIn, */ /* tokenOut, */ "0x5f0456F728E2D59028b4f5B8Ad8C604100724C6A"],
+    // [lead, /* tokenIn, */ /* tokenOut, */ "0x82f0B8B456c1A451378467398982d4834b6829c1"],
+    // [lead, /* tokenIn, */ /* tokenOut, */ "0x74E23dF9110Aa9eA0b6ff2fAEE01e740CA1c642e"],
+    // [lead, /* tokenIn, */ /* tokenOut, */ "0x049d68029688eAbF473097a2fC38ef61633A3C7A"],
+    // [lead, /* tokenIn, */ /* tokenOut, */ "0xfB98B335551a418cD0737375a2ea0ded62Ea213b"],
+    // [lead, /* tokenIn, */ /* tokenOut, */ "0x04068DA6C83AFCFA0e13ba15A6696662335D5B75"],
+    // ["0xE3a486C1903Ea794eED5d5Fa0C9473c7D7708f40", lead],
+    // ["0xdc301622e621166BD8E82f2cA0A26c13Ad0BE355", lead],
+    // ["0x4A89338A2079A01eDBF5027330EAC10B615024E5", lead],
+    // ["0x4A89338A2079A01eDBF5027330EAC10B615024E5", lead],
+    // ["0x5f0456F728E2D59028b4f5B8Ad8C604100724C6A", lead],
+    // ["0x82f0B8B456c1A451378467398982d4834b6829c1", lead],
+    // ["0x74E23dF9110Aa9eA0b6ff2fAEE01e740CA1c642e", lead],
+    // ["0x049d68029688eAbF473097a2fC38ef61633A3C7A", lead],
+    // ["0xfB98B335551a418cD0737375a2ea0ded62Ea213b", lead],
+    // ["0x04068DA6C83AFCFA0e13ba15A6696662335D5B75", lead],
+    // ["0x04068DA6C83AFCFA0e13ba15A6696662335D5B75", lead],
   );
+  const finalRes = entangled;
+  // console.log("Entangled Final Res: ", finalRes);
+  return finalRes;
+};
+
+const stabilize = async (chainId, tokenIn, tokenOut, b, t) => {
+  const WETH = weth(chainId);
+  const STABLES = stables(chainId);
+  const x = "0x82f0b8b456c1a451378467398982d4834b6829c1".toLocaleLowerCase()
+  const y = "0x04068da6c83afcfa0e13ba15a6696662335d5b75".toLocaleLowerCase()
+  // const OT = "0x74b23882a30290451a17c44f4f05243b6b58c76d";
+
+  const pairs = [...STABLES].map((l) => [...STABLES].map(r => l !== r ? [/* l, */ /* WETH, */ /* l,  */ /* r */] : []).filter(x => x.length > 0)).flat();
+
+
+  // pairs.forEach(x => console.table(x))
+
+  // console.table(pairs)
+  console.time("\n\tStabalizing")
+  let entangled = await interweave(
+    chainId,
+    0.0001,//.0005
+    b,
+    t, //100k // .0001
+    "0x",
+    ...pairs
+  )
+  console.timeEnd("\n\tStabalizing")
   const finalRes = entangled;
   // console.log("Entangled Final Res: ", finalRes);
   return finalRes;
@@ -909,13 +1059,17 @@ const tangle = async (chainId, tokenIn, tokenOut, b, t) => {
 const search = async (chainId, tokenIn, tokenOut, b, t) => {
   const start = performance.now();
   // await bounce();
-  const [entangled, entwined] = await Promise.all([
-    tangle(chainId, tokenIn, tokenOut, b, t),
-    entwine(chainId, tokenIn, tokenOut, b, t),
-  ]);
+  // const [entangled, entwined] = await Promise.all([
+  //   tangle(chainId, tokenIn, tokenOut, b, t),
+  //   entwine(chainId, tokenIn, tokenOut, b, t),
+  // ]);
+  // const entangled = await tangle(chainId, tokenIn, tokenOut, b, t)
+  // const entwined = await entwine(chainId, tokenIn, tokenOut, b, t)
+  const stabilized = await stabilize(chainId, tokenIn, tokenOut, b, t)
   // console.log("Entangled: ", entangled);
   // console.log("Entwined: ", entwined);
-  const found = [entangled, entwined].flat();
+  // const found = [entangled, entwined/* , stabilized */].flat();
+  const found = []
   const end = performance.now();
   const runtime = end - start;
   // console.log(`\tSearch: ${runtime / 1000} seconds`);
@@ -924,7 +1078,3 @@ const search = async (chainId, tokenIn, tokenOut, b, t) => {
 };
 
 module.exports.search = search;
-//
-// 0.01,
-// 0.1,
-// 0.0001, //100k // .0001

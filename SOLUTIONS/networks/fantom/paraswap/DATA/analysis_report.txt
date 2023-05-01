@@ -19,6 +19,10 @@ Chain Details:
   "name": "Fantom Opera",
   "chain": "FTM",
   "rpc": [{
+  "url": "https: //endpoints.omniatech.io/v1/fantom/mainnet/public",
+  "tracking": "none",
+  "trackingDetails": "All the data and metadata remain private to the users. No third party is able to access, analyze or track it. OMNIA leverages different technologies and approaches to guarantee the privacy of their users, from front-running protection and private mempools, to obfuscation and random dispatching. https: //blog.omniatech.io/how-omnia-handles-your-personal-data"
+},{
   "url": "https: //fantom-mainnet.gateway.pokt.network/v1/lb/62759259ea1b320039c9e7ac"
 },{
   "url": "https: //rpc.ftm.tools"
@@ -46,6 +50,10 @@ Chain Details:
   "url": "https: //fantom.blockpi.network/v1/rpc/public",
   "tracking": "limited",
   "trackingDetails": "We do not collect request data or request origin. We only temporarily record the request method names and IP addresses for 7 days to ensure our service functionality such as load balancing and DDoS protection. All the data is automatically deleted after 7 days and we do not store any user information for longer periods of time. https: //blockpi.io/privacy-policy"
+},{
+  "url": "https: //fantom.publicnode.com",
+  "tracking": "none",
+  "trackingDetails": "We do not store or track any user data with the exception of data that will be public on chain. We do not correlate wallets address's with IP's, any data which is needed to transact is deleted after 24 hours. We also do no use any Analytics or 3rd party website tracking. https: //www.publicnode.com/privacy"
 }],
   "faucets": ["https: //free-online-app.com/faucet-for-eth-evm-chains/"],
   "nativeCurrency": {
@@ -64,7 +72,7 @@ Chain Details:
   "icon": "ftmscan",
   "standard": "EIP3091"
 }],
-  "tvl": 581892434.3012241,
+  "tvl": 499013868.6396339,
   "chainSlug": "fantom"
 }
 ________________________________________________________________

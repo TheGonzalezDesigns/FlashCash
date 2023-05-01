@@ -61,13 +61,13 @@ _.get("/kyberswap/:chainId/:from/:to", async (c) => {
   const chainId = p("chainId");
   const tokenIn = p("from").toLowerCase();
   const tokenOut = p("to").toLowerCase();
-  const rL = .1;
-  const rT = 1; //.1 - .001
+  const rL = 10;
+  const rT = .1; //.1 - .001
   try {
     // console.log("\tSearching...");
-    const found = await search(chainId, tokenIn, tokenOut, rL, rT);
+    const found = search(chainId, tokenIn, tokenOut, rL, rT);
     // console.log("Found:", found);
-    return c.json(found);
+    return c.json([]);
   } catch (e) {
     console.error("Onchain error!", e);
   }

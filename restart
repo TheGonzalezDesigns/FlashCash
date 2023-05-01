@@ -1,6 +1,9 @@
 #!/bin/bash
 
 ./header
+cd ./ACCOUNTANT
+./operate &
+cd ..
 cd ./EXECUTION
 ./operate &
 cd ..

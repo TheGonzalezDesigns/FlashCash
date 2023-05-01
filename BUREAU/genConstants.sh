@@ -105,7 +105,7 @@ if [[ $status -eq 1 ]]; then
     if [[ -z $p || -z $t || -z $v || -z $s || -z $tl ]]; then
         echo "No input provided, defaulting variables."
         echo 1 > "$price"
-        echo "3" > "$time"
+        echo "30" > "$time"
         echo "lo" > "$vol"
         echo 5 > "$spread"
         echo 3 > "$trailLimit"

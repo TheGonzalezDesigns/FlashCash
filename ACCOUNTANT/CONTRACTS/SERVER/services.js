@@ -3,6 +3,8 @@ const { deploy, getAccount, getBalance: getNativeBalance, getWETH, compress, get
 const sleep = (delay) =>
     new Promise((resolve) => setTimeout(resolve, delay));
 
+const gwei = int => Number(`${int}e9`);
+
 const getInsuredGasPrice = async ({ chainID }) => {
     const quote = () => getgasprice(chainID);
     const accuracy = 3;
@@ -13,9 +15,42 @@ const getInsuredGasPrice = async ({ chainID }) => {
     }
     const avgPrices = (await Promise.all(quotes)).filter(price => !isNaN(price));
     const avgPrice = [...avgPrices].reduce((accumulator, currentValue) => accumulator + Number(currentValue), 0) / avgPrices.length;
-    const insuredPrice = avgPrice * 1.075
-    return { avgPrice, avgPrices, insuredPrice }
+    const insuredPrice = Math.round(avgPrice * 1.075)
+    const gasPrice = gwei(insuredPrice);
+    return gasPrice//{ avgPrice, avgPrices, insuredPrice }
 }
+// const getInsuredGasPrice = async ({ chainID }) => {
+//     let error
+//     let gasPrice
+//     const quote = () => getgasprice(chainID);
+//     try {
+//         gasPrice = await quote(chainID)
+//     } catch (e) {
+//         error = JSON.stringify(e);
+//         if (error.includes("underpriced")) {
+//             let gasPrice
+//             try {
+//                 const accuracy = 3;
+//                 const quotes = []
+//                 for (i = 0; i < accuracy; i++) {
+//                     quotes.push(quote());
+//                     await sleep(1250)
+//                 }
+//                 const avgPrices = (await Promise.all(quotes)).filter(price => !isNaN(price));
+//                 const avgPrice = [...avgPrices].reduce((accumulator, currentValue) => accumulator + Number(currentValue), 0) / avgPrices.length;
+//                 const insuredPrice = Math.round(avgPrice * 1.075)
+//                 gasPrice = insuredPrice
+//             } catch (e) {
+//                 console.error("Central Bank Gas Estimation", e);
+//                 throw Error("Central Bank Gas Estimation");
+//             }
+//             return (await (await WETH.deposit({ value: compress(amount), gasPrice: gwei(gasPrice) })).wait()).status;
+//         }
+//     }
+//     // return insuredPrice//{ avgPrice, avgPrices, insuredPrice }
+
+//     return gwei(gasPrice)
+// }
 const getGasPrice = async ({ chainID }) => await getgasprice(chainID)
 
 const getBalance = async ({ chainID }) => {
@@ -51,22 +86,31 @@ const getAllowance = async ({ token, spender, chainID }) => {
 const transfer = async ({ token, amount, recipient, chainID }) => {
     console.log("Transfering...")
     const ERC20 = deploy(token, "ERC20", chainID);
+    let error
+    let gasPrice
     try {
-        return (await (await ERC20.transfer(recipient, compress(amount))).wait()).status;
+        return (await (await ERC20.transfer(recipient, compress(amount), { gasPrice })).wait()).status;
     } catch (e) {
-        const error = JSON.stringify(e);
+        error = JSON.stringify(e);
         if (error.includes("underpriced")) {
-            let gasPrice
             try {
-                gasPrice = await getGasPrice({ chainID });
-                config.gasPrice = gasPrice
+                gasPrice = await getgasprice({ chainID });
+                console.log("Gas repiced at: ", gasPrice);
+                gasPrice = gwei(gasPrice)
+                return (await (await ERC20.transfer(recipient, compress(amount), { gasPrice })).wait()).status;
             } catch (e) {
-                console.error("Central Bank Gas Estimation", e);
-                throw Error("Central Bank Gas Estimation");
+                if (error.includes("underpriced")) {
+                    try {
+                        gasPrice = await getInsuredGasPrice({ chainID });
+                        console.log("Insuring gas price to: ", gasPrice);
+                        return (await (await ERC20.transfer(recipient, compress(amount), { gasPrice })).wait()).status;
+                    } catch (e) {
+                        console.error("Central Bank Gas Estimation", e);
+                        throw Error("Central Bank Gas Estimation");
+                    }
+                }
             }
-            return (await (await ERC20.transfer(recipient, compress(amount), { gasPrice })).wait()).status;
-        }
-        throw Error(e);
+        } else throw Error(e);
     }
 }
 
@@ -79,22 +123,31 @@ const transferAll = async ({ token, recipient, chainID }) => {
 const approve = async ({ token, amount, spender, chainID }) => {
     console.log("Approving...")
     const ERC20 = deploy(token, "ERC20", chainID);
+    let error
+    let gasPrice
     try {
-        return (await (await ERC20.approve(spender, compress(amount))).wait()).status;
+        return (await (await ERC20.approve(spender, compress(amount), { gasPrice })).wait()).status;
     } catch (e) {
-        const error = JSON.stringify(e);
+        error = JSON.stringify(e);
         if (error.includes("underpriced")) {
-            let gasPrice
             try {
-                gasPrice = await getGasPrice({ chainID });
-                config.gasPrice = gasPrice
+                gasPrice = await getgasprice({ chainID });
+                console.log("Gas repiced at: ", gasPrice);
+                gasPrice = gwei(gasPrice)
+                return (await (await ERC20.approve(spender, compress(amount), { gasPrice })).wait()).status;
             } catch (e) {
-                console.error("Central Bank Gas Estimation", e);
-                throw Error("Central Bank Gas Estimation");
+                if (error.includes("underpriced")) {
+                    try {
+                        gasPrice = await getInsuredGasPrice({ chainID });
+                        console.log("Insuring gas price to: ", gasPrice);
+                        return (await (await ERC20.approve(spender, compress(amount), { gasPrice })).wait()).status;
+                    } catch (e) {
+                        console.error("Central Bank Gas Estimation", e);
+                        throw Error("Central Bank Gas Estimation");
+                    }
+                }
             }
-            return (await (await ERC20.approve(spender, compress(amount), { gasPrice })).wait()).status;
-        }
-        throw Error(e);
+        } else throw Error(e);
     }
 }
 const approveAll = async ({ token, spender, chainID }) => {
@@ -106,22 +159,31 @@ const approveAll = async ({ token, spender, chainID }) => {
 const unwrap = async ({ amount, chainID }) => {
     console.log("Unwrapping...")
     const WETH = deploy(getWETH(chainID), "WETH", chainID);
+    let error
+    let gasPrice
     try {
-        return (await (await WETH.withdraw(compress(amount))).wait()).status;
+        return (await (await WETH.withdraw(compress(amount), { gasPrice })).wait()).status;
     } catch (e) {
-        const error = JSON.stringify(e);
+        error = JSON.stringify(e);
         if (error.includes("underpriced")) {
-            let gasPrice
             try {
-                gasPrice = await getGasPrice({ chainID });
-                config.gasPrice = gasPrice
+                gasPrice = await getgasprice({ chainID });
+                console.log("Gas repiced at: ", gasPrice);
+                gasPrice = gwei(gasPrice)
+                return (await (await WETH.withdraw(compress(amount), { gasPrice })).wait()).status;
             } catch (e) {
-                console.error("Central Bank Gas Estimation", e);
-                throw Error("Central Bank Gas Estimation");
+                if (error.includes("underpriced")) {
+                    try {
+                        gasPrice = await getInsuredGasPrice({ chainID });
+                        console.log("Insuring gas price to: ", gasPrice);
+                        return (await (await WETH.withdraw(compress(amount), { gasPrice })).wait()).status;
+                    } catch (e) {
+                        console.error("Central Bank Gas Estimation", e);
+                        throw Error("Central Bank Gas Estimation");
+                    }
+                }
             }
-            return (await (await WETH.withdraw(compress(amount), { gasPrice })).wait()).status;
-        }
-        throw Error(e);
+        } else throw Error(e);
     }
 }
 
@@ -134,23 +196,65 @@ const unwrapAll = async ({ chainID }) => {
 const wrap = async ({ amount, chainID }) => {
     console.log("Wrapping...")
     const WETH = deploy(getWETH(chainID), "WETH", chainID);
+    let error
+    let gasPrice
     try {
         return (await (await WETH.deposit({ value: compress(amount) })).wait()).status;
     } catch (e) {
-        const error = JSON.stringify(e);
+        error = JSON.stringify(e);
         if (error.includes("underpriced")) {
-            let gasPrice
             try {
-                gasPrice = await getGasPrice({ chainID });
+                gasPrice = await getgasprice({ chainID });
+                console.log("Gas repiced at: ", gasPrice);
+                gasPrice = gwei(gasPrice)
+                return (await (await WETH.deposit({ value: compress(amount), gasPrice })).wait()).status;
             } catch (e) {
-                console.error("Central Bank Gas Estimation", e);
-                throw Error("Central Bank Gas Estimation");
+                if (error.includes("underpriced")) {
+                    try {
+                        gasPrice = await getInsuredGasPrice({ chainID });
+                        console.log("Insuring gas price to: ", gasPrice);
+                        return (await (await WETH.deposit({ value: compress(amount), gasPrice })).wait()).status;
+                    } catch (e) {
+                        console.error("Central Bank Gas Estimation", e);
+                        throw Error("Central Bank Gas Estimation");
+                    }
+                }
             }
-            return (await (await WETH.deposit({ value: compress(amount), gasPrice })).wait()).status;
-        }
-        throw Error(e);
+        } else throw Error(e);
     }
 }
+// const getInsuredGasPrice = async ({ chainID }) => {
+//     let error
+//     let gasPrice
+//     const quote = () => getgasprice(chainID);
+//     try {
+//         gasPrice = await quote(chainID)
+//     } catch (e) {
+//         error = JSON.stringify(e);
+//         if (error.includes("underpriced")) {
+//             let gasPrice
+//             try {
+//                 const accuracy = 3;
+//                 const quotes = []
+//                 for (i = 0; i < accuracy; i++) {
+//                     quotes.push(quote());
+//                     await sleep(1250)
+//                 }
+//                 const avgPrices = (await Promise.all(quotes)).filter(price => !isNaN(price));
+//                 const avgPrice = [...avgPrices].reduce((accumulator, currentValue) => accumulator + Number(currentValue), 0) / avgPrices.length;
+//                 const insuredPrice = Math.round(avgPrice * 1.075)
+//                 gasPrice = insuredPrice
+//             } catch (e) {
+//                 console.error("Central Bank Gas Estimation", e);
+//                 throw Error("Central Bank Gas Estimation");
+//             }
+//             return (await (await WETH.deposit({ value: compress(amount), gasPrice: gwei(gasPrice) })).wait()).status;
+//         }
+//     }
+//     // return insuredPrice//{ avgPrice, avgPrices, insuredPrice }
+
+//     return gwei(gasPrice)
+// }
 
 
 const swap = async ({ tokenIn, tokenOut, amount, chainID }) => {

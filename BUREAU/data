@@ -1,0 +1,6 @@
+#!/bin/bash
+
+rel=$(./rel)
+data="$rel/DATA"
+
+echo $data

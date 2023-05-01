@@ -11,13 +11,13 @@ const ops = {
   credentials: true,
 };
 
-const I = require("./../interface.js");
+// const I = require("./../interface.js");
 
 const wave = () => console.info("\t🔌_.:BLOCKCHAIN TERMINAL READY:._");
 
 module.exports = async function (fastify, opts) {
-  const contract = await I.initialize();
-  const blockchain = I;
+  // const contract = await I.initialize();
+  // const blockchain = I;
   //console.log("Interface log:", Object.keys(I));
   //console.log("Blockchain log:", blockchain);
   // console.log("contract:", contract);
